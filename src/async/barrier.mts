@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 export class Barrier {
   readonly #resolvers: Array<() => void> = []
-  #paused: boolean = true
+  #paused: boolean
 
   /** Creates a new barrier in the given state. The default is paused: true */
   constructor(paused: boolean) {
@@ -37,6 +37,7 @@ export class Barrier {
 
   /** Pauses this barrier causing operations to wait. */
   public pause(): void {
+    this.dispatch()
     this.#paused = true
   }
 

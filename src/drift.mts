@@ -37,9 +37,9 @@ import { join, resolve } from 'node:path'
 
 function version() {
   const path = join(Platform.resolveDirname(import.meta.url), 'package.json')
-  if (!existsSync(path)) return 'unknown'
+  if (!existsSync(path)) return Color.White('0.8.1')
   const packageJson = JSON.parse(readFileSync(path, 'utf-8'))
-  return packageJson.version
+  return Color.White(packageJson.version)
 }
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
@@ -53,67 +53,46 @@ function userDir(commands: Command[]) {
 function print(command: string, ...params: any[]) {
   console.log(Color.Gray(command), ...params)
 }
-
-// --------------------------------------------------------------------
-// Banner
-// --------------------------------------------------------------------
-
-console.log(
-  Color.Gray(`
-     _      _  __ _   
-    | |    (_)/ _| |  
-  __| |_ __ _| |_| |_ 
- / _\` | '__| |  _| __/
-| (_| | |  | | | | |_ 
- \\__,_|_|  |_|_|  \\__|
-
-    version: ${version()}
-`),
-)
-
-// --------------------------------------------------------------------
-// Commands
-// --------------------------------------------------------------------
-
-const commands = Commands.parse()
-
-if (commands.find((command) => command.type === 'help')) {
+function banner() {
+  console.log(
+    Color.Gray(`
+        _      _  __ _   
+       | |    (_)/ _| |  
+     __| |_ __ _| |_| |_ 
+    / _\` | '__| |  _| __|
+   | (_| | |  | | | | |_ 
+    \\__,_|_|  |_|_|  \\__|
+  
+       version: ${version()}
+  `),
+  )
+}
+function help() {
   console.log(
     Color.Gray(
       `
     ┌────────────────────────┬─────────────────────────────────────────────────────────────────┐
-    │ Command                │ Description                                                     │
-    │                        │                                                                 │
+    │ command                │ description                                                     │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ url <url>              │ Loads this Url                                                  │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ run <path>             │ Loads a script into the current page                            │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ window                 │ Run with a chrome window                                        │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ size <w> <h>           │ Sets the chrome window size                                     │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ pos <x> <y>            │ Sets the chrome window position                                 │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ click <x> <y>          │ Send mousedown click event to the current page                  │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ save <path>            │ Save current page as png, jpeg or pdf format                    │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ user <path>            │ Sets the chrome user data directory                             │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ wait <ms>              │ Wait for the given milliseconds                                 │
-    │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ close                  │ Closes the drift process                                        │
-    │                        │                                                                 │
     └────────────────────────┴─────────────────────────────────────────────────────────────────┘
     `
         .split('\n')
@@ -121,8 +100,29 @@ if (commands.find((command) => command.type === 'help')) {
         .join('\n'),
     ),
   )
-
   process.exit(0)
+}
+
+// --------------------------------------------------------------------
+// Commands
+// --------------------------------------------------------------------
+
+const commands = Commands.parse()
+
+// --------------------------------------------------------------------
+// Help
+// --------------------------------------------------------------------
+
+if (commands.find((command) => command.type === 'help')) {
+  help()
+}
+
+// --------------------------------------------------------------------
+// Banner
+// --------------------------------------------------------------------
+
+if (commands.length === 0) {
+  banner()
 }
 
 // --------------------------------------------------------------------
@@ -135,8 +135,8 @@ const user = userDir(commands)
 const repl = new Repl()
 const browser = new Chrome({ port, user, verbose: false, headless })
 const session = new Session(await browser.webSocketDebuggerUrl(), repl)
-
 session.on('exit', (code) => browser.close().then(() => process.exit(code)))
+browser.on('exit', () => process.exit(0))
 
 // --------------------------------------------------------------------
 // Commands
@@ -196,7 +196,7 @@ for (const command of commands) {
 // Repl
 // --------------------------------------------------------------------
 
-print('repl', 'Use ctrl+c or close() to exit')
+print('ready', 'Use ctrl+c or close() to exit')
 
 repl.enable()
 

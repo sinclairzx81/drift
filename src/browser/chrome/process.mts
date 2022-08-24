@@ -27,6 +27,7 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { spawn, ChildProcess } from 'node:child_process'
+import { Events, EventHandler, EventListener } from '../../events/index.mjs'
 import { Retry } from '../../async/index.mjs'
 import { Request } from '../../request/index.mjs'
 import { ChromePath } from './path.mjs'
@@ -40,16 +41,29 @@ export interface ChromeOptions {
 
 export class Chrome {
   readonly #process: ChildProcess
+  readonly #events: Events
   readonly #port: number
 
   constructor(options: ChromeOptions) {
     const flags = options.headless ? [`--headless`, `--user-data-dir=${options.user}`, `--remote-debugging-port=${options.port}`] : [`--user-data-dir=${options.user}`, `--remote-debugging-port=${options.port}`]
     this.#port = options.port
+    this.#events = new Events()
     this.#process = spawn(ChromePath.get(), flags)
+    this.#process.on('exit', () => this.onExit())
     if (options.verbose) {
       this.#process.stderr?.setEncoding('utf-8')
       this.#process.stderr!.on('data', (data) => console.log(data))
     }
+  }
+
+  public once(event: 'exit', handler: EventHandler<void>): EventListener
+  public once(event: string, handler: EventHandler<any>): EventListener {
+    return this.#events.once(event, handler)
+  }
+
+  public on(event: 'exit', handler: EventHandler<void>): EventListener
+  public on(event: string, handler: EventHandler<any>): EventListener {
+    return this.#events.on(event, handler)
   }
 
   public async webSocketDebuggerUrl(): Promise<string> {
@@ -63,5 +77,9 @@ export class Chrome {
 
   public async close(): Promise<void> {
     this.#process.kill()
+  }
+
+  private onExit() {
+    this.#events.send('exit', void 0)
   }
 }

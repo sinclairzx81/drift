@@ -50,30 +50,25 @@ export class Exception extends Error {
 }
 
 // ------------------------------------------------------------------------
-// Context
+// Session
 // ------------------------------------------------------------------------
 
 export class Session {
   readonly #resolver: ValueResolver
   readonly #devtools: DevToolsInterface.DevTools
-  readonly #contexts: Map<number, string>
   readonly #repl: Repl
   readonly #events: Events
-  readonly #barrier: Barrier
+  readonly #console: Barrier
+  readonly #ready: Barrier
 
-  constructor(endpoint: string, repl: Repl) {
-    this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(endpoint))
+  constructor(websocketDebuggerEndpoint: string, repl: Repl) {
     this.#repl = repl
+    this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(websocketDebuggerEndpoint))
     this.#resolver = new ValueResolver(this.#devtools)
-    this.#contexts = new Map<number, string>()
     this.#events = new Events()
-    this.#barrier = new Barrier(true)
+    this.#console = new Barrier(true)
+    this.#ready = new Barrier(true)
     this.setup().catch((error) => console.error(error))
-  }
-
-  /** Gets this contexts devtools instance */
-  public get devtools() {
-    return this.#devtools
   }
 
   /** Subscribes once to exit calls made from the page */
@@ -104,12 +99,53 @@ export class Session {
     await this.#devtools.Network.enable({})
     await this.#devtools.Runtime.enable({})
     await this.#devtools.Page.enable({})
-    this.#barrier.resume()
+    this.#console.resume()
+    this.#ready.resume()
   }
 
-  /** Sets the window position */
+  // ---------------------------------------------------------------
+  // Interface
+  // ---------------------------------------------------------------
+
+  /** Runs the given script in the page */
+  public async run(code: string): Promise<void> {
+    await this.#ready.wait()
+    const expression = `(async function () { ${code} })();`
+    const result = await this.#devtools.Runtime.evaluate({ expression })
+    if (result.exceptionDetails) {
+      return this.onExceptionThrown({
+        exceptionDetails: result.exceptionDetails,
+        timestamp: Date.now(),
+      })
+    }
+  }
+
+  public async evaluate(expression: string): Promise<void> {
+    await this.#ready.wait()
+    this.#console.pause()
+
+    const result = await this.#devtools.Runtime.evaluate({ expression })
+    if (result.exceptionDetails) {
+      this.#console.resume()
+      const error = new Error(result.exceptionDetails.exception?.description)
+      return this.consoleError(error)
+    }
+
+    // if the result is undefined and the expression has a console call, we
+    // need to need to suspend the console barrier and wait for the console
+    // log event to resume.
+    const value = await this.#resolver.resolve(result.result)
+    if (value === undefined && expression.includes('console.')) {
+      await this.#console.wait() // resumed on console event
+    }
+
+    this.#repl.disable()
+    console.log(value)
+    this.#repl.enable()
+  }
+
   public async position(x: number, y: number) {
-    await this.#barrier.wait()
+    await this.#ready.wait()
     const target = await this.#devtools.Browser.getWindowForTarget({})
     await this.#devtools.Browser.setWindowBounds({
       windowId: target.windowId,
@@ -117,9 +153,8 @@ export class Session {
     })
   }
 
-  /** Sets the window size */
   public async size(width: number, height: number) {
-    await this.#barrier.wait()
+    await this.#ready.wait()
     const viewport: DevToolsInterface.Page.Viewport = { scale: 1, x: 0, y: 0, width, height }
     const target = await this.#devtools.Browser.getWindowForTarget({})
     await this.#devtools.Browser.setWindowBounds({
@@ -138,28 +173,24 @@ export class Session {
     })
   }
 
-  /** Navigates the page to the given url */
   public async navigate(url: string): Promise<void> {
-    await this.#barrier.wait()
+    await this.#ready.wait()
     await this.#devtools.Page.navigate({ url })
-    this.#barrier.pause()
+    this.#ready.pause()
   }
 
-  /** Captures a image screenshot of the current page */
   public async image(format: 'png' | 'jpeg'): Promise<Uint8Array> {
-    await this.#barrier.wait()
+    await this.#ready.wait()
     const result = await this.#devtools.Page.captureScreenshot({ format })
     return Buffer.from(result.data, 'base64')
   }
 
-  /** Captures a pdf of the current page */
   public async pdf(): Promise<Uint8Array> {
-    await this.#barrier.wait()
+    await this.#ready.wait()
     const result = await this.#devtools.Page.printToPDF({})
     return Buffer.from(result.data, 'base64')
   }
 
-  /** Sends a synthetic mousedown event to the page */
   public async click(x: number, y: number) {
     function toButtonsMask(buttons: string[]): number {
       let mask = 0
@@ -168,7 +199,7 @@ export class Session {
       if (buttons.includes('middle')) mask |= 4
       return mask
     }
-    await this.#barrier.wait()
+    await this.#ready.wait()
     await this.#devtools.Input.dispatchMouseEvent({
       type: 'mousePressed',
       timestamp: Date.now(),
@@ -182,55 +213,41 @@ export class Session {
     })
   }
 
-  /** Runs the given script into the page */
-  public async run(code: string): Promise<void> {
-    await this.#barrier.wait()
-    const expression = `(async function () { ${code} })();`
-    const result = await this.#devtools.Runtime.evaluate({ expression })
-    if (result.exceptionDetails) {
-      return this.onExceptionThrown({
-        exceptionDetails: result.exceptionDetails,
-        timestamp: Date.now(),
-      })
-    }
-  }
+  // ---------------------------------------------------------------
+  // Console Output
+  // ---------------------------------------------------------------
 
-  /** Evaluates the given expression in the current page */
-  public async evaluate(expression: string): Promise<void> {
-    await this.#barrier.wait()
-    const result = await this.#devtools.Runtime.evaluate({ expression })
-    if (result.exceptionDetails) {
-      return this.onExceptionThrown({
-        exceptionDetails: result.exceptionDetails,
-        timestamp: Date.now(),
-      })
-    }
-    const value = await this.#resolver.resolve(result.result)
+  private consoleLog(...args: any[]) {
     this.#repl.disable()
-    console.log(value)
+    console.log(...args)
     this.#repl.enable()
   }
 
+  private consoleError(...args: any[]) {
+    this.#repl.disable()
+    console.log(Color.red, ...args, Color.esc)
+    this.#repl.enable()
+  }
+
+  // ---------------------------------------------------------------
+  // Events
+  // ---------------------------------------------------------------
+
   private async onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
-    // report url on context change
     const history = await this.#devtools.Page.getNavigationHistory({})
     const current = history.entries[history.entries.length - 1]
     if (new URL(current.url).origin === event.context.origin) {
-      this.#repl.disable()
-      console.log(Color.Gray('url'), current.url)
-      this.#repl.enable()
+      this.consoleLog(Color.Gray('ready'), current.url)
     }
-    // attach window.close()
-    this.#contexts.set(event.context.id, event.context.origin)
     await this.#devtools.Runtime.evaluate({
       contextId: event.context.id,
       expression: `window.close = function(code = 0) { console.log('<<close>>', code) }`,
     })
-    this.#barrier.resume()
+    this.#ready.resume()
   }
 
   private async onExecutionContextDestroyed(event: DevToolsInterface.Runtime.ExecutionContextDestroyedEvent) {
-    this.#contexts.delete(event.executionContextId)
+    // todo: not implemented
   }
 
   private async onLoadEventFired(event: DevToolsInterface.Page.LoadEventFiredEvent) {
@@ -241,63 +258,19 @@ export class Session {
     const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
     if (args.length === 2 && args[0] === '<<close>>') {
       return this.#events.send('exit', args[1])
+    } else {
+      if (event.type === 'error') {
+        this.consoleError(...args)
+      } else {
+        this.consoleLog(...args)
+      }
+      this.#console.resume()
     }
-    this.#repl.disable()
-    switch (event.type) {
-      case 'assert':
-        console.assert(...args)
-        break
-      case 'clear':
-        console.clear()
-        break
-      case 'count':
-        console.count(...args)
-        break
-      case 'debug':
-        console.debug(...args)
-        break
-      case 'dir':
-        console.dir(...args)
-        break
-      case 'dirxml':
-        console.dirxml(...args)
-        break
-      case 'endGroup':
-        console.groupEnd()
-        break
-      case 'error':
-        console.error(...args)
-        break
-      case 'info':
-        console.info(...args)
-        break
-      case 'log':
-        console.log(...args)
-        break
-      case 'profile':
-        console.profile(...args)
-        break
-      case 'profileEnd':
-        console.profileEnd(...args)
-        break
-      case 'table':
-        console.table(...args)
-        break
-      case 'trace':
-        console.trace(...args)
-        break
-      case 'warning':
-        console.warn(...args)
-        break
-    }
-    this.#repl.enable()
   }
 
   private onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
     const exception = new Exception(event.exceptionDetails)
     this.#events.send('close', exception)
-    this.#repl.disable()
-    console.error(Color.red, exception, Color.esc)
-    this.#repl.enable()
+    this.consoleError(exception)
   }
 }

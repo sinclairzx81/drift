@@ -220,7 +220,7 @@ export class ValueResolver {
   }
 
   private async resolveUndefined(object: DevToolsInterface.Runtime.RemoteObject): Promise<any> {
-    return 'undefined'
+    return undefined
   }
 
   private async resolveAny(object: DevToolsInterface.Runtime.RemoteObject, depth: number) {
