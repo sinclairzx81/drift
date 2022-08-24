@@ -229,6 +229,11 @@ export class Session {
     this.#repl.enable()
   }
 
+  private consoleClear() {
+    this.#repl.disable()
+    console.clear()
+    this.#repl.enable()
+  }
   // ---------------------------------------------------------------
   // Events
   // ---------------------------------------------------------------
@@ -259,10 +264,18 @@ export class Session {
     if (args.length === 2 && args[0] === '<<close>>') {
       return this.#events.send('exit', args[1])
     } else {
-      if (event.type === 'error') {
-        this.consoleError(...args)
-      } else {
-        this.consoleLog(...args)
+      switch (event.type) {
+        case 'clear': {
+          this.consoleClear()
+          break
+        }
+        case 'error': {
+          this.consoleError(...args)
+          break
+        }
+        default: {
+          this.consoleLog(...args)
+        }
       }
       this.#console.resume()
     }
