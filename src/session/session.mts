@@ -103,7 +103,6 @@ export class Session {
     await this.#devtools.Network.enable({})
     await this.#devtools.Runtime.enable({})
     await this.#devtools.Page.enable({})
-    await this.viewport(1920, 1080)
     this.#barrier.resume()
   }
 
