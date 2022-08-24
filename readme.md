@@ -24,9 +24,9 @@ $ drift url http://localhost:5000
 
 ## Overview
 
-Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It provides an interactive repl that allows code to be executed in a remote Chrome instance, and pipes browser logging back over stdout. It is built to assist with developing non visual browser APIs by allowing the browser to be started and debugged entirely within a terminal window.
+Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It provides an interactive repl that allows code to be executed in a remote Chrome instance and pipes browser logging back over stdout. It is built to allow for non visual browser functionality (such as WebRTC and IndexedDB) to be developed and tested entirely from within the terminal.
 
-Drift is written to be a Node like tool for running JavaScript in constrained browser environments. It can be used for general purpose scripting, or as a tool to test non-visual browser functionality within CI environments.
+Drift is designed to be a Node like tool for running JavaScript in constrained browser environments. It can be useful for general purpose scripting, browser automation workflows and testing browser code within CI environments.
 
 License MIT
 
@@ -39,7 +39,7 @@ License MIT
 
 ## Commands
 
-Drift accepts a sequence of commands at the command line. Each command is run in turn and performs some action on the underlying Chrome instance. Typically one would use the `url` or `run` command to start a an application, however Drift provides several other commands that can be used in automation testing.
+Drift accepts a sequence of commands at the command line. Each command is run in turn and performs some action on the underlying Chrome instance. Typically one would use the `url` or `run` command to start an application, however Drift provides several other commands that can be used in automation workflows.
 
 ```bash
 $ drift [...command]
@@ -75,7 +75,7 @@ The following commands are supported
 
 ## Examples
 
-The following shows a few examples
+The following are a few examples
 
 ```bash
 # starts the drift repl.
@@ -101,7 +101,7 @@ $ drift window run index.ts wait 5000 close
 ```
 
 ```bash
-# loads github.com, waits 4 seconds and takes a screenshot.
+# loads github.com, waits 4 seconds then takes a screenshot.
 
 $ drift url https://github.com wait 4000 save screenshot.png
 ```
