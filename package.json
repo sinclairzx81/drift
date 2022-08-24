@@ -1,0 +1,41 @@
+{
+  "name": "@sinclair/drift",
+  "description": "Run Chrome from the Terminal",
+  "version": "0.8.0",
+  "author": "sinclairzx81",
+  "keywords": [
+    "chrome",
+    "node",
+    "automation",
+    "scripting",
+    "testing"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sinclairzx81/drift"
+  },
+  "type": "module",
+  "main": "index.mjs",
+  "bin": {
+    "drift": "./start"
+  },
+  "scripts": {
+    "clean": "hammer task clean",
+    "format": "hammer task format",
+    "codegen": "hammer task codegen",
+    "start": "hammer task start",
+    "build": "hammer task build"
+  },
+  "devDependencies": {
+    "@sinclair/hammer": "^0.17.1",
+    "@types/node": "^18.7.11",
+    "@types/ws": "^8.5.3",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "esbuild": "^0.15.5",
+    "ws": "^8.8.1"
+  }
+}
