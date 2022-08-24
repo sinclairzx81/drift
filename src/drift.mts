@@ -67,7 +67,7 @@ console.log(
 | (_| | |  | | | | |_ 
  \\__,_|_|  |_|_|  \\__|
 
-  version: ${version()}
+    version: ${version()}
 `),
 )
 
