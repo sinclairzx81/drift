@@ -19,20 +19,14 @@ $ npm install -g @sinclair/drift
 ## Example
 
 ```bash
-$ drift run index.ts                            # run index.ts
-
-$ drift url http://localhost:5000               # load localhost:5000
-
-$ drift url http://localhost:5000 run index.ts  # load localhost:5000 then run index.ts
+$ drift url http://localhost:5000
 ```
 
 ## Overview
 
-Drift is a command line tool to run Chrome from the terminal. It is built upon the Chrome DevTools Protocol (CDP) and enables one to automate and run code within Chrome using a similar command line interface to Node. Drift integrates the DevTools Console directly into the terminal and redirects browser logging to stdout. It also implements a repl for interactive scripting.
+Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It provides an interactive repl that allows code to be executed in a remote Chrome instance, and pipes browser logging back over stdout. It is built to assist with developing non visual browser APIs by allowing the browser to be started and debugged entirely within a terminal window.
 
-Drift was written to enable browser software to be built with workflows similar to Node development. It is orientated towards developing non-UI browser functionality (such as WebRTC, IndexedDB) without requiring an open browser window. Drift can be used as a general purpose scripting environment or as an ultra lean alternative to existing browser testing tools.
-
-Built against Chrome 104.0.5112 and Node v18.4.0
+Drift is written to be a Node like tool for running JavaScript in constrained browser environments. It can be used for general purpose scripting, or as a tool to test non-visual browser functionality within CI environments.
 
 License MIT
 
@@ -45,7 +39,7 @@ License MIT
 
 ## Commands
 
-Drift accepts commands for its arguments where each command is run in sequence. When all commands have completed Drift will enter an interactive repl similar to the Chrome Console. You can chain multiple commands to create automated workflows. To ensure Drift exits once all commands complete, use `close` as the last command.
+Drift accepts a sequence of commands at the command line. Each command is run in turn and performs some action on the underlying Chrome instance. Typically one would use the `url` or `run` command to start a an application, however Drift provides several other commands that can be used in automation testing.
 
 ```bash
 $ drift [...command]
@@ -84,32 +78,37 @@ The following commands are supported
 The following shows a few examples
 
 ```bash
-# start -> repl
+# starts the drift repl.
 
 $ drift
 ```
-
 ```bash
-# start -> run index.ts -> repl
+# loads github.com.
 
-$ drift index.ts
+$ drift url http://github.com
 ```
 
 ```bash
-# start -> open window -> run index.ts -> wait 5 seconds -> close
+# loads and executes index.ts.
+
+$ drift run index.ts
+```
+
+```bash
+# starts a window, executes index.ts, waits 5 seconds then closes.
 
 $ drift window run index.ts wait 5000 close
 ```
 
 ```bash
-# start -> load github.com -> wait 4 seconds -> save screenshot -> repl
+# loads github.com, waits 4 seconds and takes a screenshot.
 
-$ drift nav https://github.com wait 4000 save screenshot.png
+$ drift url https://github.com wait 4000 save screenshot.png
 ```
 
 ## Testing
 
-Drift runs code in the browser environment as standard with the exception of `window.close(...)`. Drift patches this function to enable browser scripts to terminate the Drift host process with an optional exit code. This functionality enables browser scripts to take part in automated testing workflows on CI environments.
+Drift modifies the `window.close(...)` function to allow browser scripts to terminate the Drift process from within a page. Scripts can call `window.close(...)` with an optional exit code. This functionality allows Drift to be used in CI environments that interpret non zero exit codes as errors.
 
 ```typescript
 test().then(() => window.close(0)).catch(() => window.close(1))
