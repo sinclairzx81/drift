@@ -33,7 +33,7 @@ import { existsSync } from 'node:fs'
 // Commands
 // -------------------------------------------------------------------------
 
-export type Command = ClickCommand | CloseCommand | HelpCommand | NavCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | WaitCommand | WindowCommand
+export type Command = ClickCommand | CloseCommand | HelpCommand | NavCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | WaitCommand | WindowCommand
 
 export interface ClickCommand {
   type: 'click'
@@ -52,6 +52,12 @@ export interface HelpCommand {
 export interface NavCommand {
   type: 'nav'
   url: string
+}
+
+export interface PosCommand {
+  type: 'pos'
+  x: number
+  y: number
 }
 
 export interface SaveCommand {
@@ -149,6 +155,12 @@ export namespace Commands {
     return { type: 'nav', url: parseUrl(params) }
   }
 
+  function parsePos(params: string[]): PosCommand {
+    const x = parseInteger(params)
+    const y = parseInteger(params)
+    return { type: 'pos', x, y }
+  }
+
   function parseRun(params: string[]): RunCommand {
     return { type: 'run', path: parseInputPath(params.shift()!) }
   }
@@ -197,6 +209,10 @@ export namespace Commands {
           }
           case 'nav': {
             yield parseNav(params)
+            break
+          }
+          case 'pos': {
+            yield parsePos(params)
             break
           }
           case 'run': {

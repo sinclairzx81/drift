@@ -67,7 +67,7 @@ console.log(
 | (_| | |  | | | | |_ 
  \\__,_|_|  |_|_|  \\__|
 
-   version: ${version()}
+  version: ${version()}
 `),
 )
 
@@ -93,7 +93,10 @@ if (commands.find((command) => command.type === 'help')) {
     │ window                 │ Run with a chrome window                                        │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ size <w> <h>           │ Sets the viewport size.                                         │
+    │ size <w> <h>           │ Sets the window size                                            │
+    │                        │                                                                 │
+    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
+    │ pos <x> <y>            │ Sets the window position                                        │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ click <x> <y>          │ Emit mousedown event to the current page                        │
@@ -108,7 +111,7 @@ if (commands.find((command) => command.type === 'help')) {
     │ wait <ms>              │ Wait for the given milliseconds                                 │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ close                  │ Ends the drift process                                          │
+    │ close                  │ Closes the drift process                                        │
     │                        │                                                                 │
     └────────────────────────┴─────────────────────────────────────────────────────────────────┘
     `
@@ -151,7 +154,7 @@ for (const command of commands) {
       break
     }
     case 'save': {
-      print('capture', command.path)
+      print('save', command.path)
       if (command.format !== 'pdf') {
         await writeFile(command.path, await session.image(command.format))
       } else {
@@ -161,7 +164,12 @@ for (const command of commands) {
     }
     case 'size': {
       print('size', command.width, command.height)
-      await session.viewport(command.width, command.height)
+      await session.size(command.width, command.height)
+      break
+    }
+    case 'pos': {
+      print('pos', command.x, command.y)
+      await session.position(command.x, command.y)
       break
     }
     case 'click': {

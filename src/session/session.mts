@@ -100,17 +100,42 @@ export class Session {
     this.#devtools.Runtime.on('executionContextDestroyed', (event) => this.onExecutionContextDestroyed(event))
     this.#devtools.Runtime.on('consoleAPICalled', (event) => this.onConsoleApiCalled(event))
     this.#devtools.Runtime.on('exceptionThrown', (event) => this.onExceptionThrown(event))
+    this.#devtools.Page.on('loadEventFired', (event) => this.onLoadEventFired(event))
     await this.#devtools.Network.enable({})
     await this.#devtools.Runtime.enable({})
     await this.#devtools.Page.enable({})
     this.#barrier.resume()
   }
 
+  /** Sets the window position */
+  public async position(x: number, y: number) {
+    await this.#barrier.wait()
+    const target = await this.#devtools.Browser.getWindowForTarget({})
+    await this.#devtools.Browser.setWindowBounds({
+      windowId: target.windowId,
+      bounds: { left: x, top: y, windowState: 'normal' },
+    })
+  }
+
   /** Sets the window size */
-  public async viewport(width: number, height: number) {
+  public async size(width: number, height: number) {
     await this.#barrier.wait()
     const viewport: DevToolsInterface.Page.Viewport = { scale: 1, x: 0, y: 0, width, height }
-    await this.#devtools.Emulation.setDeviceMetricsOverride({ width, height, deviceScaleFactor: 1, mobile: false, screenWidth: width, screenHeight: height, viewport })
+    const target = await this.#devtools.Browser.getWindowForTarget({})
+    await this.#devtools.Browser.setWindowBounds({
+      windowId: target.windowId,
+      bounds: { width, height, windowState: 'normal' },
+    })
+    await this.#devtools.Emulation.setDeviceMetricsOverride({
+      width,
+      height,
+      scale: 1,
+      deviceScaleFactor: 1,
+      mobile: false,
+      screenWidth: width,
+      screenHeight: height,
+      viewport,
+    })
   }
 
   /** Navigates the page to the given url */
@@ -187,6 +212,19 @@ export class Session {
   }
 
   private async onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
+    // -----------------------------------------------------------------
+    // report current page on context change
+    // -----------------------------------------------------------------
+    const history = await this.#devtools.Page.getNavigationHistory({})
+    const current = history.entries[history.entries.length - 1]
+    if (new URL(current.url).origin === event.context.origin) {
+      this.#repl.disable()
+      console.log(Color.Blue('page'), current.url)
+      this.#repl.enable()
+    }
+    // -----------------------------------------------------------------
+    // attach window.close()
+    // -----------------------------------------------------------------
     this.#contexts.set(event.context.id, event.context.origin)
     await this.#devtools.Runtime.evaluate({
       contextId: event.context.id,
@@ -197,6 +235,10 @@ export class Session {
 
   private async onExecutionContextDestroyed(event: DevToolsInterface.Runtime.ExecutionContextDestroyedEvent) {
     this.#contexts.delete(event.executionContextId)
+  }
+
+  private async onLoadEventFired(event: DevToolsInterface.Page.LoadEventFiredEvent) {
+    // note: not implemented
   }
 
   private async onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {

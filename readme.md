@@ -67,7 +67,10 @@ The following commands are supported
 │ window                 │ Run with a chrome window                                        │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ size <w> <h>           │ Sets the viewport size.                                         │
+│ size <w> <h>           │ Sets the window size                                            │
+│                        │                                                                 │
+├────────────────────────┼─────────────────────────────────────────────────────────────────┤
+│ pos <x> <y>            │ Sets the window position                                        │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ click <x> <y>          │ Emit mousedown event to the current page                        │
