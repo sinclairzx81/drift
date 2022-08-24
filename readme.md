@@ -45,7 +45,7 @@ License MIT
 
 ## Commands
 
-Drift accepts commands for its arguments. Each command is run in sequence. When all commands have run; Drift will enter an interactive repl mode similar to the Chrome Console. You can pass an zero or more commands to run. To have Drift exit once each command is completed, ensure the last command is `close`.
+Drift accepts commands for its arguments where each command is run in sequence. When all commands have completed Drift will enter an interactive repl similar to the Chrome Console. You can chain multiple commands to create automated workflows. To ensure Drift exits once all commands complete, use `close` as the last command.
 
 ```bash
 $ drift [...command]
@@ -58,28 +58,28 @@ The following commands are supported
 │ Command                │ Description                                                     │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ run <path>             │ Run script on the current page                                  │
+│ url <url>              │ Loads this Url                                                  │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ url <url>              │ Sets the current page to the given url                          │
+│ run <path>             │ Loads a script into the current page                            │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ window                 │ Run with a chrome window                                        │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ size <w> <h>           │ Sets the window size                                            │
+│ size <w> <h>           │ Sets the chrome window size                                     │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ pos <x> <y>            │ Sets the window position                                        │
+│ pos <x> <y>            │ Sets the chrome window position                                 │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ click <x> <y>          │ Emit mousedown event to the current page                        │
+│ click <x> <y>          │ Send mousedown click event to the current page                  │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ save <path>            │ Saves screenshot in Png, Jpg or Pdf format                      │
+│ save <path>            │ Save current page as png, jpeg or pdf format                    │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ user <path>            │ Sets the user data directory                                    │
+│ user <path>            │ Sets the chrome user data directory                             │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ wait <ms>              │ Wait for the given milliseconds                                 │

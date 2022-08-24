@@ -27,8 +27,8 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { Platform, Color, Build, Chrome, Session, Repl, Commands, Delay, Command, UserCommand } from './index.mjs'
-import { writeFile } from 'node:fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 
 // --------------------------------------------------------------------
@@ -60,14 +60,14 @@ function print(command: string, ...params: any[]) {
 
 console.log(
   Color.Gray(`
-       _      _  __ _   
-      | |    (_)/ _| |  
-    __| |_ __ _| |_| |_ 
-   / _\` | '__| |  _| __/
-  | (_| | |  | | | | |_ 
-   \\__,_|_|  |_|_|  \\__|
-  
-    version: ${version()}
+     _      _  __ _   
+    | |    (_)/ _| |  
+  __| |_ __ _| |_| |_ 
+ / _\` | '__| |  _| __/
+| (_| | |  | | | | |_ 
+ \\__,_|_|  |_|_|  \\__|
+
+  version: ${version()}
 `),
 )
 
@@ -79,33 +79,34 @@ const commands = Commands.parse()
 
 if (commands.find((command) => command.type === 'help')) {
   console.log(
-    `
+    Color.Gray(
+      `
     ┌────────────────────────┬─────────────────────────────────────────────────────────────────┐
     │ Command                │ Description                                                     │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ nav <url>              │ Navigate page to the given url                                  │
+    │ url <url>              │ Loads this Url                                                  │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ run <path>             │ Run script on the current page                                  │
+    │ run <path>             │ Loads a script into the current page                            │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ window                 │ Run with a chrome window                                        │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ size <w> <h>           │ Sets the window size                                            │
+    │ size <w> <h>           │ Sets the chrome window size                                     │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ pos <x> <y>            │ Sets the window position                                        │
+    │ pos <x> <y>            │ Sets the chrome window position                                 │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ click <x> <y>          │ Emit mousedown event to the current page                        │
+    │ click <x> <y>          │ Send mousedown click event to the current page                  │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ save <path>            │ Saves an image or pdf of the current page                       │
+    │ save <path>            │ Save current page as png, jpeg or pdf format                    │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ user <path>            │ Sets the user data directory                                    │
+    │ user <path>            │ Sets the chrome user data directory                             │
     │                        │                                                                 │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
     │ wait <ms>              │ Wait for the given milliseconds                                 │
@@ -115,9 +116,10 @@ if (commands.find((command) => command.type === 'help')) {
     │                        │                                                                 │
     └────────────────────────┴─────────────────────────────────────────────────────────────────┘
     `
-      .split('\n')
-      .map((n) => n.trim())
-      .join('\n'),
+        .split('\n')
+        .map((n) => n.trim())
+        .join('\n'),
+    ),
   )
 
   process.exit(0)
