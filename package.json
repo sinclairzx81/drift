@@ -18,14 +18,15 @@
   "type": "module",
   "main": "index.mjs",
   "bin": {
-    "drift": "./start"
+    "drift": "./drift"
   },
   "scripts": {
     "clean": "hammer task clean",
     "format": "hammer task format",
     "codegen": "hammer task codegen",
     "start": "hammer task start",
-    "build": "hammer task build"
+    "build": "hammer task build",
+    "publish": "hammer task publish"
   },
   "devDependencies": {
     "@sinclair/hammer": "^0.17.1",
