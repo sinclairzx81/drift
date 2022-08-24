@@ -61,7 +61,7 @@ export class Repl implements Read<string> {
 
   /** Enables the terminal prompt. Calling this function will reset the input prompt. */
   public enable() {
-    this.#interface.setPrompt(Color.Blue('> '))
+    this.#interface.setPrompt(Color.Gray('> '))
     this.#interface.prompt(true)
   }
 

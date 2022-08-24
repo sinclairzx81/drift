@@ -21,9 +21,9 @@ $ npm install -g @sinclair/drift
 ```bash
 $ drift run index.ts                            # run index.ts
 
-$ drift nav http://localhost:5000               # visit localhost:5000
+$ drift url http://localhost:5000               # load localhost:5000
 
-$ drift nav http://localhost:5000 run index.ts  # visit localhost:5000 then run index.ts
+$ drift url http://localhost:5000 run index.ts  # load localhost:5000 then run index.ts
 ```
 
 ## Overview
@@ -58,10 +58,10 @@ The following commands are supported
 │ Command                │ Description                                                     │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ nav <url>              │ Navigate page to the given url                                  │
+│ run <path>             │ Run script on the current page                                  │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ run <path>             │ Run script on the current page                                  │
+│ url <url>              │ Sets the current page to the given url                          │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ window                 │ Run with a chrome window                                        │
@@ -76,7 +76,7 @@ The following commands are supported
 │ click <x> <y>          │ Emit mousedown event to the current page                        │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ save <path>            │ Saves an image or pdf of the current page                       │
+│ save <path>            │ Saves screenshot in Png, Jpg or Pdf format                      │
 │                        │                                                                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ user <path>            │ Sets the user data directory                                    │
@@ -113,7 +113,7 @@ $ drift window run index.ts wait 5000 close
 ```
 
 ```bash
-# start -> nav github -> wait 4 seconds -> save screenshot -> repl
+# start -> load github.com -> wait 4 seconds -> save screenshot -> repl
 
 $ drift nav https://github.com wait 4000 save screenshot.png
 ```

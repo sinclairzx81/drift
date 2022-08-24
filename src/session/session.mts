@@ -159,7 +159,7 @@ export class Session {
     return Buffer.from(result.data, 'base64')
   }
 
-  /** Send a synthetic mousedown event to the page */
+  /** Sends a synthetic mousedown event to the page */
   public async click(x: number, y: number) {
     function toButtonsMask(buttons: string[]): number {
       let mask = 0
@@ -212,19 +212,15 @@ export class Session {
   }
 
   private async onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
-    // -----------------------------------------------------------------
-    // report current page on context change
-    // -----------------------------------------------------------------
+    // report url on context change
     const history = await this.#devtools.Page.getNavigationHistory({})
     const current = history.entries[history.entries.length - 1]
     if (new URL(current.url).origin === event.context.origin) {
       this.#repl.disable()
-      console.log(Color.Blue('page'), current.url)
+      console.log(Color.Gray('url'), current.url)
       this.#repl.enable()
     }
-    // -----------------------------------------------------------------
     // attach window.close()
-    // -----------------------------------------------------------------
     this.#contexts.set(event.context.id, event.context.origin)
     await this.#devtools.Runtime.evaluate({
       contextId: event.context.id,

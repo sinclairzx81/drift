@@ -51,7 +51,7 @@ function userDir(commands: Command[]) {
 
 /** Prints standard command message */
 function print(command: string, ...params: any[]) {
-  console.log(Color.Blue(command), ...params)
+  console.log(Color.Gray(command), ...params)
 }
 
 // --------------------------------------------------------------------
@@ -60,14 +60,14 @@ function print(command: string, ...params: any[]) {
 
 console.log(
   Color.Gray(`
-     _      _  __ _   
-    | |    (_)/ _| |  
-  __| |_ __ _| |_| |_ 
- / _\` | '__| |  _| __/
-| (_| | |  | | | | |_ 
- \\__,_|_|  |_|_|  \\__|
-
-  version: ${version()}
+       _      _  __ _   
+      | |    (_)/ _| |  
+    __| |_ __ _| |_| |_ 
+   / _\` | '__| |  _| __/
+  | (_| | |  | | | | |_ 
+   \\__,_|_|  |_|_|  \\__|
+  
+    version: ${version()}
 `),
 )
 
@@ -142,8 +142,8 @@ session.on('exit', (code) => browser.close().then(() => process.exit(code)))
 
 for (const command of commands) {
   switch (command.type) {
-    case 'nav': {
-      print('nav', command.url)
+    case 'url': {
+      print('url', command.url)
       await session.navigate(command.url)
       break
     }

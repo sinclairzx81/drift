@@ -33,7 +33,7 @@ import { existsSync } from 'node:fs'
 // Commands
 // -------------------------------------------------------------------------
 
-export type Command = ClickCommand | CloseCommand | HelpCommand | NavCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | WaitCommand | WindowCommand
+export type Command = ClickCommand | CloseCommand | HelpCommand | UrlCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | WaitCommand | WindowCommand
 
 export interface ClickCommand {
   type: 'click'
@@ -49,8 +49,8 @@ export interface HelpCommand {
   type: 'help'
 }
 
-export interface NavCommand {
-  type: 'nav'
+export interface UrlCommand {
+  type: 'url'
   url: string
 }
 
@@ -136,10 +136,9 @@ export namespace Commands {
     return parseInt(input)
   }
 
-  function parseUrl(params: string[]): string {
-    const input = params.shift()!
-    if (!isUrlString(input)) throw Error('Expected Url')
-    return input
+  function parseUrlString(url: string): string {
+    if (!isUrlString(url)) throw Error('Expected Url')
+    return url
   }
 
   function parseHelp(params: string[]): HelpCommand {
@@ -151,8 +150,8 @@ export namespace Commands {
     return { type: 'user', path }
   }
 
-  function parseNav(params: string[]): NavCommand {
-    return { type: 'nav', url: parseUrl(params) }
+  function parseUrl(params: string[]): UrlCommand {
+    return { type: 'url', url: parseUrlString(params.shift()!) }
   }
 
   function parsePos(params: string[]): PosCommand {
@@ -207,8 +206,8 @@ export namespace Commands {
             yield parseUser(params)
             break
           }
-          case 'nav': {
-            yield parseNav(params)
+          case 'url': {
+            yield parseUrl(params)
             break
           }
           case 'pos': {
