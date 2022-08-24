@@ -1,4 +1,5 @@
 import { DevToolsCodeGen } from './.build/codegen/devtools/index'
+import { readFileSync } from 'node:fs'
 
 // ---------------------------------------------------------------------
 // Clean
@@ -40,7 +41,7 @@ export async function start(...args) {
 export async function build() {
   await clean()
   await shell('tsc -p src/tsconfig.json --outDir target/build --declaration')
-  await folder('target/build').add('src/drift')
+  await folder('target/build').add('src/start.mjs')
   await folder('target/build').add('readme.md')
   await folder('target/build').add('license')
   await folder('target/build').add('package.json')
@@ -53,8 +54,7 @@ export async function build() {
 
 export async function publish(otp, target = 'target/build') {
   const { version } = JSON.parse(readFileSync('package.json', 'utf8'))
-  console.log(version)
-  // await shell(`cd ${target} && npm publish sinclair-drift-${version}.tgz --access=public --otp ${otp}`)
+  await shell(`cd ${target} && npm publish sinclair-drift-${version}.tgz --access=public --otp ${otp}`)
 }
 
 // ---------------------------------------------------------------------
