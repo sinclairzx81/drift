@@ -58,7 +58,6 @@ export class Session {
   readonly #devtools: DevToolsInterface.DevTools
   readonly #repl: Repl
   readonly #events: Events
-  readonly #console: Barrier
   readonly #ready: Barrier
 
   constructor(websocketDebuggerEndpoint: string, repl: Repl) {
@@ -66,7 +65,6 @@ export class Session {
     this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(websocketDebuggerEndpoint))
     this.#resolver = new ValueResolver(this.#devtools)
     this.#events = new Events()
-    this.#console = new Barrier(true)
     this.#ready = new Barrier(true)
     this.setup().catch((error) => console.error(error))
   }
@@ -99,7 +97,6 @@ export class Session {
     await this.#devtools.Network.enable({})
     await this.#devtools.Runtime.enable({})
     await this.#devtools.Page.enable({})
-    this.#console.resume()
     this.#ready.resume()
   }
 
@@ -120,33 +117,26 @@ export class Session {
     }
   }
 
-  public async evaluate(expression: string): Promise<void> {
+  public async evaluate(expression: string): Promise<unknown> {
     await this.#ready.wait()
 
-    this.#console.pause()
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
-      this.#console.resume()
       const error = new Error(result.exceptionDetails.exception?.description)
       return this.consoleError(error)
     }
 
     // -----------------------------------------------------------------------
-    // If the result is undefined or the expression looks like a console call,
-    // we need to need suspend writing to the console and wait for the
-    // consoleAPICalled. This event will resume the console barrier. This
-    // allows Drift to emit in the same order as Node.
-    // -----------------------------------------------------------------------
+    // If the expression looks like a console call, we need defer writing to
+    // the console and allow the event consoleAPICalled time to fire. This
+    // allows Drift to emit console messages in the same order as Node.
+    // ----------------------------------------------------------------------
 
     const value = await this.#resolver.resolve(result.result)
     const regex = /console\.((log)|(warn)|(table)|(error))\([^\)]*\)/
-    if (value === undefined && regex.test(expression)) {
-      await this.#console.wait() // resumed on console event
-    }
-
-    this.#repl.disable()
-    console.log(value)
-    this.#repl.enable()
+    return regex.test(expression)
+      ? setTimeout(() => this.consoleLog(value), 50) // consoleAPICalled first
+      : this.consoleLog(value)
   }
 
   public async position(x: number, y: number) {
@@ -283,7 +273,6 @@ export class Session {
           this.consoleLog(...args)
         }
       }
-      this.#console.resume()
     }
   }
 
