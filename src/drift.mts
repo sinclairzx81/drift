@@ -32,15 +32,8 @@ import { writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 
 // --------------------------------------------------------------------
-// Utilities
+// Util Functions
 // --------------------------------------------------------------------
-
-function version() {
-  const path = join(Platform.resolveDirname(import.meta.url), 'package.json')
-  if (!existsSync(path)) return Color.White('0.8.10')
-  const packageJson = JSON.parse(readFileSync(path, 'utf-8'))
-  return Color.White(packageJson.version)
-}
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
 function userdir(commands: Command[]) {
@@ -48,11 +41,19 @@ function userdir(commands: Command[]) {
   if (command === undefined) return join(Platform.resolveDirname(import.meta.url), 'user')
   return resolve(command.path)
 }
+/** Resolves the current package version */
+function version() {
+  const path = join(Platform.resolveDirname(import.meta.url), 'package.json')
+  if (!existsSync(path)) return Color.White('0.8.10')
+  const packageJson = JSON.parse(readFileSync(path, 'utf-8'))
+  return Color.White(packageJson.version)
+}
 
 /** Prints standard command message */
-function print(command: string, ...params: any[]) {
+function log(command: string, ...params: any[]) {
   console.log(Color.Gray(command), ...params)
 }
+
 function banner() {
   console.log(
     Color.Gray(`
@@ -74,16 +75,9 @@ Format:
 
 Examples:
 
-  # load page
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')}
-  
-  # load script
   $ drift ${Color.Gray('run')} ${Color.Blue('script.ts')}
-
-  # load page then load script into page
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('run')} ${Color.Blue('script.ts')}
-
-  # load page, wait one second then take screenshot
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('wait')} ${Color.Blue('1000')} ${Color.Gray('save')} ${Color.Blue('screenshot.png')}
 
 Commands:
@@ -97,6 +91,7 @@ Commands:
   ${Color.Gray('click')}   ${Color.Blue('<x> <y>')}  Send mousedown event to the current url.
   ${Color.Gray('wait')}    ${Color.Blue('<ms>')}     Wait for the given milliseconds.
   ${Color.Gray('window')}  ${Color.Blue('')}         Run with desktop window.
+  ${Color.Gray('verbose')} ${Color.Blue('')}         Run with chrome process logging
   ${Color.Gray('help')}    ${Color.Blue('')}         Lists available commands.
   ${Color.Gray('close')}   ${Color.Blue('')}         Closes the drift process.
   `)
@@ -131,12 +126,19 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 const headless = commands.find((command) => command.type === 'window') === undefined
+const verbose = commands.find((command) => command.type === 'verbose') !== undefined
 const user = userdir(commands)
 const repl = new Repl()
-const browser = await ChromeStart.start({ user, headless, verbose: false })
+const browser = await ChromeStart.start({ user, headless, verbose })
 const session = new Session(await browser.webSocketDebuggerUrl, repl)
 session.on('exit', (code) => browser.close().then(() => process.exit(code)))
 browser.on('exit', () => process.exit(0))
+browser.on('log', (content) => {
+  repl.disable()
+  console.log(Color.Blue(content))
+  repl.enable()
+})
+
 
 // --------------------------------------------------------------------
 // Commands
@@ -145,28 +147,27 @@ browser.on('exit', () => process.exit(0))
 for (const command of commands) {
   switch (command.type) {
     case 'click': {
-      print('viewport', command.x, command.y)
+      log('viewport', command.x, command.y)
       await session.click(command.x, command.y)
       break
     }
     case 'close': {
-      print('close')
+      log('close')
       await browser.close()
       process.exit(0)
     }
     case 'run': {
-      print('run', command.path)
-      const code = Build.build(command.path)
-      await session.run(code)
+      log('run', command.path)
+      await session.run(Build.build(command.path))
       break
     }
     case 'pos': {
-      print('pos', command.x, command.y)
+      log('pos', command.x, command.y)
       await session.position(command.x, command.y)
       break
     }
     case 'save': {
-      print('save', command.path)
+      log('save', command.path)
       if (command.format !== 'pdf') {
         await writeFile(command.path, await session.image(command.format))
       } else {
@@ -175,17 +176,17 @@ for (const command of commands) {
       break
     }
     case 'size': {
-      print('size', command.width, command.height)
+      log('size', command.width, command.height)
       await session.size(command.width, command.height)
       break
     }
     case 'url': {
-      print('url', command.url)
+      log('url', command.url)
       await session.navigate(command.url)
       break
     }
     case 'wait': {
-      print('wait', command.ms)
+      log('wait', command.ms)
       await Delay.wait(command.ms)
       break
     }
@@ -196,7 +197,7 @@ for (const command of commands) {
 // Drift !!
 // --------------------------------------------------------------------
 
-print('drift', 'Use ctrl+c or close() to exit')
+log('drift', 'Use ctrl+c or close() to exit')
 
 repl.enable()
 

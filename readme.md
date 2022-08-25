@@ -63,6 +63,7 @@ Commands:
   click   <x> <y>  Send mousedown event to the current url.
   wait    <ms>     Wait for the given milliseconds.
   window           Run with desktop window.
+  verbose          Run with chrome process logging
   help             Lists available commands.
   close            Closes the drift process.
 ```

@@ -84,15 +84,15 @@ export class Chrome {
     this.#process.on('exit', () => this.onExit())
     if (verbose) {
       this.#process.stderr?.setEncoding('utf-8')
-      this.#process.stderr!.on('data', (data) => console.log(data))
+      this.#process.stderr!.on('data', (data) => this.#events.send('log', data))
     }
   }
-
+  public once(event: 'log', handler: EventHandler<string>): EventListener
   public once(event: 'exit', handler: EventHandler<void>): EventListener
   public once(event: string, handler: EventHandler<any>): EventListener {
     return this.#events.once(event, handler)
   }
-
+  public on(event: 'log', handler: EventHandler<string>): EventListener
   public on(event: 'exit', handler: EventHandler<void>): EventListener
   public on(event: string, handler: EventHandler<any>): EventListener {
     return this.#events.on(event, handler)
