@@ -35,33 +35,14 @@ License MIT
 - [Install](#install)
 - [Commands](#commands)
 - [Testing](#testing)
-- [Parallel](#parallel)
 
-## Command Line Interface
+## Commands
 
 Drift accepts a sequence of commands at the command line. Each command is run in series and performs some action on the underlying Chrome instance. Once all commands have completed Drift will enter a interactive repl similar to the Chrome Developer Console. 
 
 Typically one would use the `url` or `run` commands to start Drift, however it provides several other commands that can be useful in test automation workflows. The following commands are supported
 
 ```bash
-Format:
-
-  $ drift [...command]
-
-Examples:
-
-  # load page
-  $ drift url https://domain.com
-
-  # load script
-  $ drift run script.ts
-
-  # load page then load script into page
-  $ drift url https://domain.com run script.ts
-
-  # load page, wait one second then take screenshot
-  $ drift url https://domain.com wait 1000 save screenshot.png
-
 Commands:
 
   url     url    Navigate to the given url.
