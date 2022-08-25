@@ -68,6 +68,39 @@ Commands:
   close            Closes the drift process.
 ```
 
+## Examples
+
+The following are some examples
+
+```bash
+# starts with interactive repl
+
+$ drift
+```
+```bash
+# opens github.com
+
+$ drift url http://github.com
+```
+
+```bash
+# runs index.ts
+
+$ drift run index.ts
+```
+
+```bash
+# opens a window, runs index.ts, waits 5 seconds then closes
+
+$ drift window run index.ts wait 5000 close
+```
+
+```bash
+# opens github.com, waits 4 seconds then takes a screenshot
+
+$ drift url https://github.com wait 4000 save screenshot.png
+```
+
 ## Testing
 
 Drift modifies the `window.close(...)` function to allow browser scripts to terminate the Drift process from within a page. Scripts can call `window.close(...)` with an optional exit code. This functionality allows Drift to be used in CI environments that interpret non zero exit codes as errors.
