@@ -119,7 +119,7 @@ if (commands.find((command) => command.type === 'help')) {
 // Banner
 // --------------------------------------------------------------------
 
-if (commands.length === 1) {
+if (commands.length === 0) {
   banner()
 }
 
