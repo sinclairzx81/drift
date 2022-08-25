@@ -64,7 +64,8 @@ function banner() {
    | (_| | |  | | | | |_ 
     \\__,_|_|  |_|_|  \\__|
   
-       version: ${version()}`),
+      version: ${version()}
+  `),
   )
 }
 function help() {
