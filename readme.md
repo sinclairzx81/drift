@@ -16,7 +16,7 @@
 $ npm install -g @sinclair/drift 
 ```
 
-## Example
+## Usage
 
 ```bash
 $ drift url http://localhost:5000
