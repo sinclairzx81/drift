@@ -238,7 +238,7 @@ export class Session {
   // ---------------------------------------------------------------
 
   async #onAdapterClose() {
-    this.#consoleError('Socket connection lost to chrome debugger')
+    // this.#consoleError('Socket connection lost to chrome debugger')
   }
 
   async #onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
