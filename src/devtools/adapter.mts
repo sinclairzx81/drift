@@ -38,15 +38,19 @@ export class DevToolsAdapter {
 
   constructor(endpoint: string) {
     this.#socket = new WebSocket(endpoint)
-    this.#socket.on('open', () => this.onOpen())
-    this.#socket.on('message', (event) => this.onMessage(event))
-    this.#socket.on('error', (event) => this.onError(event))
-    this.#socket.on('close', (event) => this.onClose(event))
+    this.#socket.on('open', () => this.#onOpen())
+    this.#socket.on('message', (event) => this.#onMessage(event))
+    this.#socket.on('error', (event) => this.#onError(event))
+    this.#socket.on('close', (event) => this.#onClose(event))
     this.#responder = new Responder()
     this.#barrier = new Barrier(true)
     this.#events = new Events()
   }
 
+  public on(event: 'open', handler: EventHandler<void>): EventListener
+  public on(event: 'error', handler: EventHandler<Error>): EventListener
+  public on(event: 'message', handler: EventHandler<any>): EventListener
+  public on(event: 'close', handler: EventHandler<void>): EventListener
   public on(event: string, handler: EventHandler<any>): EventListener {
     return this.#events.on(event, handler)
   }
@@ -58,12 +62,12 @@ export class DevToolsAdapter {
     return this.#responder.wait(handle)
   }
 
-  private onOpen() {
+  #onOpen() {
     this.#barrier.resume()
     this.#events.send('open', void 0)
   }
 
-  private onMessage(event: MessageEvent) {
+  #onMessage(event: MessageEvent) {
     const message = JSON.parse(event.data as string)
     if (!message.id && typeof message.method === 'string' && message.params) {
       return this.#events.send(message.method, message.params)
@@ -73,16 +77,16 @@ export class DevToolsAdapter {
     }
   }
 
-  private onError(error: ErrorEvent) {
-    console.log(error)
+  #onError(error: ErrorEvent) {
+    this.#events.send('error', error)
     this.#barrier.resume()
   }
 
-  private onClose(event: CloseEvent) {
+  #onClose(event: CloseEvent) {
     this.#events.send('close', void 0)
   }
 
-  public async dispose() {
+  async #dispose() {
     await this.#barrier.wait()
   }
 }

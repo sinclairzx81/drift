@@ -26,10 +26,55 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export * from './barrier.mjs'
-export * from './debounce.mjs'
-export * from './deferred.mjs'
-export * from './delay.mjs'
-export * from './responder.mjs'
-export * from './retry.mjs'
-export * from './timeout.mjs'
+type DebounceCallback = () => Promise<unknown> | unknown
+
+export class Debounce {
+  #callback: DebounceCallback | null
+  #waiting: boolean
+
+  /**
+   * Creates a new Debounce
+   * @param millisecond The maximum millisecond window for this debounce
+   * @param deferred Should the debounce defer the last callback to execute once a debounce window ends
+   */
+  constructor(private readonly millisecond: number, private readonly deferred: boolean = false) {
+    this.#callback = null
+    this.#waiting = false
+  }
+
+  public async run(callback: DebounceCallback) {
+    if (this.deferred) {
+      this.#runDeferred(callback)
+    } else {
+      this.#runDefault(callback)
+    }
+  }
+
+  async #runDeferred(callback: DebounceCallback) {
+    if (this.#waiting) {
+      this.#callback = callback
+      return
+    }
+    this.#waiting = true
+    callback()
+    await this.#delay()
+    while (this.#callback !== null) {
+      this.#callback()
+      this.#callback = null
+      await this.#delay()
+    }
+    this.#waiting = false
+  }
+
+  async #runDefault(callback: DebounceCallback) {
+    if (this.#waiting) return
+    this.#waiting = true
+    callback()
+    await this.#delay()
+    this.#waiting = false
+  }
+
+  #delay() {
+    return new Promise((resolve) => setTimeout(resolve, this.millisecond))
+  }
+}

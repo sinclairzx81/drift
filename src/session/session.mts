@@ -55,6 +55,7 @@ export class Exception extends Error {
 
 export class Session {
   readonly #resolver: ValueResolver
+  readonly #adapter: DevToolsAdapter
   readonly #devtools: DevToolsInterface.DevTools
   readonly #repl: Repl
   readonly #events: Events
@@ -62,7 +63,8 @@ export class Session {
 
   constructor(websocketDebuggerEndpoint: string, repl: Repl) {
     this.#repl = repl
-    this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(websocketDebuggerEndpoint))
+    this.#adapter = new DevToolsAdapter(websocketDebuggerEndpoint)
+    this.#devtools = new DevToolsInterface.DevTools(this.#adapter)
     this.#resolver = new ValueResolver(this.#devtools)
     this.#events = new Events()
     this.#ready = new Barrier(true)
@@ -89,11 +91,12 @@ export class Session {
 
   /** Initializes the session */
   private async setup() {
-    this.#devtools.Runtime.on('executionContextCreated', (event) => this.onExecutionContextCreated(event))
-    this.#devtools.Runtime.on('executionContextDestroyed', (event) => this.onExecutionContextDestroyed(event))
-    this.#devtools.Runtime.on('consoleAPICalled', (event) => this.onConsoleApiCalled(event))
-    this.#devtools.Runtime.on('exceptionThrown', (event) => this.onExceptionThrown(event))
-    this.#devtools.Page.on('loadEventFired', (event) => this.onLoadEventFired(event))
+    this.#adapter.on('close', () => this.#onAdapterClose())
+    this.#devtools.Runtime.on('executionContextCreated', (event) => this.#onExecutionContextCreated(event))
+    this.#devtools.Runtime.on('executionContextDestroyed', (event) => this.#onExecutionContextDestroyed(event))
+    this.#devtools.Runtime.on('consoleAPICalled', (event) => this.#onConsoleApiCalled(event))
+    this.#devtools.Runtime.on('exceptionThrown', (event) => this.#onExceptionThrown(event))
+    this.#devtools.Page.on('loadEventFired', (event) => this.#onLoadEventFired(event))
     await this.#devtools.Network.enable({})
     await this.#devtools.Runtime.enable({})
     await this.#devtools.Page.enable({})
@@ -110,7 +113,7 @@ export class Session {
     const expression = `(async function () { ${code} })();`
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
-      return this.onExceptionThrown({
+      return this.#onExceptionThrown({
         exceptionDetails: result.exceptionDetails,
         timestamp: Date.now(),
       })
@@ -123,7 +126,7 @@ export class Session {
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       const error = new Error(result.exceptionDetails.exception?.description)
-      return this.consoleError(error)
+      return this.#consoleError(error)
     }
 
     // -----------------------------------------------------------------------
@@ -135,8 +138,8 @@ export class Session {
     const value = await this.#resolver.resolve(result.result)
     const regex = /console\.((log)|(warn)|(table)|(error))\([^\)]*\)/
     return regex.test(expression)
-      ? setTimeout(() => this.consoleLog(value), 50) // consoleAPICalled first
-      : this.consoleLog(value)
+      ? setTimeout(() => this.#consoleLog(value), 50) // consoleAPICalled first
+      : this.#consoleLog(value)
   }
 
   public async position(x: number, y: number) {
@@ -212,19 +215,19 @@ export class Session {
   // Console Output
   // ---------------------------------------------------------------
 
-  private consoleLog(...args: any[]) {
+  #consoleLog(...args: any[]) {
     this.#repl.disable()
     console.log(...args)
     this.#repl.enable()
   }
 
-  private consoleError(...args: any[]) {
+  #consoleError(...args: any[]) {
     this.#repl.disable()
     console.log(Color.red, ...args, Color.esc)
     this.#repl.enable()
   }
 
-  private consoleClear() {
+  #consoleClear() {
     this.#repl.disable()
     console.clear()
     this.#repl.enable()
@@ -234,11 +237,15 @@ export class Session {
   // Events
   // ---------------------------------------------------------------
 
-  private async onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
+  async #onAdapterClose() {
+    this.#consoleError('Socket connection lost to chrome debugger')
+  }
+
+  async #onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
     const history = await this.#devtools.Page.getNavigationHistory({})
     const current = history.entries[history.entries.length - 1]
     if (new URL(current.url).origin === event.context.origin) {
-      this.consoleLog(Color.Gray('drift'), current.url)
+      this.#consoleLog(Color.Gray('drift'), current.url)
     }
     await this.#devtools.Runtime.evaluate({
       contextId: event.context.id,
@@ -247,38 +254,38 @@ export class Session {
     this.#ready.resume()
   }
 
-  private async onExecutionContextDestroyed(event: DevToolsInterface.Runtime.ExecutionContextDestroyedEvent) {
+  async #onExecutionContextDestroyed(event: DevToolsInterface.Runtime.ExecutionContextDestroyedEvent) {
     // todo: not implemented
   }
 
-  private async onLoadEventFired(event: DevToolsInterface.Page.LoadEventFiredEvent) {
+  async #onLoadEventFired(event: DevToolsInterface.Page.LoadEventFiredEvent) {
     // note: not implemented
   }
 
-  private async onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {
+  async #onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {
     const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
     if (args.length === 2 && args[0] === '<<close>>') {
       return this.#events.send('exit', args[1])
     } else {
       switch (event.type) {
         case 'clear': {
-          this.consoleClear()
+          this.#consoleClear()
           break
         }
         case 'error': {
-          this.consoleError(...args)
+          this.#consoleError(...args)
           break
         }
         default: {
-          this.consoleLog(...args)
+          this.#consoleLog(...args)
         }
       }
     }
   }
 
-  private onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
+  #onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
     const exception = new Exception(event.exceptionDetails)
     this.#events.send('close', exception)
-    this.consoleError(exception)
+    this.#consoleError(exception)
   }
 }
