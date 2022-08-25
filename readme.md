@@ -42,7 +42,7 @@ Drift accepts a sequence of commands at the command line. Each command is run in
 
 Typically one would use the `url` or `run` commands to start Drift, however it provides several other commands that can be useful in test automation workflows. The following commands are supported
 
-```bash
+```
 Commands:
 
   url     url    Navigate to the given url.
