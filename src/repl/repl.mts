@@ -29,7 +29,7 @@ THE SOFTWARE.
 import { createInterface, Interface } from 'node:readline'
 import { stdin, stdout } from 'node:process'
 import { Channel } from '../channel/index.mjs'
-import { Color } from '../colors/index.mjs'
+import { Color } from '../color/index.mjs'
 import { Read } from '../stream/read.mjs'
 
 export class Repl implements Read<string> {

@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
+import { Color } from '../color/index.mjs'
 import { extname, resolve } from 'node:path'
 import { existsSync } from 'node:fs'
 
@@ -33,7 +34,7 @@ import { existsSync } from 'node:fs'
 // Commands
 // -------------------------------------------------------------------------
 
-export type Command = ClickCommand | CloseCommand | HelpCommand | UrlCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | WaitCommand | WindowCommand
+export type Command = ClickCommand | CloseCommand | HelpCommand | UrlCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | VerboseCommand | WaitCommand | WindowCommand
 
 export interface ClickCommand {
   type: 'click'
@@ -82,6 +83,10 @@ export interface UserCommand {
   path: string
 }
 
+export interface VerboseCommand {
+  type: 'verbose'
+}
+
 export interface WaitCommand {
   type: 'wait'
   ms: number
@@ -96,6 +101,10 @@ export interface WindowCommand {
 // -------------------------------------------------------------------------
 
 export namespace Commands {
+  // -------------------------------------------------------------------------
+  // Params Parser
+  // -------------------------------------------------------------------------
+
   function isUrlString(input: string) {
     try {
       const url = new URL(input)
@@ -141,17 +150,26 @@ export namespace Commands {
     return url
   }
 
-  function parseHelp(params: string[]): HelpCommand {
-    return { type: 'help' }
-  }
-
-  function parseUser(params: string[]): UserCommand {
-    const path = parseOutputPath(params.shift()!)
-    return { type: 'user', path }
-  }
-
   function parseUrl(params: string[]): UrlCommand {
     return { type: 'url', url: parseUrlString(params.shift()!) }
+  }
+
+  // -------------------------------------------------------------------------
+  // Command Parser
+  // -------------------------------------------------------------------------
+
+  function parseClick(params: string[]): ClickCommand {
+    const x = parseInteger(params)
+    const y = parseInteger(params)
+    return { type: 'click', x, y }
+  }
+
+  function parseClose(params: string[]): CloseCommand {
+    return { type: 'close' }
+  }
+
+  function parseHelp(params: string[]): HelpCommand {
+    return { type: 'help' }
   }
 
   function parsePos(params: string[]): PosCommand {
@@ -164,17 +182,9 @@ export namespace Commands {
     return { type: 'run', path: parseInputPath(params.shift()!) }
   }
 
-  function parseWindow(params: string[]): WindowCommand {
-    return { type: 'window' }
-  }
-
   function parseSave(params: string[]): SaveCommand {
     const path = params.shift()!
     return { type: 'save', format: parseSaveFormat(path), path: parseOutputPath(path) }
-  }
-
-  function parseWait(params: string[]): WaitCommand {
-    return { type: 'wait', ms: parseInteger(params) }
   }
 
   function parseSize(params: string[]): SizeCommand {
@@ -183,14 +193,21 @@ export namespace Commands {
     return { type: 'size', width, height }
   }
 
-  function parseClick(params: string[]): ClickCommand {
-    const x = parseInteger(params)
-    const y = parseInteger(params)
-    return { type: 'click', x, y }
+  function parseUser(params: string[]): UserCommand {
+    const path = parseOutputPath(params.shift()!)
+    return { type: 'user', path }
   }
 
-  function parseClose(params: string[]): CloseCommand {
-    return { type: 'close' }
+  function parseVerbose(params: string[]): VerboseCommand {
+    return { type: 'verbose' }
+  }
+
+  function parseWait(params: string[]): WaitCommand {
+    return { type: 'wait', ms: parseInteger(params) }
+  }
+
+  function parseWindow(params: string[]): WindowCommand {
+    return { type: 'window' }
   }
 
   function* parseAny(params: string[]): IterableIterator<Command> {
@@ -198,18 +215,19 @@ export namespace Commands {
       const command = params.shift()!
       try {
         switch (command) {
+          case 'click': {
+            yield parseClick(params)
+            break
+          }
+          case 'close': {
+            yield parseClose(params)
+            break
+          }
           case 'help': {
             yield parseHelp(params)
             break
           }
-          case 'user': {
-            yield parseUser(params)
-            break
-          }
-          case 'url': {
-            yield parseUrl(params)
-            break
-          }
+
           case 'pos': {
             yield parsePos(params)
             break
@@ -222,6 +240,22 @@ export namespace Commands {
             yield parseSave(params)
             break
           }
+          case 'size': {
+            yield parseSize(params)
+            break
+          }
+          case 'url': {
+            yield parseUrl(params)
+            break
+          }
+          case 'user': {
+            yield parseUser(params)
+            break
+          }
+          case 'verbose': {
+            yield parseVerbose(params)
+            return
+          }
           case 'wait': {
             yield parseWait(params)
             break
@@ -230,23 +264,11 @@ export namespace Commands {
             yield parseWindow(params)
             break
           }
-          case 'size': {
-            yield parseSize(params)
-            break
-          }
-          case 'click': {
-            yield parseClick(params)
-            break
-          }
-          case 'close': {
-            yield parseClose(params)
-            break
-          }
           default:
             throw new Error(`Unknown command '${command}'`)
         }
       } catch (error: any) {
-        throw Error(`error: command '${command}' ${error.message}`)
+        throw Error(`${Color.Red('Error')}: ${error.message}`)
       }
     }
   }

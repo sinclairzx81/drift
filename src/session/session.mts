@@ -29,7 +29,7 @@ THE SOFTWARE.
 import { DevToolsInterface, DevToolsAdapter } from '../devtools/index.mjs'
 import { Events, EventListener, EventHandler } from '../events/index.mjs'
 import { ValueResolver } from './values.mjs'
-import { Color } from '../colors/index.mjs'
+import { Color } from '../color/index.mjs'
 import { Repl } from '../repl/index.mjs'
 import { Barrier } from '../async/index.mjs'
 
@@ -122,8 +122,8 @@ export class Session {
 
   public async evaluate(expression: string): Promise<void> {
     await this.#ready.wait()
-    this.#console.pause()
 
+    this.#console.pause()
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       this.#console.resume()
@@ -131,9 +131,13 @@ export class Session {
       return this.consoleError(error)
     }
 
-    // if the result is undefined and the expression has a console call, we
-    // need to need to suspend the console barrier and wait for the console
-    // log event to resume.
+    // -----------------------------------------------------------------------
+    // If the result is undefined or the expression looks like a console call,
+    // we need to need suspend writing to the console and wait for the
+    // consoleAPICalled. This event will resume the console barrier. This
+    // allows Drift to emit in the same order as Node.
+    // -----------------------------------------------------------------------
+
     const value = await this.#resolver.resolve(result.result)
     const regex = /console\.((log)|(warn)|(table)|(error))\([^\)]*\)/
     if (value === undefined && regex.test(expression)) {

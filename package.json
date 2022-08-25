@@ -25,6 +25,7 @@
     "format": "hammer task format",
     "codegen": "hammer task codegen",
     "start": "hammer task start",
+    "parallel": "hammer task parallel",
     "build": "hammer task build",
     "publish": "hammer task publish"
   },

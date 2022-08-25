@@ -27,30 +27,62 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { spawn, ChildProcess } from 'node:child_process'
+import { join } from 'node:path'
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
 import { Retry } from '../../async/index.mjs'
 import { Request } from '../../request/index.mjs'
 import { ChromePath } from './path.mjs'
 
 export interface ChromeOptions {
-  port: number
-  user: string
   headless: boolean
   verbose: boolean
+  user: string
+}
+
+export namespace ChromeStart {
+  const defaultPort = 12500
+
+  async function getWebSocketDebuggerUrl(port: number) {
+    return await Retry({ times: 10, delay: 100 }, async () => {
+      const result = await Request.get(`http://127.0.0.1:${port}/json`).then((text) => JSON.parse(text))
+      if (!Array.isArray(result)) throw Error('Chrome: Unexpected response from metadata json endpoint')
+      if (typeof result[0].webSocketDebuggerUrl !== 'string') throw Error('Chrome: The webSocketDebuggerUrl was invalid')
+      return result[0].webSocketDebuggerUrl.replace(/localhost/, '127.0.0.1')
+    })
+  }
+
+  async function findUnusedPort() {
+    for (let port = defaultPort; port < defaultPort + 64; port++) {
+      try {
+        await getWebSocketDebuggerUrl(port)
+      } catch {
+        return port
+      }
+    }
+    throw Error('ChromeStart: Cannot find free port to attach debugger')
+  }
+
+  export async function start(options: ChromeOptions): Promise<Chrome> {
+    const port = await findUnusedPort()
+    const user = join(options.user, `/port_${port}`)
+    const flags = options.headless ? [`--headless`, `--user-data-dir=${user}`, `--remote-debugging-port=${port}`] : [`--user-data-dir=${user}`, `--remote-debugging-port=${port}`]
+    const process = spawn(ChromePath.get(), flags)
+    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port)
+    return new Chrome(process, webSocketDebuggerUrl, options.verbose)
+  }
 }
 
 export class Chrome {
   readonly #process: ChildProcess
+  readonly #websocketDebuggerUrl: string
   readonly #events: Events
-  readonly #port: number
 
-  constructor(options: ChromeOptions) {
-    const flags = options.headless ? [`--headless`, `--user-data-dir=${options.user}`, `--remote-debugging-port=${options.port}`] : [`--user-data-dir=${options.user}`, `--remote-debugging-port=${options.port}`]
-    this.#port = options.port
+  constructor(process: ChildProcess, websocketDebuggerUrl: string, verbose: boolean) {
     this.#events = new Events()
-    this.#process = spawn(ChromePath.get(), flags)
+    this.#websocketDebuggerUrl = websocketDebuggerUrl
+    this.#process = process
     this.#process.on('exit', () => this.onExit())
-    if (options.verbose) {
+    if (verbose) {
       this.#process.stderr?.setEncoding('utf-8')
       this.#process.stderr!.on('data', (data) => console.log(data))
     }
@@ -66,13 +98,8 @@ export class Chrome {
     return this.#events.on(event, handler)
   }
 
-  public async webSocketDebuggerUrl(): Promise<string> {
-    return await Retry({ times: 100, delay: 50 }, async () => {
-      const result = await Request.get(`http://127.0.0.1:${this.#port}/json`).then((text) => JSON.parse(text))
-      if (!Array.isArray(result)) throw Error('Chrome: Unexpected response from metadata json endpoint')
-      if (typeof result[0].webSocketDebuggerUrl !== 'string') throw Error('Chrome: The webSocketDebuggerUrl was invalid')
-      return result[0].webSocketDebuggerUrl.replace(/localhost/, '127.0.0.1')
-    })
+  public get webSocketDebuggerUrl(): string {
+    return this.#websocketDebuggerUrl
   }
 
   public async close(): Promise<void> {

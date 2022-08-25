@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Platform, Color, Build, Chrome, Session, Repl, Commands, Delay, Command, UserCommand } from './index.mjs'
+import { Platform, Color, Build, ChromeStart, Session, Repl, Commands, Delay, Command, UserCommand } from './index.mjs'
 import { existsSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
@@ -43,7 +43,7 @@ function version() {
 }
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
-function userDir(commands: Command[]) {
+function userdir(commands: Command[]) {
   const command = commands.find((command) => command.type === 'user') as UserCommand | undefined
   if (command === undefined) return join(Platform.resolveDirname(import.meta.url), 'user')
   return resolve(command.path)
@@ -131,11 +131,10 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 const headless = commands.find((command) => command.type === 'window') === undefined
-const port = 14022
-const user = userDir(commands)
+const user = userdir(commands)
 const repl = new Repl()
-const browser = new Chrome({ port, user, verbose: false, headless })
-const session = new Session(await browser.webSocketDebuggerUrl(), repl)
+const browser = await ChromeStart.start({ user, headless, verbose: false })
+const session = new Session(await browser.webSocketDebuggerUrl, repl)
 session.on('exit', (code) => browser.close().then(() => process.exit(code)))
 browser.on('exit', () => process.exit(0))
 
@@ -145,15 +144,25 @@ browser.on('exit', () => process.exit(0))
 
 for (const command of commands) {
   switch (command.type) {
-    case 'url': {
-      print('url', command.url)
-      await session.navigate(command.url)
+    case 'click': {
+      print('viewport', command.x, command.y)
+      await session.click(command.x, command.y)
       break
+    }
+    case 'close': {
+      print('close')
+      await browser.close()
+      process.exit(0)
     }
     case 'run': {
       print('run', command.path)
       const code = Build.build(command.path)
       await session.run(code)
+      break
+    }
+    case 'pos': {
+      print('pos', command.x, command.y)
+      await session.position(command.x, command.y)
       break
     }
     case 'save': {
@@ -170,25 +179,15 @@ for (const command of commands) {
       await session.size(command.width, command.height)
       break
     }
-    case 'pos': {
-      print('pos', command.x, command.y)
-      await session.position(command.x, command.y)
-      break
-    }
-    case 'click': {
-      print('viewport', command.x, command.y)
-      await session.click(command.x, command.y)
+    case 'url': {
+      print('url', command.url)
+      await session.navigate(command.url)
       break
     }
     case 'wait': {
       print('wait', command.ms)
       await Delay.wait(command.ms)
       break
-    }
-    case 'close': {
-      print('close')
-      await browser.close()
-      process.exit(0)
     }
   }
 }
