@@ -47,10 +47,6 @@ export class DevToolsAdapter {
     this.#events = new Events()
   }
 
-  public on(event: 'open', handler: EventHandler<void>): EventListener
-  public on(event: 'error', handler: EventHandler<Error>): EventListener
-  public on(event: 'message', handler: EventHandler<any>): EventListener
-  public on(event: 'close', handler: EventHandler<void>): EventListener
   public on(event: string, handler: EventHandler<any>): EventListener {
     return this.#events.on(event, handler)
   }
