@@ -38,31 +38,48 @@ License MIT
 
 ## Commands
 
-Drift accepts a sequence of commands at the command line. Each command is run in series and performs some action on the underlying Chrome instance. Once all commands have completed Drift will enter a interactive repl similar to the Chrome Developer Console. 
-
-Typically one would use the `url` or `run` commands to start Drift, however it provides several other commands that can be useful in test automation workflows. The following commands are supported
+Drift implements the following command line interface.
 
 ```
+        _      _  __ _
+       | |    (_)/ _| |
+     __| |_ __ _| |_| |_
+    / _` | '__| |  _| __|
+   | (_| | |  | | | | |_
+    \__,_|_|  |_|_|  \__|
+
+       version: 0.8.10
+
+Format:
+
+  $ drift [...command]
+
+Examples:
+
+  # load page
+  $ drift url https://domain.com
+
+  # load script
+  $ drift run script.ts
+
+  # load page then load script into page
+  $ drift url https://domain.com run script.ts
+
+  # load page, wait one second then take screenshot
+  $ drift url https://domain.com wait 1000 save screenshot.png
+
+Commands:
+
   url     <url>    Navigate to the given url.
-
   run     <path>   Runs a script in the current url.
-
-  window           Run with desktop window.
-
   size    <w> <h>  Sets desktop window size.
-
   pos     <x> <y>  Sets desktop window position.
-
-  click   <x> <y>  Send mousedown event to the current url.
-
   save    <path>   Save current page as png, jpeg or pdf format.
-
   user    <path>   Sets the chrome user data directory.
-
+  click   <x> <y>  Send mousedown event to the current url.
   wait    <ms>     Wait for the given milliseconds.
-
+  window           Run with desktop window.
   help             Lists available commands.
-  
   close            Closes the drift process.
 ```
 
