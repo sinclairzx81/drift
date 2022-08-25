@@ -41,6 +41,7 @@ function userdir(commands: Command[]) {
   if (command === undefined) return join(Platform.resolveDirname(import.meta.url), 'user')
   return resolve(command.path)
 }
+
 /** Resolves the current package version */
 function version() {
   const path = join(Platform.resolveDirname(import.meta.url), 'package.json')
@@ -118,14 +119,15 @@ if (commands.find((command) => command.type === 'help')) {
 // Banner
 // --------------------------------------------------------------------
 
-if (commands.length === 0) {
+if (commands.length === 1) {
   banner()
 }
 
 // --------------------------------------------------------------------
-// Browser and Execution Context
+// Connect
 // --------------------------------------------------------------------
 
+log('drift', 'connecting to chrome')
 const headless = commands.find((command) => command.type === 'window') === undefined
 const verbose = commands.find((command) => command.type === 'verbose') !== undefined
 const user = userdir(commands)
@@ -197,7 +199,7 @@ for (const command of commands) {
 // Drift !!
 // --------------------------------------------------------------------
 
-log('drift', 'Use ctrl+c or close() to exit')
+log('drift', 'use ctrl+c or close() to exit')
 
 repl.enable()
 
