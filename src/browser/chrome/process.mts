@@ -36,6 +36,7 @@ import { ChromePath } from './path.mjs'
 
 export interface ChromeOptions {
   headless: boolean
+  incognito: boolean
   verbose: boolean
   user: string
 }
@@ -68,7 +69,9 @@ export namespace ChromeStart {
     await mutex.lock()
     const port = await findUnusedPort()
     const user = join(options.user, `/port_${port}`)
-    const flags = options.headless ? [`--headless`, `--user-data-dir=${user}`, `--remote-debugging-port=${port}`] : [`--user-data-dir=${user}`, `--remote-debugging-port=${port}`]
+    const flags = [`about:blank`, `--user-data-dir=${user}`, `--remote-debugging-port=${port}`]
+    if (options.incognito) flags.push('--incognito')
+    if (options.headless) flags.push('--headless')
     const process = spawn(ChromePath.get(), flags)
     const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port)
     const chrome = new Chrome(process, webSocketDebuggerUrl, options.verbose)

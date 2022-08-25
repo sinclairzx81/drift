@@ -34,7 +34,7 @@ import { existsSync } from 'node:fs'
 // Commands
 // -------------------------------------------------------------------------
 
-export type Command = ClickCommand | CloseCommand | HelpCommand | UrlCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | VerboseCommand | WaitCommand | WindowCommand
+export type Command = ClickCommand | CloseCommand | HelpCommand | IncognitoCommand | UrlCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | VerboseCommand | WaitCommand | WindowCommand
 
 export interface ClickCommand {
   type: 'click'
@@ -48,6 +48,10 @@ export interface CloseCommand {
 
 export interface HelpCommand {
   type: 'help'
+}
+
+export interface IncognitoCommand {
+  type: 'incognito'
 }
 
 export interface UrlCommand {
@@ -172,6 +176,10 @@ export namespace Commands {
     return { type: 'help' }
   }
 
+  function parseIncognito(params: string[]): IncognitoCommand {
+    return { type: 'incognito' }
+  }
+
   function parsePos(params: string[]): PosCommand {
     const x = parseInteger(params)
     const y = parseInteger(params)
@@ -227,7 +235,10 @@ export namespace Commands {
             yield parseHelp(params)
             break
           }
-
+          case 'incognito': {
+            yield parseIncognito(params)
+            break
+          }
           case 'pos': {
             yield parsePos(params)
             break

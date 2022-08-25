@@ -128,11 +128,12 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
-const headless = commands.find((command) => command.type === 'window') === undefined
+const incognito = commands.find((command) => command.type === 'incognito') !== undefined
 const verbose = commands.find((command) => command.type === 'verbose') !== undefined
+const headless = commands.find((command) => command.type === 'window') === undefined
 const user = userdir(commands)
 const repl = new Repl()
-const browser = await ChromeStart.start({ user, headless, verbose })
+const browser = await ChromeStart.start({ user, headless, verbose, incognito })
 const session = new Session(await browser.webSocketDebuggerUrl, repl)
 session.on('exit', (code) => browser.close().then(() => process.exit(code)))
 browser.on('exit', () => process.exit(0))
