@@ -41,15 +41,6 @@ License MIT
 Drift implements the following command line interface.
 
 ```
-        _      _  __ _
-       | |    (_)/ _| |
-     __| |_ __ _| |_| |_
-    / _` | '__| |  _| __|
-   | (_| | |  | | | | |_
-    \__,_|_|  |_|_|  \__|
-
-       version: 0.8.10
-
 Format:
 
   $ drift [...command]
