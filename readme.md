@@ -43,19 +43,17 @@ Drift accepts a sequence of commands at the command line. Each command is run in
 Typically one would use the `url` or `run` commands to start Drift, however it provides several other commands that can be useful in test automation workflows. The following commands are supported
 
 ```
-Commands:
-
-  url     url    Navigate to the given url.
-  run     path   Runs a script in the current url.
-  window         Run with desktop window.
-  size    w h    Sets desktop window size.
-  pos     x y    Sets desktop window position.
-  click   x y    Send mousedown event to the current url.
-  save    path   Save current page as png, jpeg or pdf format.
-  user    path   Sets the chrome user data directory.
-  wait    ms     Wait for the given milliseconds.
-  help           Lists available commands.
-  close          Closes the drift process.
+  url     <url>    Navigate to the given url.
+  run     <path>   Runs a script in the current url.
+  window           Run with desktop window.
+  size    <w> <h>  Sets desktop window size.
+  pos     <x> <y>  Sets desktop window position.
+  click   <x> <y>  Send mousedown event to the current url.
+  save    <path>   Save current page as png, jpeg or pdf format.
+  user    <path>   Sets the chrome user data directory.
+  wait    <ms>     Wait for the given milliseconds.
+  help             Lists available commands.
+  close            Closes the drift process.
 ```
 
 ## Testing
