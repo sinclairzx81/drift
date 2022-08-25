@@ -30,6 +30,7 @@ import { spawn, ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
 import { Retry } from '../../async/index.mjs'
+import { Mutex } from '../../mutex/index.mjs'
 import { Request } from '../../request/index.mjs'
 import { ChromePath } from './path.mjs'
 
@@ -63,12 +64,16 @@ export namespace ChromeStart {
   }
 
   export async function start(options: ChromeOptions): Promise<Chrome> {
+    const mutex = new Mutex(join(options.user, '/mutex'))
+    await mutex.lock()
     const port = await findUnusedPort()
     const user = join(options.user, `/port_${port}`)
     const flags = options.headless ? [`--headless`, `--user-data-dir=${user}`, `--remote-debugging-port=${port}`] : [`--user-data-dir=${user}`, `--remote-debugging-port=${port}`]
     const process = spawn(ChromePath.get(), flags)
     const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port)
-    return new Chrome(process, webSocketDebuggerUrl, options.verbose)
+    const chrome = new Chrome(process, webSocketDebuggerUrl, options.verbose)
+    await mutex.unlock()
+    return chrome
   }
 }
 

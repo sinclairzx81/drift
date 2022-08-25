@@ -26,19 +26,4 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export * from './async/index.mjs'
-export * from './browser/index.mjs'
-export * from './build/index.mjs'
-export * from './command/index.mjs'
-export * from './channel/index.mjs'
-export * from './color/index.mjs'
-export * from './platform/index.mjs'
-export * from './repl/index.mjs'
-export * from './events/index.mjs'
-export * from './mutex/index.mjs'
-export * from './request/index.mjs'
-export * from './session/index.mjs'
-export * from './platform/index.mjs'
-export * from './repl/index.mjs'
-export * from './stream/index.mjs'
-export * from './ws/index.mjs'
+export * from './mutex.mjs'

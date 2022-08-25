@@ -39,7 +39,6 @@ export async function start(...args) {
 // ---------------------------------------------------------------------
 
 export async function parallel(...args) {
-  await clean()
   const params = args.join(' ')
   await Promise.all([
     shell(`hammer run "example/index.mts user target/user ${params}" --dist target/parallel_example_1`),
