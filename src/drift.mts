@@ -37,7 +37,7 @@ import { join, resolve } from 'node:path'
 
 function version() {
   const path = join(Platform.resolveDirname(import.meta.url), 'package.json')
-  if (!existsSync(path)) return Color.White('0.8.1')
+  if (!existsSync(path)) return Color.White('0.8.10')
   const packageJson = JSON.parse(readFileSync(path, 'utf-8'))
   return Color.White(packageJson.version)
 }
@@ -63,43 +63,43 @@ function banner() {
    | (_| | |  | | | | |_ 
     \\__,_|_|  |_|_|  \\__|
   
-       version: ${version()}
-  `),
+       version: ${version()}`),
   )
 }
 function help() {
-  console.log(
-    Color.Gray(
-      `
-    ┌────────────────────────┬─────────────────────────────────────────────────────────────────┐
-    │ command                │ description                                                     │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ url <url>              │ Loads this Url                                                  │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ run <path>             │ Loads a script into the current page                            │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ window                 │ Run with a chrome window                                        │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ size <w> <h>           │ Sets the chrome window size                                     │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ pos <x> <y>            │ Sets the chrome window position                                 │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ click <x> <y>          │ Send mousedown click event to the current page                  │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ save <path>            │ Save current page as png, jpeg or pdf format                    │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ user <path>            │ Sets the chrome user data directory                             │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ wait <ms>              │ Wait for the given milliseconds                                 │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ close                  │ Closes the drift process                                        │
-    └────────────────────────┴─────────────────────────────────────────────────────────────────┘
-    `
-        .split('\n')
-        .map((n) => n.trim())
-        .join('\n'),
-    ),
-  )
+  console.log(`
+Format:
+
+  $ drift [...command]
+
+Examples:
+
+  # load page
+  $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')}
+  
+  # load script
+  $ drift ${Color.Gray('run')} ${Color.Blue('script.ts')}
+
+  # load page then load script into page
+  $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('run')} ${Color.Blue('script.ts')}
+
+  # load page, wait one second then take screenshot
+  $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('wait')} ${Color.Blue('1000')} ${Color.Gray('save')} ${Color.Blue('screenshot.png')}
+
+Commands:
+
+  ${Color.Gray('url')}     ${Color.Blue('url')}    Navigate to the given url.
+  ${Color.Gray('run')}     ${Color.Blue('path')}   Runs a script in the current url.
+  ${Color.Gray('window')}  ${Color.Blue('')}       Run with desktop window.
+  ${Color.Gray('size')}    ${Color.Blue('w h')}    Sets desktop window size.
+  ${Color.Gray('pos')}     ${Color.Blue('x y')}    Sets desktop window position.
+  ${Color.Gray('click')}   ${Color.Blue('x y')}    Send mousedown event to the current url.
+  ${Color.Gray('save')}    ${Color.Blue('path')}   Save current page as png, jpeg or pdf format.
+  ${Color.Gray('user')}    ${Color.Blue('path')}   Sets the chrome user data directory.
+  ${Color.Gray('wait')}    ${Color.Blue('ms')}     Wait for the given milliseconds.
+  ${Color.Gray('help')}    ${Color.Blue('')}       Lists available commands.
+  ${Color.Gray('close')}   ${Color.Blue('')}       Closes the drift process.
+  `)
   process.exit(0)
 }
 

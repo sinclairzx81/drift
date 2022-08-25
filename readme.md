@@ -34,76 +34,47 @@ License MIT
 
 - [Install](#install)
 - [Commands](#commands)
-- [Examples](#examples)
 - [Testing](#testing)
+- [Parallel](#parallel)
 
-## Commands
+## Command Line Interface
 
-Drift accepts a sequence of commands at the command line. Each command is run in turn and performs some action on the underlying Chrome instance. Typically one would use the `url` or `run` command to start an application, however Drift provides several other commands that can be used in automation workflows.
+Drift accepts a sequence of commands at the command line. Each command is run in series and performs some action on the underlying Chrome instance. Once all commands have completed Drift will enter a interactive repl similar to the Chrome Developer Console. 
 
-```bash
-$ drift [...command]
-```
-
-The following commands are supported
-
-```typescript
-┌────────────────────────┬─────────────────────────────────────────────────────────────────┐
-│ command                │ description                                                     │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ url <url>              │ Loads this Url                                                  │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ run <path>             │ Loads a script into the current page                            │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ window                 │ Run with a chrome window                                        │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ size <w> <h>           │ Sets the chrome window size                                     │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ pos <x> <y>            │ Sets the chrome window position                                 │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ click <x> <y>          │ Send mousedown click event to the current page                  │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ save <path>            │ Save current page as png, jpeg or pdf format                    │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ user <path>            │ Sets the chrome user data directory                             │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ wait <ms>              │ Wait for the given milliseconds                                 │
-├────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ close                  │ Closes the drift process                                        │
-└────────────────────────┴─────────────────────────────────────────────────────────────────┘
-```
-
-## Examples
-
-The following are a few examples
+Typically one would use the `url` or `run` commands to start Drift, however it provides several other commands that can be useful in test automation workflows. The following commands are supported
 
 ```bash
-# starts the drift repl.
+Format:
 
-$ drift
-```
-```bash
-# loads github.com.
+  $ drift [...command]
 
-$ drift url http://github.com
-```
+Examples:
 
-```bash
-# loads and executes index.ts.
+  # load page
+  $ drift url https://domain.com
 
-$ drift run index.ts
-```
+  # load script
+  $ drift run script.ts
 
-```bash
-# starts a window, executes index.ts, waits 5 seconds then closes.
+  # load page then load script into page
+  $ drift url https://domain.com run script.ts
 
-$ drift window run index.ts wait 5000 close
-```
+  # load page, wait one second then take screenshot
+  $ drift url https://domain.com wait 1000 save screenshot.png
 
-```bash
-# loads github.com, waits 4 seconds then takes a screenshot.
+Commands:
 
-$ drift url https://github.com wait 4000 save screenshot.png
+  url     url    Navigate to the given url.
+  run     path   Runs a script in the current url.
+  window         Run with desktop window.
+  size    w h    Sets desktop window size.
+  pos     x y    Sets desktop window position.
+  click   x y    Send mousedown event to the current url.
+  save    path   Save current page as png, jpeg or pdf format.
+  user    path   Sets the chrome user data directory.
+  wait    ms     Wait for the given milliseconds.
+  help           Lists available commands.
+  close          Closes the drift process.
 ```
 
 ## Testing
