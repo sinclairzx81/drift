@@ -114,6 +114,7 @@ const commands = Commands.parse()
 // --------------------------------------------------------------------
 
 if (commands.find((command) => command.type === 'help')) {
+  banner()
   help()
 }
 
@@ -193,10 +194,10 @@ for (const command of commands) {
 }
 
 // --------------------------------------------------------------------
-// Repl
+// Drift !!
 // --------------------------------------------------------------------
 
-print('ready', 'Use ctrl+c or close() to exit')
+print('drift', 'Use ctrl+c or close() to exit')
 
 repl.enable()
 

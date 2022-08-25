@@ -135,7 +135,8 @@ export class Session {
     // need to need to suspend the console barrier and wait for the console
     // log event to resume.
     const value = await this.#resolver.resolve(result.result)
-    if (value === undefined && expression.includes('console.')) {
+    const regex = /console\.((log)|(warn)|(table)|(error))\([^\)]*\)/
+    if (value === undefined && regex.test(expression)) {
       await this.#console.wait() // resumed on console event
     }
 
@@ -234,6 +235,7 @@ export class Session {
     console.clear()
     this.#repl.enable()
   }
+
   // ---------------------------------------------------------------
   // Events
   // ---------------------------------------------------------------
@@ -242,7 +244,7 @@ export class Session {
     const history = await this.#devtools.Page.getNavigationHistory({})
     const current = history.entries[history.entries.length - 1]
     if (new URL(current.url).origin === event.context.origin) {
-      this.consoleLog(Color.Gray('ready'), current.url)
+      this.consoleLog(Color.Gray('drift'), current.url)
     }
     await this.#devtools.Runtime.evaluate({
       contextId: event.context.id,
