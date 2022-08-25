@@ -39,7 +39,7 @@ License MIT
 
 ## Commands
 
-Drift implements the following command line interface.
+Drift provides the following command line interface.
 
 ```
 Format:
