@@ -32,9 +32,10 @@ License MIT
 
 ## Contents
 
-- [Install](#install)
-- [Commands](#commands)
-- [Testing](#testing)
+- [Install](#Install)
+- [Commands](#Commands)
+- [Examples](#Examples)
+- [Testing](#Testing)
 
 ## Commands
 
