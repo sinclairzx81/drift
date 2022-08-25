@@ -94,6 +94,7 @@ Commands:
   ${Color.Gray('wait')}     ${Color.Blue('<ms>')}     Wait for the given milliseconds.
   ${Color.Gray('window')}   ${Color.Blue('')}         Run with desktop window.
   ${Color.Gray('incognto')} ${Color.Blue('')}         Run chrome in incognito mode.
+  ${Color.Gray('devtools')} ${Color.Blue('')}         Open devtools.
   ${Color.Gray('verbose')}  ${Color.Blue('')}         Write chrome logs to stdout.
   ${Color.Gray('help')}     ${Color.Blue('')}         Lists available commands.
   ${Color.Gray('close')}    ${Color.Blue('')}         Closes the drift process.
@@ -131,10 +132,11 @@ if (commands.length === 0) {
 log('drift', 'connecting to chrome')
 const incognito = commands.find((command) => command.type === 'incognito') !== undefined
 const verbose = commands.find((command) => command.type === 'verbose') !== undefined
+const devtools = commands.find((command) => command.type === 'devtools') !== undefined
 const headless = commands.find((command) => command.type === 'window') === undefined
 const user = userdir(commands)
 const repl = new Repl()
-const browser = await ChromeStart.start({ user, headless, verbose, incognito })
+const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })
 const session = new Session(await browser.webSocketDebuggerUrl, repl)
 session.on('exit', (code) => browser.close().then(() => process.exit(code)))
 browser.on('exit', () => process.exit(0))

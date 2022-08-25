@@ -27,16 +27,19 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { spawn, ChildProcess } from 'node:child_process'
+import { existsSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
-import { Retry } from '../../async/index.mjs'
+import { Retry, Delay } from '../../async/index.mjs'
 import { Mutex } from '../../mutex/index.mjs'
 import { Request } from '../../request/index.mjs'
+import { Color } from '../../color/index.mjs'
 import { ChromePath } from './path.mjs'
 
 export interface ChromeOptions {
   headless: boolean
   incognito: boolean
+  devtools: boolean
   verbose: boolean
   user: string
 }
@@ -69,7 +72,8 @@ export namespace ChromeStart {
     await mutex.lock()
     const port = await findUnusedPort()
     const user = join(options.user, `/port_${port}`)
-    const flags = [`about:blank`, `--user-data-dir=${user}`, `--remote-debugging-port=${port}`]
+    const flags = ['about:blank', `--user-data-dir=${user}`, `--remote-debugging-port=${port}`, '--no-default-browser-check']
+    if (options.devtools) flags.push('--auto-open-devtools-for-tabs')
     if (options.incognito) flags.push('--incognito')
     if (options.headless) flags.push('--headless')
     const process = spawn(ChromePath.get(), flags)
