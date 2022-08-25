@@ -49,13 +49,10 @@ Examples:
 
   # load page
   $ drift url https://domain.com
-
   # load script
   $ drift run script.ts
-
   # load page then load script into page
   $ drift url https://domain.com run script.ts
-
   # load page, wait one second then take screenshot
   $ drift url https://domain.com wait 1000 save screenshot.png
 
