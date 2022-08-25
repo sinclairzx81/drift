@@ -55,18 +55,19 @@ Examples:
 
 Commands:
 
-  url     <url>    Navigate to the given url.
-  run     <path>   Runs a script in the current url.
-  size    <w> <h>  Sets desktop window size.
-  pos     <x> <y>  Sets desktop window position.
-  save    <path>   Save current page as png, jpeg or pdf format.
-  user    <path>   Sets the chrome user data directory.
-  click   <x> <y>  Send mousedown event to the current url.
-  wait    <ms>     Wait for the given milliseconds.
-  window           Run with desktop window.
-  verbose          Run with chrome process logging
-  help             Lists available commands.
-  close            Closes the drift process.
+  url      <url>    Navigate to the given url.
+  run      <path>   Runs a script in the current url.
+  size     <w> <h>  Sets desktop window size.
+  pos      <x> <y>  Sets desktop window position.
+  save     <path>   Save current page as png, jpeg or pdf format.
+  user     <path>   Sets the chrome user data directory.
+  click    <x> <y>  Send mousedown event to the current url.
+  wait     <ms>     Wait for the given milliseconds.
+  window            Run with desktop window.
+  incognto          Run chrome in incognito mode.
+  verbose           Write chrome logs to stdout.
+  help              Lists available commands.
+  close             Closes the drift process.
 ```
 
 ## Examples

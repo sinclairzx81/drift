@@ -84,18 +84,19 @@ Examples:
 
 Commands:
 
-  ${Color.Gray('url')}     ${Color.Blue('<url>')}    Navigate to the given url.
-  ${Color.Gray('run')}     ${Color.Blue('<path>')}   Runs a script in the current url.  
-  ${Color.Gray('size')}    ${Color.Blue('<w> <h>')}  Sets desktop window size.
-  ${Color.Gray('pos')}     ${Color.Blue('<x> <y>')}  Sets desktop window position.
-  ${Color.Gray('save')}    ${Color.Blue('<path>')}   Save current page as png, jpeg or pdf format.
-  ${Color.Gray('user')}    ${Color.Blue('<path>')}   Sets the chrome user data directory.
-  ${Color.Gray('click')}   ${Color.Blue('<x> <y>')}  Send mousedown event to the current url.
-  ${Color.Gray('wait')}    ${Color.Blue('<ms>')}     Wait for the given milliseconds.
-  ${Color.Gray('window')}  ${Color.Blue('')}         Run with desktop window.
-  ${Color.Gray('verbose')} ${Color.Blue('')}         Run with chrome process logging
-  ${Color.Gray('help')}    ${Color.Blue('')}         Lists available commands.
-  ${Color.Gray('close')}   ${Color.Blue('')}         Closes the drift process.
+  ${Color.Gray('url')}      ${Color.Blue('<url>')}    Navigate to the given url.
+  ${Color.Gray('run')}      ${Color.Blue('<path>')}   Runs a script in the current url.  
+  ${Color.Gray('size')}     ${Color.Blue('<w> <h>')}  Sets desktop window size.
+  ${Color.Gray('pos')}      ${Color.Blue('<x> <y>')}  Sets desktop window position.
+  ${Color.Gray('save')}     ${Color.Blue('<path>')}   Save current page as png, jpeg or pdf format.
+  ${Color.Gray('user')}     ${Color.Blue('<path>')}   Sets the chrome user data directory.
+  ${Color.Gray('click')}    ${Color.Blue('<x> <y>')}  Send mousedown event to the current url.
+  ${Color.Gray('wait')}     ${Color.Blue('<ms>')}     Wait for the given milliseconds.
+  ${Color.Gray('window')}   ${Color.Blue('')}         Run with desktop window.
+  ${Color.Gray('incognto')} ${Color.Blue('')}         Run chrome in incognito mode.
+  ${Color.Gray('verbose')}  ${Color.Blue('')}         Write chrome logs to stdout.
+  ${Color.Gray('help')}     ${Color.Blue('')}         Lists available commands.
+  ${Color.Gray('close')}    ${Color.Blue('')}         Closes the drift process.
   `)
   process.exit(0)
 }
