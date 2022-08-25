@@ -27,13 +27,11 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { spawn, ChildProcess } from 'node:child_process'
-import { existsSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
-import { Retry, Delay } from '../../async/index.mjs'
+import { Retry } from '../../async/index.mjs'
 import { Mutex } from '../../mutex/index.mjs'
 import { Request } from '../../request/index.mjs'
-import { Color } from '../../color/index.mjs'
 import { ChromePath } from './path.mjs'
 
 export interface ChromeOptions {
@@ -93,7 +91,7 @@ export class Chrome {
     this.#events = new Events()
     this.#websocketDebuggerUrl = websocketDebuggerUrl
     this.#process = process
-    this.#process.on('exit', () => this.onExit())
+    this.#process.on('exit', () => this.#onExit())
     if (verbose) {
       this.#process.stderr?.setEncoding('utf-8')
       this.#process.stderr!.on('data', (data) => this.#events.send('log', data))
@@ -118,7 +116,7 @@ export class Chrome {
     this.#process.kill()
   }
 
-  private onExit() {
+  #onExit() {
     this.#events.send('exit', void 0)
   }
 }

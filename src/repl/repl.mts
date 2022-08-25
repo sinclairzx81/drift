@@ -41,8 +41,8 @@ export class Repl implements Read<string> {
     this.#channel = new Channel<string>()
     this.#history = []
     this.#interface = createInterface({ input: stdin, output: stdout, history: this.#history })
-    this.#interface.on('line', (line) => this.onLine(line))
-    this.#interface.on('close', () => this.onClose())
+    this.#interface.on('line', (line) => this.#onLine(line))
+    this.#interface.on('close', () => this.#onClose())
   }
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<string> {
@@ -73,11 +73,11 @@ export class Repl implements Read<string> {
     this.#interface.close()
   }
 
-  private onLine(line: string) {
+  #onLine(line: string) {
     this.#channel.send(line)
   }
 
-  private onClose() {
+  #onClose() {
     this.#channel.end()
   }
 }
