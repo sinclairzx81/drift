@@ -24,9 +24,9 @@ $ drift url http://localhost:5000
 
 ## Overview
 
-Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It provides an interactive repl that allows code to be executed in a remote Chrome instance and pipes browser logging back over stdout. It is built to allow for non visual browser functionality (such as WebRTC and IndexedDB) to be developed and tested entirely within a terminal window.
+Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It provides an interactive repl that allows code to be run in a remote Chrome instance and pipes browser logging back over stdout. It is built to enable non-visual browser functionality (such as WebRTC and IndexedDB) to be developed and tested entirely within a terminal window.
 
-Drift is designed to be a Node like tool for running JavaScript in constrained browser environments. It can be useful for general purpose scripting, browser automation workflows and testing browser code within CI environments.
+Drift is designed to be a Node like tool for running JavaScript in constrained browser environments. It can be used for general purpose scripting, automating browser tasks and running web code in CI environments.
 
 License MIT
 
