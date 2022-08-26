@@ -1,7 +1,7 @@
 {
   "name": "@sinclair/drift",
   "description": "Run Chrome from the Terminal",
-  "version": "0.8.21",
+  "version": "0.8.22",
   "author": "sinclairzx81",
   "keywords": [
     "chrome",
@@ -26,6 +26,7 @@
     "codegen": "hammer task codegen",
     "start": "hammer task start",
     "parallel": "hammer task parallel",
+    "install_cli": "hammer task install_cli",
     "build": "hammer task build",
     "publish": "hammer task publish"
   },

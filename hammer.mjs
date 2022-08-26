@@ -52,16 +52,25 @@ export async function parallel(...args) {
 // Build
 // ---------------------------------------------------------------------
 
-export async function build() {
+export async function build(target = 'target/build') {
   await clean()
-  await shell('tsc -p src/tsconfig.json --outDir target/build --declaration')
-  await folder('target/build').add('src/start.mjs')
-  await folder('target/build').add('readme.md')
-  await folder('target/build').add('license')
-  await folder('target/build').add('package.json')
-  await shell('cd target/build && npm pack')
+  await shell(`tsc -p src/tsconfig.json --outDir ${target} --declaration`)
+  await folder(target).add('src/start.mjs')
+  await folder(target).add('readme.md')
+  await folder(target).add('license')
+  await folder(target).add('package.json')
+  await shell(`cd ${target} && npm pack`)
 }
 
+// ---------------------------------------------------------------------
+// Install CLI
+// ---------------------------------------------------------------------
+
+export async function install_cli(target = 'target/build') {
+  await build(target)
+  const { version } = JSON.parse(readFileSync('package.json', 'utf8'))
+  await shell(`cd ${target} && npm install -g sinclair-drift-${version}.tgz`)
+}
 // ---------------------------------------------------------------------
 // Publish
 // ---------------------------------------------------------------------

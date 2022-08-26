@@ -36,7 +36,7 @@ export namespace Build {
     const result = esbuild.buildSync({
       entryPoints: [path],
       bundle: true,
-      platform: 'browser',
+      platform: 'node',
       format: 'esm',
       write: false,
       outdir: 'out',

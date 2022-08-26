@@ -34,7 +34,22 @@ import { existsSync } from 'node:fs'
 // Commands
 // -------------------------------------------------------------------------
 
-export type Command = ClickCommand | CloseCommand | DevToolsCommand | HelpCommand | IncognitoCommand | UrlCommand | PosCommand | RunCommand | SaveCommand | SizeCommand | UserCommand | VerboseCommand | WaitCommand | WindowCommand
+export type Command =
+  | ClickCommand
+  | CloseCommand
+  | DevToolsCommand
+  | FailCommand
+  | HelpCommand
+  | IncognitoCommand
+  | UrlCommand
+  | PosCommand
+  | RunCommand
+  | SaveCommand
+  | SizeCommand
+  | UserCommand
+  | VerboseCommand
+  | WaitCommand
+  | WindowCommand
 
 export interface ClickCommand {
   type: 'click'
@@ -54,6 +69,10 @@ export interface HelpCommand {
   type: 'help'
 }
 
+export interface FailCommand {
+  type: 'fail'
+}
+
 export interface IncognitoCommand {
   type: 'incognito'
 }
@@ -69,6 +88,11 @@ export interface PosCommand {
   y: number
 }
 
+export interface RunCommand {
+  type: 'run'
+  path: string
+}
+
 export interface SaveCommand {
   type: 'save'
   format: 'png' | 'jpeg' | 'pdf'
@@ -79,11 +103,6 @@ export interface SizeCommand {
   type: 'size'
   width: number
   height: number
-}
-
-export interface RunCommand {
-  type: 'run'
-  path: string
 }
 
 export interface UserCommand {
@@ -184,6 +203,10 @@ export namespace Commands {
     return { type: 'help' }
   }
 
+  function parseFail(params: string[]): FailCommand {
+    return { type: 'fail' }
+  }
+
   function parseIncognito(params: string[]): IncognitoCommand {
     return { type: 'incognito' }
   }
@@ -247,6 +270,10 @@ export namespace Commands {
             yield parseHelp(params)
             break
           }
+          case 'fail': {
+            yield parseFail(params)
+            break
+          }
           case 'incognito': {
             yield parseIncognito(params)
             break
@@ -291,7 +318,7 @@ export namespace Commands {
             throw new Error(`Unknown command '${command}'`)
         }
       } catch (error: any) {
-        throw Error(`${Color.Red('Error')}: ${error.message}`)
+        throw Error(`Drift: ${Color.Red('Error')}: ${error.message}`)
       }
     }
   }

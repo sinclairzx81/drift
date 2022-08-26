@@ -44,31 +44,38 @@ Drift provides the following command line interface.
 ```
 Format:
 
-  $ drift [...command]
+  $ drift [...command | flag]
 
 Examples:
 
   $ drift url https://domain.com
   $ drift run script.ts
   $ drift url https://domain.com run script.ts
-  $ drift url https://domain.com wait 1000 save screenshot.png        
+  $ drift url https://domain.com wait 1000 save screenshot.png
+  $ drift window devtools url https://domain.com
 
 Commands:
 
-  url        <url>      Navigate to the given url.
-  run        <path>     Runs a script in the current url.
-  size       <w> <h>    Sets desktop window size.
-  pos        <x> <y>    Sets desktop window position.
-  save       <path>     Save current page as png, jpeg or pdf format. 
-  user       <path>     Sets the chrome user data directory.
-  click      <x> <y>    Send mousedown event to the current url.      
-  wait       <ms>       Wait for the given milliseconds.
-  window                Run with desktop window.
-  incognto              Run chrome in incognito mode.
-  devtools              Open devtools.
-  verbose               Write chrome logs to stdout.
-  help                  Lists available commands.
-  close                 Closes the drift process.
+  url      endpoint  Navigate chrome to the given endpoint
+  run      path      Runs a script in the current url
+  size     w h       Sets desktop window size
+  pos      x y       Sets desktop window position
+  save     path      Save current page as png, jpeg or pdf format
+  user     path      Sets the chrome user data directory
+  click    x y       Send mousedown event to the current url
+  wait     ms        Wait for the given milliseconds
+  close              Close drift process
+
+Flags:
+
+  window             Open chrome with desktop window
+  incognto           Open chrome in incognito mode
+  devtools           Open chrome with devtools
+  verbose            Emit chrome logs to stdout
+  fail               Close drift on any error
+  help               Show this help message
+
+
 ```
 
 ## Examples

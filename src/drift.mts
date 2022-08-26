@@ -35,6 +35,11 @@ import { join, resolve } from 'node:path'
 // Util Functions
 // --------------------------------------------------------------------
 
+/** Checks if this command exists */
+function hasCommand(type: Command['type'], commands: Command[]) {
+  return commands.find((command) => command.type === type) !== undefined
+}
+
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
 function userdir(commands: Command[]) {
   const command = commands.find((command) => command.type === 'user') as UserCommand | undefined
@@ -73,7 +78,7 @@ function help() {
   console.log(`
 Format:
 
-  $ drift [...command]
+  $ drift [...command | flag]
 
 Examples:
 
@@ -81,24 +86,30 @@ Examples:
   $ drift ${Color.Gray('run')} ${Color.Blue('script.ts')}
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('run')} ${Color.Blue('script.ts')}
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('wait')} ${Color.Blue('1000')} ${Color.Gray('save')} ${Color.Blue('screenshot.png')}
+  $ drift ${Color.Gray('window')} ${Color.Gray('devtools')} ${Color.Gray('url')} ${Color.Blue('https://domain.com')}
 
 Commands:
 
-  ${Color.Gray('url')}        ${Color.Blue('<url>')}      Navigate to the given url.
-  ${Color.Gray('run')}        ${Color.Blue('<path>')}     Runs a script in the current url.  
-  ${Color.Gray('size')}       ${Color.Blue('<w> <h>')}    Sets desktop window size.
-  ${Color.Gray('pos')}        ${Color.Blue('<x> <y>')}    Sets desktop window position.
-  ${Color.Gray('save')}       ${Color.Blue('<path>')}     Save current page as png, jpeg or pdf format.
-  ${Color.Gray('user')}       ${Color.Blue('<path>')}     Sets the chrome user data directory.
-  ${Color.Gray('click')}      ${Color.Blue('<x> <y>')}    Send mousedown event to the current url.
-  ${Color.Gray('wait')}       ${Color.Blue('<ms>')}       Wait for the given milliseconds.
-  ${Color.Gray('window')}     ${Color.Blue('')}           Run with desktop window.
-  ${Color.Gray('incognto')}   ${Color.Blue('')}           Run chrome in incognito mode.
-  ${Color.Gray('devtools')}   ${Color.Blue('')}           Open devtools.
-  ${Color.Gray('verbose')}    ${Color.Blue('')}           Write chrome logs to stdout.
-  ${Color.Gray('help')}       ${Color.Blue('')}           Lists available commands.
-  ${Color.Gray('close')}      ${Color.Blue('')}           Closes the drift process.
-  `)
+  ${Color.Gray('url')}      ${Color.Blue('endpoint')}  Navigate chrome to the given endpoint
+  ${Color.Gray('run')}      ${Color.Blue('path')}      Runs a script in the current url
+  ${Color.Gray('size')}     ${Color.Blue('w h')}       Sets desktop window size
+  ${Color.Gray('pos')}      ${Color.Blue('x y')}       Sets desktop window position
+  ${Color.Gray('save')}     ${Color.Blue('path')}      Save current page as png, jpeg or pdf format
+  ${Color.Gray('user')}     ${Color.Blue('path')}      Sets the chrome user data directory
+  ${Color.Gray('click')}    ${Color.Blue('x y')}       Send mousedown event to the current url
+  ${Color.Gray('wait')}     ${Color.Blue('ms')}        Wait for the given milliseconds
+  ${Color.Gray('close')}    ${Color.Blue('')}          Close drift process
+
+Flags:
+
+  ${Color.Gray('window')}   ${Color.Blue('')}          Open chrome with desktop window
+  ${Color.Gray('incognto')} ${Color.Blue('')}          Open chrome in incognito mode
+  ${Color.Gray('devtools')} ${Color.Blue('')}          Open chrome with devtools
+  ${Color.Gray('verbose')}  ${Color.Blue('')}          Emit chrome logs to stdout
+  ${Color.Gray('fail')}     ${Color.Blue('')}          Close drift on any error
+  ${Color.Gray('help')}     ${Color.Blue('')}          Show this help message
+
+`)
   process.exit(0)
 }
 
@@ -130,16 +141,22 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
-const incognito = commands.find((command) => command.type === 'incognito') !== undefined
-const verbose = commands.find((command) => command.type === 'verbose') !== undefined
-const devtools = commands.find((command) => command.type === 'devtools') !== undefined
-const headless = commands.find((command) => command.type === 'window') === undefined
+const incognito = hasCommand('incognito', commands)
+const verbose = hasCommand('verbose', commands)
+const devtools = hasCommand('devtools', commands)
+const headless = !hasCommand('window', commands)
 const user = userdir(commands)
 const repl = new Repl()
 const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })
 const session = new Session(await browser.webSocketDebuggerUrl, repl)
 session.on('exit', (code) => browser.close().then(() => process.exit(code)))
 browser.on('exit', () => process.exit(0))
+session.on('error', async () => {
+  if (!hasCommand('fail', commands)) return
+  log('fail', 'closing due to transient error')
+  await browser.close()
+  process.exit(1)
+})
 browser.on('log', (content) => {
   repl.disable()
   console.log(Color.Blue(content))

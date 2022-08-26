@@ -110,14 +110,13 @@ export class Session {
   /** Runs the given script in the page */
   public async run(code: string): Promise<void> {
     await this.#ready.wait()
-    const expression = `(async function () { ${code} })();`
-    const result = await this.#devtools.Runtime.evaluate({ expression })
-    if (result.exceptionDetails) {
-      return this.#onExceptionThrown({
-        exceptionDetails: result.exceptionDetails,
-        timestamp: Date.now(),
-      })
+    const expression = `(async function() { ${code} })();`
+    const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
+    if (compileResult.exceptionDetails) {
+      this.#handleError(compileResult.exceptionDetails)
+      return
     }
+    await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
   }
 
   public async evaluate(expression: string): Promise<unknown> {
@@ -221,6 +220,12 @@ export class Session {
     this.#repl.enable()
   }
 
+  #consoleTable(...args: any[]) {
+    this.#repl.disable()
+    console.table(...args)
+    this.#repl.enable()
+  }
+
   #consoleError(...args: any[]) {
     this.#repl.disable()
     console.log(Color.red, ...args, Color.esc)
@@ -231,6 +236,16 @@ export class Session {
     this.#repl.disable()
     console.clear()
     this.#repl.enable()
+  }
+
+  // ---------------------------------------------------------------
+  // Error Handling
+  // ---------------------------------------------------------------
+
+  #handleError(exceptionDetails: DevToolsInterface.Runtime.ExceptionDetails) {
+    const exception = new Exception(exceptionDetails)
+    this.#consoleError(exception)
+    this.#events.send('error', exception)
   }
 
   // ---------------------------------------------------------------
@@ -272,6 +287,10 @@ export class Session {
           this.#consoleClear()
           break
         }
+        case 'table': {
+          this.#consoleTable(...args)
+          break
+        }
         case 'error': {
           this.#consoleError(...args)
           break
@@ -284,8 +303,6 @@ export class Session {
   }
 
   #onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
-    const exception = new Exception(event.exceptionDetails)
-    this.#events.send('close', exception)
-    this.#consoleError(exception)
+    this.#handleError(event.exceptionDetails)
   }
 }
