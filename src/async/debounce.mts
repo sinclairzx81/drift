@@ -29,6 +29,8 @@ THE SOFTWARE.
 type DebounceCallback = () => Promise<unknown> | unknown
 
 export class Debounce {
+  readonly #millisecond: number
+  readonly #deferred: boolean
   #callback: DebounceCallback | null
   #waiting: boolean
 
@@ -37,13 +39,15 @@ export class Debounce {
    * @param millisecond The maximum millisecond window for this debounce
    * @param deferred Should the debounce defer the last callback to execute once a debounce window ends
    */
-  constructor(private readonly millisecond: number, private readonly deferred: boolean = false) {
+  constructor(millisecond: number, deferred: boolean = false) {
+    this.#millisecond = millisecond
+    this.#deferred = deferred
     this.#callback = null
     this.#waiting = false
   }
 
   public async run(callback: DebounceCallback) {
-    if (this.deferred) {
+    if (this.#deferred) {
       this.#runDeferred(callback)
     } else {
       this.#runDefault(callback)
@@ -75,6 +79,6 @@ export class Debounce {
   }
 
   #delay() {
-    return new Promise((resolve) => setTimeout(resolve, this.millisecond))
+    return new Promise((resolve) => setTimeout(resolve, this.#millisecond))
   }
 }

@@ -35,13 +35,13 @@ export type { MessageEvent, CloseEvent, ErrorEvent } from 'ws'
 export class WebSocket {
   readonly #socket: WSWebSocket
   readonly #events: Events
-  constructor(private readonly endpoint: string) {
+  constructor(endpoint: string) {
     this.#events = new Events()
-    this.#socket = new ws.WebSocket(this.endpoint)
-    this.#socket.addEventListener('open', () => this.onOpen())
-    this.#socket.addEventListener('message', (event) => this.onMessage(event))
-    this.#socket.addEventListener('error', (event) => this.onError(event))
-    this.#socket.addEventListener('close', (event) => this.onClose(event))
+    this.#socket = new ws.WebSocket(endpoint)
+    this.#socket.addEventListener('open', () => this.#onOpen())
+    this.#socket.addEventListener('message', (event) => this.#onMessage(event))
+    this.#socket.addEventListener('error', (event) => this.#onError(event))
+    this.#socket.addEventListener('close', (event) => this.#onClose(event))
   }
 
   public on(event: 'open', func: EventHandler<void>): EventListener
@@ -68,19 +68,19 @@ export class WebSocket {
     this.#socket.close(code)
   }
 
-  private onOpen() {
+  #onOpen() {
     this.#events.send('open', void 0)
   }
 
-  private onMessage(event: MessageEvent) {
+  #onMessage(event: MessageEvent) {
     this.#events.send('message', event)
   }
 
-  private onError(event: ErrorEvent) {
+  #onError(event: ErrorEvent) {
     this.#events.send('error', event)
   }
 
-  private onClose(event: CloseEvent) {
+  #onClose(event: CloseEvent) {
     this.#events.send('close', event)
   }
 }

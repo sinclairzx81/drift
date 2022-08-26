@@ -37,14 +37,14 @@ export class Barrier {
 
   /** Pauses this barrier causing operations to wait. */
   public pause(): void {
-    this.dispatch()
+    this.#dispatch()
     this.#paused = true
   }
 
   /** Resumes this barrier causing all operations to run. */
   public resume(): void {
     this.#paused = false
-    this.dispatch()
+    this.#dispatch()
   }
 
   /** Waits until this barrier enters a resumed state. */
@@ -52,7 +52,7 @@ export class Barrier {
     return this.#paused ? new Promise((resolve) => this.#resolvers.push(resolve)) : Promise.resolve(void 0)
   }
 
-  private async dispatch(): Promise<void> {
+  async #dispatch(): Promise<void> {
     while (!this.#paused && this.#resolvers.length > 0) {
       const resolve = this.#resolvers.shift()!
       resolve()

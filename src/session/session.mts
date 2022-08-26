@@ -68,7 +68,7 @@ export class Session {
     this.#resolver = new ValueResolver(this.#devtools)
     this.#events = new Events()
     this.#ready = new Barrier(true)
-    this.setup().catch((error) => console.error(error))
+    this.#setup().catch((error) => console.error(error))
   }
 
   /** Subscribes once to exit calls made from the page */
@@ -89,8 +89,11 @@ export class Session {
     return this.#events.once(event, handler)
   }
 
-  /** Initializes the session */
-  private async setup() {
+  // ---------------------------------------------------------------
+  // Setup
+  // ---------------------------------------------------------------
+
+  async #setup() {
     this.#adapter.on('close', () => this.#onAdapterClose())
     this.#devtools.Runtime.on('executionContextCreated', (event) => this.#onExecutionContextCreated(event))
     this.#devtools.Runtime.on('executionContextDestroyed', (event) => this.#onExecutionContextDestroyed(event))

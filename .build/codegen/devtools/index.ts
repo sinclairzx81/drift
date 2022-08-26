@@ -161,6 +161,7 @@ export namespace DevToolsCodeGen {
     yield event.description ? `/** ${removeNewlines(event.description)} */` : ''
     yield `public once(event: '${event.name}', handler: EventHandler<${eventType}>): EventListener`
   }
+
   export function* generateClass(domain: any): Generator<string> {
     yield `export class ${domain.domain} {`
     yield 'private readonly events: Events'

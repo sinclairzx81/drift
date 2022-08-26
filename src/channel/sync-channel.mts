@@ -40,11 +40,13 @@ import { Queue } from './queue.mjs'
 export class SyncChannel<T = any> implements SyncSender<T>, Receiver<T> {
   readonly #queue: Queue<Message<T>>
   readonly #sends: Deferred<void>[]
+  readonly #bounds: number
   #endedAsync: boolean
   #ended: boolean
 
   /** Creates a new SyncChannel */
-  constructor(private readonly bounds: number = 1) {
+  constructor(bounds: number = 1) {
+    this.#bounds = bounds
     this.#queue = new Queue<Message<T>>()
     this.#sends = []
     this.#endedAsync = false
@@ -63,7 +65,7 @@ export class SyncChannel<T = any> implements SyncSender<T>, Receiver<T> {
   /** Sends the given value to this channel. If channel has ended no action. */
   public async send(value: T): Promise<void> {
     if (this.#ended) return
-    await this.waitForQueue()
+    await this.#waitForQueue()
     this.#queue.enqueue({ type: MessageType.Next, value })
   }
 
@@ -71,7 +73,7 @@ export class SyncChannel<T = any> implements SyncSender<T>, Receiver<T> {
   public async error(error: Error): Promise<void> {
     if (this.#ended) return
     this.#ended = true
-    await this.waitForQueue()
+    await this.#waitForQueue()
     this.#endedAsync = true
     this.#queue.enqueue({ type: MessageType.Error, error })
     this.#queue.enqueue({ type: MessageType.End })
@@ -81,7 +83,7 @@ export class SyncChannel<T = any> implements SyncSender<T>, Receiver<T> {
   public async end(): Promise<void> {
     if (this.#ended) return
     this.#ended = true
-    await this.waitForQueue()
+    await this.#waitForQueue()
     this.#endedAsync = true
     this.#queue.enqueue({ type: MessageType.End })
   }
@@ -90,7 +92,7 @@ export class SyncChannel<T = any> implements SyncSender<T>, Receiver<T> {
   public async next(): Promise<T | null> {
     if (this.#endedAsync && this.#queue.bufferedAmount === 0) return null
     const message = await this.#queue.dequeue()
-    this.releaseQueue()
+    this.#releaseQueue()
     switch (message.type) {
       case MessageType.Next:
         return message.value
@@ -103,21 +105,21 @@ export class SyncChannel<T = any> implements SyncSender<T>, Receiver<T> {
   }
 
   /** Checks if the buffer is at capacity */
-  private atCapacity() {
-    return this.#queue.bufferedAmount >= this.bounds
+  #atCapacity() {
+    return this.#queue.bufferedAmount >= this.#bounds
   }
 
   /** Releases one send from the queue. */
-  private async releaseQueue() {
-    if (!this.atCapacity() && this.#sends.length > 0) {
+  async #releaseQueue() {
+    if (!this.#atCapacity() && this.#sends.length > 0) {
       const send = this.#sends.shift()!
       send.resolve()
     }
   }
 
   /** Waits for the queue to become free */
-  private async waitForQueue() {
-    if (this.atCapacity()) {
+  async #waitForQueue() {
+    if (this.#atCapacity()) {
       const deferred = new Deferred<void>()
       this.#sends.push(deferred)
       await deferred.promise()
