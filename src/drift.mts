@@ -156,18 +156,21 @@ session.on('close', async (code) => {
   await browser.close()
   process.exit(code)
 })
+
 browser.on('log', (content) => {
   repl.disable()
   log('verbose', Color.Blue(content))
   repl.enable()
 })
+
 browser.on('exit', async () => {
   await browser.close()
   process.exit(0)
 })
+
 session.on('error', async () => {
   if (!fail) return
-  log('fail', 'closing on error')
+  log('fail', 'close')
   await browser.close()
   process.exit(1)
 })
