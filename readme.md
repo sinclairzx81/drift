@@ -35,9 +35,8 @@ License MIT
 - [Install](#Install)
 - [Commands](#Commands)
 - [Examples](#Examples)
+- [Testing](#Testing)
 - [Demo](#Demo)
-- [Test](#Test)
-
 
 ## Commands
 
@@ -113,13 +112,7 @@ $ drift window run index.ts wait 5000 close
 $ drift url https://github.com wait 4000 save screenshot.png
 ```
 
-## Demo
-
-Demonstration of automating Chrome through the Terminal
-
-![Drift Demo](.build/assets/drift.gif "Drift Demo")
-
-## Test
+## Testing
 
 Drift modifies the `window.close(...)` function to allow browser scripts to terminate the Drift process from within a page. Scripts can call `window.close(...)` with an optional exit code. This functionality allows Drift to be used in CI environments that interpret non zero exit codes as errors.
 
@@ -133,3 +126,8 @@ Which can be run on CI environments with the following.
 $ drift run test.ts
 ```
 
+## Demo
+
+The following demonstrates automating Chrome through the Terminal
+
+![Drift Demo](.build/assets/drift.gif "Drift Demo")
