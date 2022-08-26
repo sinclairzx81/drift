@@ -29,7 +29,7 @@ THE SOFTWARE.
 import { spawn, ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
-import { Retry } from '../../async/index.mjs'
+import { Delay, Retry } from '../../async/index.mjs'
 import { Mutex } from '../../mutex/index.mjs'
 import { Request } from '../../request/index.mjs'
 import { ChromePath } from './path.mjs'
@@ -70,10 +70,15 @@ export namespace ChromeStart {
     await mutex.lock()
     const port = await findUnusedPort()
     const user = join(options.user, `/port_${port}`)
-    const flags = ['about:blank', `--user-data-dir=${user}`, `--remote-debugging-port=${port}`, '--no-default-browser-check']
+    const flags = ['about:blank']
     if (options.devtools) flags.push('--auto-open-devtools-for-tabs')
     if (options.incognito) flags.push('--incognito')
     if (options.headless) flags.push('--headless')
+    flags.push('--hide-crash-restore-bubble')
+    flags.push(`--user-data-dir=${user}`)
+    flags.push(`--remote-debugging-port=${port}`)
+    flags.push('--no-default-browser-check')
+
     const process = spawn(ChromePath.get(), flags)
     const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port)
     const chrome = new Chrome(process, webSocketDebuggerUrl, options.verbose)
@@ -113,7 +118,7 @@ export class Chrome {
   }
 
   public async close(): Promise<void> {
-    this.#process.kill()
+    this.#process.kill('SIGTERM')
   }
 
   #onExit() {

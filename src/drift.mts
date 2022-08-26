@@ -141,26 +141,35 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
+
 const incognito = hasCommand('incognito', commands)
 const verbose = hasCommand('verbose', commands)
 const devtools = hasCommand('devtools', commands)
 const headless = !hasCommand('window', commands)
+const fail = hasCommand('fail', commands)
 const user = userdir(commands)
+
 const repl = new Repl()
 const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })
 const session = new Session(await browser.webSocketDebuggerUrl, repl)
-session.on('exit', (code) => browser.close().then(() => process.exit(code)))
-browser.on('exit', () => process.exit(0))
-session.on('error', async () => {
-  if (!hasCommand('fail', commands)) return
-  log('fail', 'closing due to transient error')
+session.on('close', async (code) => {
   await browser.close()
-  process.exit(1)
+  process.exit(code)
 })
 browser.on('log', (content) => {
   repl.disable()
-  console.log(Color.Blue(content))
+  log('verbose', Color.Blue(content))
   repl.enable()
+})
+browser.on('exit', async () => {
+  await browser.close()
+  process.exit(0)
+})
+session.on('error', async () => {
+  if (!fail) return
+  log('fail', 'closing on error')
+  await browser.close()
+  process.exit(1)
 })
 
 // --------------------------------------------------------------------
@@ -181,7 +190,7 @@ for (const command of commands) {
     }
     case 'run': {
       log('run', command.path)
-      await session.run(Build.build(command.path))
+      await session.compile(Build.build(command.path))
       break
     }
     case 'pos': {

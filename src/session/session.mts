@@ -55,7 +55,6 @@ export class Exception extends Error {
 
 export class Session {
   readonly #resolver: ValueResolver
-  readonly #adapter: DevToolsAdapter
   readonly #devtools: DevToolsInterface.DevTools
   readonly #repl: Repl
   readonly #events: Events
@@ -63,8 +62,7 @@ export class Session {
 
   constructor(websocketDebuggerEndpoint: string, repl: Repl) {
     this.#repl = repl
-    this.#adapter = new DevToolsAdapter(websocketDebuggerEndpoint)
-    this.#devtools = new DevToolsInterface.DevTools(this.#adapter)
+    this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(websocketDebuggerEndpoint))
     this.#resolver = new ValueResolver(this.#devtools)
     this.#events = new Events()
     this.#ready = new Barrier(true)
@@ -72,19 +70,10 @@ export class Session {
   }
 
   /** Subscribes once to exit calls made from the page */
-  public once(event: 'exit', handler: EventHandler<number>): EventListener
+  public on(event: 'close', handler: EventHandler<number>): EventListener
   /** Subscribes once to unhandled errors occuring in the page */
-  public once(event: 'error', handler: EventHandler<Exception | null>): EventListener
-  /** Subscribes once to events */
-  public once(event: string, handler: EventHandler<any>): EventListener {
-    return this.#events.once(event, handler)
-  }
-
-  /** Subscribes to exit calls made from the page */
-  public on(event: 'exit', handler: EventHandler<number>): EventListener
-  /** Subscribes to unhandled errors occuring in the page */
   public on(event: 'error', handler: EventHandler<Exception | null>): EventListener
-  /** Subscribes to events */
+  /** Subscribes once to events */
   public on(event: string, handler: EventHandler<any>): EventListener {
     return this.#events.once(event, handler)
   }
@@ -94,7 +83,6 @@ export class Session {
   // ---------------------------------------------------------------
 
   async #setup() {
-    this.#adapter.on('close', () => this.#onAdapterClose())
     this.#devtools.Runtime.on('executionContextCreated', (event) => this.#onExecutionContextCreated(event))
     this.#devtools.Runtime.on('executionContextDestroyed', (event) => this.#onExecutionContextDestroyed(event))
     this.#devtools.Runtime.on('consoleAPICalled', (event) => this.#onConsoleApiCalled(event))
@@ -110,8 +98,7 @@ export class Session {
   // Interface
   // ---------------------------------------------------------------
 
-  /** Runs the given script in the page */
-  public async run(code: string): Promise<void> {
+  public async compile(code: string): Promise<void> {
     await this.#ready.wait()
     const expression = `(async function() { ${code} })();`
     const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
@@ -127,8 +114,7 @@ export class Session {
 
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
-      const error = new Error(result.exceptionDetails.exception?.description)
-      return this.#consoleError(error)
+      return this.#handleError(result.exceptionDetails)
     }
 
     // -----------------------------------------------------------------------
@@ -255,16 +241,14 @@ export class Session {
   // Events
   // ---------------------------------------------------------------
 
-  async #onAdapterClose() {
-    // this.#consoleError('Socket connection lost to chrome debugger')
-  }
-
   async #onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
+    // Execution context create signals the browser has entered a new website / page.
     const history = await this.#devtools.Page.getNavigationHistory({})
     const current = history.entries[history.entries.length - 1]
     if (new URL(current.url).origin === event.context.origin) {
       this.#consoleLog(Color.Gray('drift'), current.url)
     }
+    // Augment window.close() with close signal.
     await this.#devtools.Runtime.evaluate({
       contextId: event.context.id,
       expression: `window.close = function(code = 0) { console.log('<<close>>', code) }`,
@@ -281,27 +265,21 @@ export class Session {
   }
 
   async #onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {
+    // Intercept '<<close>>' message as a signal browser wants to close.
     const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
     if (args.length === 2 && args[0] === '<<close>>') {
-      return this.#events.send('exit', args[1])
-    } else {
-      switch (event.type) {
-        case 'clear': {
-          this.#consoleClear()
-          break
-        }
-        case 'table': {
-          this.#consoleTable(...args)
-          break
-        }
-        case 'error': {
-          this.#consoleError(...args)
-          break
-        }
-        default: {
-          this.#consoleLog(...args)
-        }
-      }
+      return this.#events.send('close', args[1] === undefined ? 0 : args[1])
+    }
+    // Process console logs as normal
+    switch (event.type) {
+      case 'clear':
+        return this.#consoleClear()
+      case 'table':
+        return this.#consoleTable(...args)
+      case 'error':
+        return this.#consoleError(...args)
+      default:
+        return this.#consoleLog(...args)
     }
   }
 
