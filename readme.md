@@ -37,6 +37,7 @@ License MIT
 - [Examples](#Examples)
 - [Testing](#Testing)
 - [Demo](#Demo)
+- [Contribute](#Contribute)
 
 ## Commands
 
@@ -131,3 +132,7 @@ $ drift run test.ts
 The following demonstrates automating Chrome through the Terminal
 
 ![Drift Demo](.build/assets/drift.gif "Drift Demo")
+
+## Contribute
+
+Drift is open to community contribution. Please ensure you submit an open issue before submitting a pull request. The Drift project preferences open community discussion prior to accepting new features.
