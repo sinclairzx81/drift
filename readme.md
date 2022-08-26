@@ -129,7 +129,7 @@ $ drift run test.ts
 
 ## Demo
 
-The following demonstrates automating Chrome through the Terminal
+The following demonstrates using Drift to automate Chrome in the Terminal
 
 ![Drift Demo](.build/assets/drift.gif "Drift Demo")
 
