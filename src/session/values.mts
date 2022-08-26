@@ -101,15 +101,22 @@ export class ValueResolver {
   private async resolveArrayBuffer(object: DevToolsInterface.Runtime.RemoteObject, depth: number): Promise<any> {
     return this.createConstructorInstance('ArrayBuffer', [])
   }
+
   private async resolveDataView(object: DevToolsInterface.Runtime.RemoteObject, depth: number): Promise<any> {
     return object.className
   }
+
   private async resolveDate(object: DevToolsInterface.Runtime.RemoteObject, depth: number): Promise<any> {
     return new Date(Date.parse(object.description!))
   }
+
   private async resolveError(object: DevToolsInterface.Runtime.RemoteObject, depth: number): Promise<any> {
-    return object.className
+    const description = (object.preview ? object.preview.description : object.description) || 'Unknown Error'
+    const lines = description.split('\n')
+    const message = lines.length > 0 ? lines[0] : description
+    return new Error(`${object.className}: ${message}`)
   }
+
   private async resolveIterator(object: DevToolsInterface.Runtime.RemoteObject, depth: number): Promise<any> {
     return object.className
   }
