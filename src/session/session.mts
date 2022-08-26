@@ -135,6 +135,18 @@ export class Session {
     await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
   }
 
+  public async css(path: string): Promise<void> {
+    await this.#ready.wait()
+    if (!Fs.existsSync(path)) return this.#consoleError(`css: file '${path}' not found`)
+    const expression = `document.head.insertAdjacentHTML("beforeend", \`\n<style>\n${Build.build(path)}</style>\`)`
+    const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
+    if (compileResult.exceptionDetails) {
+      this.#handleError(compileResult.exceptionDetails)
+      return
+    }
+    await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
+  }
+
   public async position(x: number, y: number) {
     await this.#ready.wait()
     const target = await this.#devtools.Browser.getWindowForTarget({})
@@ -305,6 +317,7 @@ export class Session {
       'window.close    = function(code = 0) { console.log("<<close>>", code) }',
       'window.url      = function(endpoint) { console.log("<<url>>", endpoint) }',
       'window.run      = function(path)     { console.log("<<run>>", path) }',
+      'window.css      = function(path)     { console.log("<<css>>", path) }',
       'window.position = function(x, y)     { console.log("<<position>>", x, y) }',
       'window.size     = function(w, h)     { console.log("<<size>>", w, h) }',
       'window.click    = function(x, y)     { console.log("<<click>>", x, y) }',
@@ -332,6 +345,8 @@ export class Session {
       return this.#events.send('close', args[1] === undefined ? 0 : args[1])
     } else if (args.length === 2 && args[0] === '<<run>>' && this.#isString(args[1])) {
       return await this.run(args[1])
+    } else if (args.length === 2 && args[0] === '<<css>>' && this.#isString(args[1])) {
+      return await this.css(args[1])
     } else if (args.length === 2 && args[0] === '<<url>>' && this.#isString(args[1])) {
       return await this.url(args[1])
     } else if (args.length === 2 && args[0] === '<<save>>' && this.#isString(args[1])) {

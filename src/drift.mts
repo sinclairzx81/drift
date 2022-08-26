@@ -92,6 +92,7 @@ Commands:
 
   ${Color.Gray('url')}       ${Color.Blue('endpoint')}  Navigate page to given endpoint url
   ${Color.Gray('run')}       ${Color.Blue('path')}      Runs a script on the current page
+  ${Color.Gray('css')}       ${Color.Blue('path')}      Adds a stylesheet to the current page
   ${Color.Gray('save')}      ${Color.Blue('path')}      Save current page as png, jpeg or pdf format
   ${Color.Gray('user')}      ${Color.Blue('path')}      Sets the chrome user data directory
   ${Color.Gray('size')}      ${Color.Blue('w h')}       Sets desktop window size
@@ -189,6 +190,11 @@ for (const command of commands) {
       log('close')
       await browser.close()
       process.exit(0)
+    }
+    case 'css': {
+      log('css', command.path)
+      await session.css(command.path)
+      break
     }
     case 'run': {
       log('run', command.path)

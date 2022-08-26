@@ -27,8 +27,8 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { Color } from '../color/index.mjs'
-import { extname, resolve } from 'node:path'
-import { existsSync } from 'node:fs'
+import * as Path from 'node:path'
+import * as Fs from 'node:fs'
 
 // -------------------------------------------------------------------------
 // Commands
@@ -37,6 +37,7 @@ import { existsSync } from 'node:fs'
 export type Command =
   | ClickCommand
   | CloseCommand
+  | CssCommand
   | DevToolsCommand
   | FailCommand
   | HelpCommand
@@ -59,6 +60,11 @@ export interface ClickCommand {
 
 export interface CloseCommand {
   type: 'close'
+}
+
+export interface CssCommand {
+  type: 'css'
+  path: string
 }
 
 export interface DevToolsCommand {
@@ -149,7 +155,7 @@ export namespace Commands {
   }
 
   function parseSaveFormat(path: string): `jpeg` | 'png' | 'pdf' {
-    const ext = extname(path)
+    const ext = Path.extname(path)
     if (['.jpg', '.jpeg'].includes(ext)) return 'jpeg'
     if (['.png'].includes(ext)) return 'png'
     if (['.pdf'].includes(ext)) return 'pdf'
@@ -157,13 +163,13 @@ export namespace Commands {
   }
 
   function parseInputPath(path: string): string {
-    if (!existsSync(path)) throw new Error(`Input file path '${path}' not found`)
-    return resolve(path)
+    if (!Fs.existsSync(path)) throw new Error(`Input file path '${path}' not found`)
+    return Path.resolve(path)
   }
 
   function parseOutputPath(path: string): string {
     if (path === undefined) throw Error('Expected output path')
-    return resolve(path)
+    return Path.resolve(path)
   }
 
   function parseInteger(params: string[]): number {
@@ -193,6 +199,10 @@ export namespace Commands {
 
   function parseClose(params: string[]): CloseCommand {
     return { type: 'close' }
+  }
+
+  function parseCss(params: string[]): CssCommand {
+    return { type: 'css', path: parseInputPath(params.shift()!) }
   }
 
   function parseDevTools(params: string[]): DevToolsCommand {
@@ -260,6 +270,10 @@ export namespace Commands {
           }
           case 'close': {
             yield parseClose(params)
+            break
+          }
+          case 'css': {
+            yield parseCss(params)
             break
           }
           case 'devtools': {
