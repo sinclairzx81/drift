@@ -35,6 +35,7 @@ License MIT
 - [Install](#Install)
 - [Commands](#Commands)
 - [Examples](#Examples)
+- [Demonstration](#Demonstration)
 - [Testing](#Testing)
 
 ## Commands
@@ -110,6 +111,12 @@ $ drift window run index.ts wait 5000 close
 
 $ drift url https://github.com wait 4000 save screenshot.png
 ```
+
+## Demonstration
+
+Demonstration of automating Chrome through the Terminal
+
+![Drift Demo](.build/assets/drift.gif "Drift Demo")
 
 ## Testing
 
