@@ -31,9 +31,9 @@ import { existsSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Util Functions
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /** Checks if this command exists */
 function hasCommand(type: Command['type'], commands: Command[]) {
@@ -90,42 +90,42 @@ Examples:
 
 Commands:
 
-  ${Color.Gray('url')}      ${Color.Blue('endpoint')}  Navigate chrome to the given endpoint
-  ${Color.Gray('run')}      ${Color.Blue('path')}      Runs a script in the current url
-  ${Color.Gray('size')}     ${Color.Blue('w h')}       Sets desktop window size
-  ${Color.Gray('pos')}      ${Color.Blue('x y')}       Sets desktop window position
-  ${Color.Gray('save')}     ${Color.Blue('path')}      Save current page as png, jpeg or pdf format
-  ${Color.Gray('user')}     ${Color.Blue('path')}      Sets the chrome user data directory
-  ${Color.Gray('click')}    ${Color.Blue('x y')}       Send mousedown event to the current url
-  ${Color.Gray('wait')}     ${Color.Blue('ms')}        Wait for the given milliseconds
-  ${Color.Gray('close')}    ${Color.Blue('')}          Close drift process
+  ${Color.Gray('url')}       ${Color.Blue('endpoint')}  Navigate page to given endpoint url
+  ${Color.Gray('run')}       ${Color.Blue('path')}      Runs a script on the current page
+  ${Color.Gray('save')}      ${Color.Blue('path')}      Save current page as png, jpeg or pdf format
+  ${Color.Gray('user')}      ${Color.Blue('path')}      Sets the chrome user data directory
+  ${Color.Gray('size')}      ${Color.Blue('w h')}       Sets desktop window size
+  ${Color.Gray('position')}  ${Color.Blue('x y')}       Sets desktop window position
+  ${Color.Gray('click')}     ${Color.Blue('x y')}       Send mousedown event to the current url
+  ${Color.Gray('wait')}      ${Color.Blue('ms')}        Wait for the given milliseconds
+  ${Color.Gray('close')}     ${Color.Blue('')}          Close drift process
 
 Flags:
 
-  ${Color.Gray('window')}   ${Color.Blue('')}          Open chrome with desktop window
-  ${Color.Gray('incognto')} ${Color.Blue('')}          Open chrome in incognito mode
-  ${Color.Gray('devtools')} ${Color.Blue('')}          Open chrome with devtools
-  ${Color.Gray('verbose')}  ${Color.Blue('')}          Emit chrome logs to stdout
-  ${Color.Gray('fail')}     ${Color.Blue('')}          Close drift on any error
-  ${Color.Gray('help')}     ${Color.Blue('')}          Show this help message
+  ${Color.Gray('window')}    ${Color.Blue('')}          Open chrome with desktop window
+  ${Color.Gray('incognto')}  ${Color.Blue('')}          Open chrome in incognito mode
+  ${Color.Gray('devtools')}  ${Color.Blue('')}          Open chrome with devtools
+  ${Color.Gray('verbose')}   ${Color.Blue('')}          Emit chrome logs to stdout
+  ${Color.Gray('fail')}      ${Color.Blue('')}          Close drift on any error
+  ${Color.Gray('help')}      ${Color.Blue('')}          Show this help message
 
 `)
-  process.exit(0)
 }
 
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Commands
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 const commands = Commands.parse()
 
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Help
-// --------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
-if (commands.find((command) => command.type === 'help')) {
+if (hasCommand('help', commands)) {
   banner()
   help()
+  process.exit(0)
 }
 
 // --------------------------------------------------------------------
@@ -141,7 +141,6 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
-
 const incognito = hasCommand('incognito', commands)
 const verbose = hasCommand('verbose', commands)
 const devtools = hasCommand('devtools', commands)
@@ -193,21 +192,17 @@ for (const command of commands) {
     }
     case 'run': {
       log('run', command.path)
-      await session.compile(Build.build(command.path))
+      await session.run(command.path)
       break
     }
-    case 'pos': {
-      log('pos', command.x, command.y)
+    case 'position': {
+      log('position', command.x, command.y)
       await session.position(command.x, command.y)
       break
     }
     case 'save': {
       log('save', command.path)
-      if (command.format !== 'pdf') {
-        await writeFile(command.path, await session.image(command.format))
-      } else {
-        await writeFile(command.path, await session.pdf())
-      }
+      await session.save(command.path)
       break
     }
     case 'size': {
@@ -217,7 +212,7 @@ for (const command of commands) {
     }
     case 'url': {
       log('url', command.url)
-      await session.navigate(command.url)
+      await session.url(command.url)
       break
     }
     case 'wait': {
@@ -240,4 +235,4 @@ for await (const input of repl) {
   await session.evaluate(input)
 }
 
-browser.close()
+await browser.close()

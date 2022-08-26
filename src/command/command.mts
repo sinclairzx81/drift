@@ -42,7 +42,7 @@ export type Command =
   | HelpCommand
   | IncognitoCommand
   | UrlCommand
-  | PosCommand
+  | PositionCommand
   | RunCommand
   | SaveCommand
   | SizeCommand
@@ -82,8 +82,8 @@ export interface UrlCommand {
   url: string
 }
 
-export interface PosCommand {
-  type: 'pos'
+export interface PositionCommand {
+  type: 'position'
   x: number
   y: number
 }
@@ -211,10 +211,10 @@ export namespace Commands {
     return { type: 'incognito' }
   }
 
-  function parsePos(params: string[]): PosCommand {
+  function parsePosition(params: string[]): PositionCommand {
     const x = parseInteger(params)
     const y = parseInteger(params)
-    return { type: 'pos', x, y }
+    return { type: 'position', x, y }
   }
 
   function parseRun(params: string[]): RunCommand {
@@ -278,8 +278,8 @@ export namespace Commands {
             yield parseIncognito(params)
             break
           }
-          case 'pos': {
-            yield parsePos(params)
+          case 'position': {
+            yield parsePosition(params)
             break
           }
           case 'run': {
@@ -318,7 +318,7 @@ export namespace Commands {
             throw new Error(`Unknown command '${command}'`)
         }
       } catch (error: any) {
-        throw Error(`Drift: ${Color.Red('Error')}: ${error.message}`)
+        throw Error(`${Color.Gray('drift')}: ${Color.Red('error')}: ${error.message}`)
       }
     }
   }

@@ -32,6 +32,10 @@ import { ValueResolver } from './values.mjs'
 import { Color } from '../color/index.mjs'
 import { Repl } from '../repl/index.mjs'
 import { Barrier } from '../async/index.mjs'
+import { Build } from '../build/index.mjs'
+
+import * as Path from 'node:path'
+import * as Fs from 'node:fs'
 
 // ------------------------------------------------------------------------
 // Error
@@ -98,17 +102,6 @@ export class Session {
   // Interface
   // ---------------------------------------------------------------
 
-  public async compile(code: string): Promise<void> {
-    await this.#ready.wait()
-    const expression = `(async function() { ${code} })();`
-    const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
-    if (compileResult.exceptionDetails) {
-      this.#handleError(compileResult.exceptionDetails)
-      return
-    }
-    await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
-  }
-
   public async evaluate(expression: string): Promise<unknown> {
     await this.#ready.wait()
 
@@ -130,17 +123,30 @@ export class Session {
       : this.#consoleLog(value)
   }
 
+  public async run(path: string): Promise<void> {
+    await this.#ready.wait()
+    if (!Fs.existsSync(path)) return this.#consoleError(`run: file '${path}' not found`)
+    const expression = `(async function() { ${Build.build(path)} })();`
+    const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
+    if (compileResult.exceptionDetails) {
+      this.#handleError(compileResult.exceptionDetails)
+      return
+    }
+    await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
+  }
+
   public async position(x: number, y: number) {
     await this.#ready.wait()
     const target = await this.#devtools.Browser.getWindowForTarget({})
     await this.#devtools.Browser.setWindowBounds({
       windowId: target.windowId,
-      bounds: { left: x, top: y, windowState: 'normal' },
+      bounds: { left: Math.floor(x), top: Math.floor(y), windowState: 'normal' },
     })
   }
 
-  public async size(width: number, height: number) {
+  public async size(w: number, h: number) {
     await this.#ready.wait()
+    const [width, height] = [Math.floor(w), Math.floor(h)]
     const viewport: DevToolsInterface.Page.Viewport = { scale: 1, x: 0, y: 0, width, height }
     const target = await this.#devtools.Browser.getWindowForTarget({})
     await this.#devtools.Browser.setWindowBounds({
@@ -159,22 +165,27 @@ export class Session {
     })
   }
 
-  public async navigate(url: string): Promise<void> {
+  public async url(url: string): Promise<void> {
     await this.#ready.wait()
     await this.#devtools.Page.navigate({ url })
     this.#ready.pause()
   }
 
-  public async image(format: 'png' | 'jpeg'): Promise<Uint8Array> {
+  public async save(path: string): Promise<void> {
     await this.#ready.wait()
-    const result = await this.#devtools.Page.captureScreenshot({ format })
-    return Buffer.from(result.data, 'base64')
-  }
-
-  public async pdf(): Promise<Uint8Array> {
-    await this.#ready.wait()
-    const result = await this.#devtools.Page.printToPDF({})
-    return Buffer.from(result.data, 'base64')
+    const target = Path.resolve(path)
+    this.#ensureDirectoryExists(Path.dirname(target))
+    const format = this.#imageFormat(target)
+    switch (format) {
+      case 'jpeg':
+        return await this.#saveImage(target, format)
+      case 'png':
+        return await this.#saveImage(target, format)
+      case 'pdf':
+        return await this.#savePdf(target)
+      default:
+        return this.#consoleError('save: only .png, .jpg and .pdf formats are supported.')
+    }
   }
 
   public async click(x: number, y: number) {
@@ -197,6 +208,35 @@ export class Session {
       x: x,
       y: y,
     })
+  }
+  // ---------------------------------------------------------------
+  // Image
+  // ---------------------------------------------------------------
+
+  #ensureDirectoryExists(path: string) {
+    Fs.mkdirSync(path, { recursive: true })
+  }
+
+  #imageFormat(path: string): 'jpeg' | 'png' | 'pdf' | 'unknown' {
+    const target = Path.resolve(path)
+    Fs.mkdirSync(Path.dirname(path), { recursive: true })
+    const extname = Path.extname(target)
+    if (['.jpg', '.jpeg'].includes(extname)) return 'jpeg'
+    if (['.png'].includes(extname)) return 'png'
+    if (['.pdf'].includes(extname)) return 'pdf'
+    return 'unknown'
+  }
+
+  async #saveImage(path: string, format: 'png' | 'jpeg'): Promise<void> {
+    const result = await this.#devtools.Page.captureScreenshot({ format })
+    const buffer = Buffer.from(result.data, 'base64')
+    await Fs.writeFileSync(path, buffer)
+  }
+
+  async #savePdf(path: string): Promise<void> {
+    const result = await this.#devtools.Page.printToPDF({})
+    const buffer = Buffer.from(result.data, 'base64')
+    Fs.writeFileSync(path, buffer)
   }
 
   // ---------------------------------------------------------------
@@ -228,6 +268,18 @@ export class Session {
   }
 
   // ---------------------------------------------------------------
+  // Asserts
+  // ---------------------------------------------------------------
+
+  #isNumber(value: unknown): value is number {
+    return typeof value === 'number'
+  }
+
+  #isString(value: unknown): value is string {
+    return typeof value === 'string'
+  }
+
+  // ---------------------------------------------------------------
   // Error Handling
   // ---------------------------------------------------------------
 
@@ -248,11 +300,20 @@ export class Session {
     if (new URL(current.url).origin === event.context.origin) {
       this.#consoleLog(Color.Gray('drift'), current.url)
     }
-    // Augment window.close() with close signal.
-    await this.#devtools.Runtime.evaluate({
-      contextId: event.context.id,
-      expression: `window.close = function(code = 0) { console.log('<<close>>', code) }`,
-    })
+    // Augment window.* with drift commands
+    const expressions = [
+      'window.close    = function(code = 0) { console.log("<<close>>", code) }',
+      'window.url      = function(endpoint) { console.log("<<url>>", endpoint) }',
+      'window.run      = function(path)     { console.log("<<run>>", path) }',
+      'window.position = function(x, y)     { console.log("<<position>>", x, y) }',
+      'window.size     = function(w, h)     { console.log("<<size>>", w, h) }',
+      'window.click    = function(x, y)     { console.log("<<click>>", x, y) }',
+      'window.save     = function(path)     { console.log("<<save>>", path) }',
+    ]
+    for (const expression of expressions) {
+      await this.#devtools.Runtime.evaluate({ contextId: event.context.id, expression })
+    }
+
     this.#ready.resume()
   }
 
@@ -265,11 +326,25 @@ export class Session {
   }
 
   async #onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {
-    // Intercept '<<close>>' message as a signal browser wants to close.
+    // Intercept '<<command>>' messages and dispatch accordingly
     const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
     if (args.length === 2 && args[0] === '<<close>>') {
       return this.#events.send('close', args[1] === undefined ? 0 : args[1])
+    } else if (args.length === 2 && args[0] === '<<run>>' && this.#isString(args[1])) {
+      return await this.run(args[1])
+    } else if (args.length === 2 && args[0] === '<<url>>' && this.#isString(args[1])) {
+      return await this.url(args[1])
+    } else if (args.length === 2 && args[0] === '<<save>>' && this.#isString(args[1])) {
+      return await this.save(args[1])
+    } else if (args.length === 3 && args[0] === '<<size>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
+      return await this.size(args[1], args[2])
+    } else if (args.length === 3 && args[0] === '<<position>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
+      return await this.position(args[1], args[2])
+    } else if (args.length === 3 && args[0] === '<<click>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
+      return await this.click(args[1], args[2])
+    } else {
     }
+
     // Process console logs as normal
     switch (event.type) {
       case 'clear':
