@@ -63,14 +63,13 @@ export namespace ChromeStart {
         return port
       }
     }
-    throw Error('ChromeStart: Cannot find free port to attach debugger')
+    throw Error('ChromeStart: Unable to locate free debugger port')
   }
 
   export async function start(options: ChromeOptions): Promise<Chrome> {
     const mutex = new Mutex(Path.join(options.user, '/mutex'))
     await mutex.lock()
     const port = await findUnusedPort()
-    console.log('connecting to port', port)
     const user = Path.join(options.user, `/port_${port}`)
     const flags = ['about:blank']
     if (options.devtools) flags.push('--auto-open-devtools-for-tabs')
