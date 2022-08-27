@@ -45,9 +45,15 @@ export interface ChromeOptions {
 export namespace ChromeStart {
   const defaultPort = 4800
 
+  async function fetchJson(port: number) {
+    return Request.get(`http://127.0.0.1:${port}/json`).catch(() => {
+      return Request.get(`http://::1:${port}/json`)
+    })
+  }
+
   async function getWebSocketDebuggerUrl(port: number) {
-    return await Retry({ times: 40, delay: 100 }, async () => {
-      const result = await Request.get(`http://localhost:${port}/json`).then((text) => JSON.parse(text))
+    return await Retry({ times: 10, delay: 100 }, async () => {
+      const result = await fetchJson(port)
       if (!Array.isArray(result)) throw Error('Chrome: Unexpected response from metadata json endpoint')
       if (typeof result[0].webSocketDebuggerUrl !== 'string') throw Error('Chrome: The webSocketDebuggerUrl was invalid')
       return result[0].webSocketDebuggerUrl.replace(/localhost/, '127.0.0.1')
