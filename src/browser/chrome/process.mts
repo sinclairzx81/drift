@@ -26,13 +26,14 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { spawn, ChildProcess } from 'node:child_process'
-import { join } from 'node:path'
+
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
-import { Delay, Retry } from '../../async/index.mjs'
+import { Retry, RetryOptions } from '../../async/index.mjs'
 import { Mutex } from '../../mutex/index.mjs'
 import { Request } from '../../request/index.mjs'
 import { ChromePath } from './path.mjs'
+import * as Process from 'node:child_process'
+import * as Path from 'node:path'
 
 export interface ChromeOptions {
   headless: boolean
@@ -43,10 +44,10 @@ export interface ChromeOptions {
 }
 
 export namespace ChromeStart {
-  const defaultPort = 12500
+  const defaultPort = 4800
 
-  async function getWebSocketDebuggerUrl(port: number) {
-    return await Retry({ times: 40, delay: 100 }, async () => {
+  async function getWebSocketDebuggerUrl(port: number, options: RetryOptions) {
+    return await Retry(options, async () => {
       const result = await Request.get(`http://127.0.0.1:${port}/json`).then((text) => JSON.parse(text))
       if (!Array.isArray(result)) throw Error('Chrome: Unexpected response from metadata json endpoint')
       if (typeof result[0].webSocketDebuggerUrl !== 'string') throw Error('Chrome: The webSocketDebuggerUrl was invalid')
@@ -57,7 +58,7 @@ export namespace ChromeStart {
   async function findUnusedPort() {
     for (let port = defaultPort; port < defaultPort + 64; port++) {
       try {
-        await getWebSocketDebuggerUrl(port)
+        await getWebSocketDebuggerUrl(port, { times: 1, delay: 0 }) // don't care
       } catch {
         return port
       }
@@ -66,10 +67,11 @@ export namespace ChromeStart {
   }
 
   export async function start(options: ChromeOptions): Promise<Chrome> {
-    const mutex = new Mutex(join(options.user, '/mutex'))
+    const mutex = new Mutex(Path.join(options.user, '/mutex'))
     await mutex.lock()
     const port = await findUnusedPort()
-    const user = join(options.user, `/port_${port}`)
+    console.log('connecting to port', port)
+    const user = Path.join(options.user, `/port_${port}`)
     const flags = ['about:blank']
     if (options.devtools) flags.push('--auto-open-devtools-for-tabs')
     if (options.incognito) flags.push('--incognito')
@@ -79,8 +81,8 @@ export namespace ChromeStart {
     flags.push(`--remote-debugging-port=${port}`)
     flags.push('--no-default-browser-check')
 
-    const process = spawn(ChromePath.get(), flags)
-    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port)
+    const process = Process.spawn(ChromePath.get(), flags)
+    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port, { times: 40, delay: 100 }) // 4 seconds
     const chrome = new Chrome(process, webSocketDebuggerUrl, options.verbose)
     await mutex.unlock()
     return chrome
@@ -88,11 +90,11 @@ export namespace ChromeStart {
 }
 
 export class Chrome {
-  readonly #process: ChildProcess
+  readonly #process: Process.ChildProcess
   readonly #websocketDebuggerUrl: string
   readonly #events: Events
 
-  constructor(process: ChildProcess, websocketDebuggerUrl: string, verbose: boolean) {
+  constructor(process: Process.ChildProcess, websocketDebuggerUrl: string, verbose: boolean) {
     this.#events = new Events()
     this.#websocketDebuggerUrl = websocketDebuggerUrl
     this.#process = process
