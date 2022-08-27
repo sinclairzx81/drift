@@ -26,6 +26,7 @@
     "codegen": "hammer task codegen",
     "start": "hammer task start",
     "parallel": "hammer task parallel",
+    "test": "hammer task test",
     "install_cli": "hammer task install_cli",
     "build": "hammer task build",
     "publish": "hammer task publish"
