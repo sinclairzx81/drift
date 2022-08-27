@@ -7,6 +7,7 @@
 <img src=".build/assets/drift.png"></img>
 
 [![npm version](https://badge.fury.io/js/%40sinclair%2Fdrift.svg)](https://badge.fury.io/js/%40sinclair%2Fdrift)
+[![GitHub CI](https://github.com/sinclairzx81/drift/workflows/GitHub%20CI/badge.svg)](https://github.com/sinclairzx81/drift/actions)
 
 </div>
 
