@@ -36,12 +36,12 @@ import { join, resolve } from 'node:path'
 // ------------------------------------------------------------------------
 
 /** Checks if this command exists */
-function hasCommand(type: Command['type'], commands: Command[]) {
+function has_command(type: Command['type'], commands: Command[]) {
   return commands.find((command) => command.type === type) !== undefined
 }
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
-function userdir(commands: Command[]) {
+function user_dir(commands: Command[]) {
   const command = commands.find((command) => command.type === 'user') as UserCommand | undefined
   if (command === undefined) return join(Platform.resolveDirname(import.meta.url), 'user')
   return resolve(command.path)
@@ -123,7 +123,7 @@ const commands = Commands.parse()
 // Help
 // ------------------------------------------------------------------------
 
-if (hasCommand('help', commands)) {
+if (has_command('help', commands)) {
   banner()
   help()
   process.exit(0)
@@ -142,12 +142,12 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
-const incognito = hasCommand('incognito', commands)
-const verbose = hasCommand('verbose', commands)
-const devtools = hasCommand('devtools', commands)
-const headless = !hasCommand('window', commands)
-const fail = hasCommand('fail', commands)
-const user = userdir(commands)
+const incognito = has_command('incognito', commands)
+const verbose = has_command('verbose', commands)
+const devtools = has_command('devtools', commands)
+const headless = !has_command('window', commands)
+const fail = has_command('fail', commands)
+const user = user_dir(commands)
 
 const repl = new Repl()
 const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })

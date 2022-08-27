@@ -240,15 +240,25 @@ export class Session {
   }
 
   async #saveImage(path: string, format: 'png' | 'jpeg'): Promise<void> {
-    const result = await this.#devtools.Page.captureScreenshot({ format })
-    const buffer = Buffer.from(result.data, 'base64')
-    await Fs.writeFileSync(path, buffer)
+    try {
+      const result = await this.#devtools.Page.captureScreenshot({ format })
+      const buffer = Buffer.from(result.data, 'base64')
+      Fs.writeFileSync(path, buffer)
+    } catch (error) {
+      if (error instanceof Error) return this.#consoleError('save:', error.message)
+      return this.#consoleError('save: unknown error')
+    }
   }
 
   async #savePdf(path: string): Promise<void> {
-    const result = await this.#devtools.Page.printToPDF({})
-    const buffer = Buffer.from(result.data, 'base64')
-    Fs.writeFileSync(path, buffer)
+    try {
+      const result = await this.#devtools.Page.printToPDF({})
+      const buffer = Buffer.from(result.data, 'base64')
+      Fs.writeFileSync(path, buffer)
+    } catch (error) {
+      if (error instanceof Error) return this.#consoleError('save:', error.message)
+      return this.#consoleError('save: unknown error')
+    }
   }
 
   // ---------------------------------------------------------------
