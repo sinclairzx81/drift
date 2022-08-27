@@ -3,14 +3,14 @@ name: GitHub CI
 on: [push, pull_request]
 
 jobs:
-  TypeBox:
+  Drift:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node: [16.x, 18.x]
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
-      - uses: browser-actions/setup-chrome@latest
+      - uses: browser-actions/setup-chrome@dev
       - run: chrome --version
       - uses: actions/checkout@v2
       - name: Install Node
@@ -19,7 +19,5 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install Packages
         run: npm install
-      - name: Build Library
-        run: npm run build
-      - name: Test Library
+      - name: Build and Test
         run: npm run test

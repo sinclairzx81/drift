@@ -39,10 +39,10 @@ export async function start(...args) {
 // ---------------------------------------------------------------------
 
 export async function test() {
-  const params = `url http://google.com wait 1000 save target/assets/google.png wait 1000 close`
-  await shell(`hammer run "example/index.mts user target/user ${params}" --dist target/test`)
+  await build()
+  const params = `url http://google.com wait 1000 save ../assets/google.png wait 1000 close`
+  await shell(`cd target/build && node drift.mjs user target/user ${params}`)
 }
-
 
 // ---------------------------------------------------------------------
 // Parallel
