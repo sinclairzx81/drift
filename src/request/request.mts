@@ -40,7 +40,7 @@ export namespace Request {
         const buffers: Buffer[] = []
         res.on('data', (buffer) => buffers.push(buffer))
         res.on('error', (error) => reject(error))
-        res.on('end', () => resolve(JSON.parse(Buffer.concat(buffers).toString('utf-8'))))
+        res.on('end', () => resolve(Buffer.concat(buffers).toString('utf-8')))
       })
       req.on('error', (error) => reject(error))
       req.end()
