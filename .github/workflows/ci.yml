@@ -8,7 +8,8 @@ jobs:
     strategy:
       matrix:
         node: [14.x, 16.x, 18.x]
-        os: [macOS-latest]
+        os: [ubuntu-latest]
+        # os: [macOS-latest]
         # os: [ubuntu-latest, macOS-latest]
         # os: [ubuntu-latest, windows-latest]
     steps:
