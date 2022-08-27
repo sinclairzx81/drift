@@ -11,6 +11,8 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: dev
       - run: chrome --version
       - uses: actions/checkout@v2
       - name: Install Node
