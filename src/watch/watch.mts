@@ -49,10 +49,16 @@ export class Watch {
 
   public add(path: string) {
     if (!Fs.existsSync(path) || Fs.statSync(path).isDirectory()) return
-    for (const directory of this.#enumerateDirectories(Path.dirname(path))) {
-      const watcher = Fs.watch(directory)
-      watcher.on('change', () => this.#onChange())
-      this.#watchers.push(watcher)
+    const targetDirectory = Path.dirname(path)
+    switch (process.platform) {
+      case 'win32':
+        return this.#watchWindows(targetDirectory)
+      case 'darwin':
+        return this.#watchDarwin(targetDirectory)
+      case 'linux':
+        return this.#watchLinux(targetDirectory)
+      default:
+        console.log(`warning: watch not supported on '${process.platform}' platform`)
     }
   }
 
@@ -65,6 +71,26 @@ export class Watch {
 
   #onChange() {
     this.#debounce.run(() => this.#events.send('change', void 0))
+  }
+
+  #watchDarwin(targetDirectory: string) {
+    const watcher = Fs.watch(targetDirectory, { recursive: true })
+    watcher.on('change', () => this.#onChange())
+    this.#watchers.push(watcher)
+  }
+
+  #watchWindows(targetDirectory: string) {
+    const watcher = Fs.watch(targetDirectory, { recursive: true })
+    watcher.on('change', () => this.#onChange())
+    this.#watchers.push(watcher)
+  }
+
+  #watchLinux(targetDirectory: string) {
+    for (const directory of this.#enumerateDirectories(targetDirectory)) {
+      const watcher = Fs.watch(directory)
+      watcher.on('change', () => this.#onChange())
+      this.#watchers.push(watcher)
+    }
   }
 
   *#enumerateDirectories(directory: string): IterableIterator<string> {
