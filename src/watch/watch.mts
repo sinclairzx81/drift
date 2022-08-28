@@ -39,7 +39,7 @@ export class Watch {
   constructor() {
     this.#watchers = []
     this.#events = new Events()
-    this.#debounce = new Debounce(500, false)
+    this.#debounce = new Debounce(200, false)
   }
 
   public on(event: 'change', handler: EventHandler<void>): EventListener
@@ -48,11 +48,12 @@ export class Watch {
   }
 
   public add(path: string) {
-    if (!Fs.existsSync(path)) return
-    const directory = Fs.statSync(path).isDirectory() ? path : Path.dirname(path)
-    const watcher = Fs.watch(directory)
-    watcher.on('change', () => this.#onChange())
-    this.#watchers.push(watcher)
+    if (!Fs.existsSync(path) || Fs.statSync(path).isDirectory()) return
+    for (const directory of this.#enumerateDirectories(Path.dirname(path))) {
+      const watcher = Fs.watch(directory)
+      watcher.on('change', () => this.#onChange())
+      this.#watchers.push(watcher)
+    }
   }
 
   public close() {
@@ -64,5 +65,14 @@ export class Watch {
 
   #onChange() {
     this.#debounce.run(() => this.#events.send('change', void 0))
+  }
+
+  *#enumerateDirectories(directory: string): IterableIterator<string> {
+    for (const entry of Fs.readdirSync(directory)) {
+      const path = Path.join(directory, entry)
+      const stat = Fs.statSync(path)
+      if (stat.isDirectory()) yield* this.#enumerateDirectories(path)
+    }
+    yield directory
   }
 }
