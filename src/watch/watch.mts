@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 import { Events, EventHandler, EventListener } from '../events/index.mjs'
 import { Debounce } from '../async/index.mjs'
+import * as Path from 'node:path'
 import * as Fs from 'node:fs'
 
 export class Watch {
@@ -47,7 +48,9 @@ export class Watch {
   }
 
   public add(path: string) {
-    const watcher = Fs.watch(path)
+    if (!Fs.existsSync(path)) return
+    const directory = Fs.statSync(path).isDirectory() ? path : Path.dirname(path)
+    const watcher = Fs.watch(directory)
     watcher.on('change', () => this.#onChange())
     this.#watchers.push(watcher)
   }
