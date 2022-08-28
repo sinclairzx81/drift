@@ -44,12 +44,14 @@ export type Command =
   | IncognitoCommand
   | UrlCommand
   | PositionCommand
+  | ReloadCommand
   | RunCommand
   | SaveCommand
   | SizeCommand
   | UserCommand
   | VerboseCommand
   | WaitCommand
+  | WatchCommand
   | WindowCommand
 
 export interface ClickCommand {
@@ -94,6 +96,10 @@ export interface PositionCommand {
   y: number
 }
 
+export interface ReloadCommand {
+  type: 'reload'
+}
+
 export interface RunCommand {
   type: 'run'
   path: string
@@ -123,6 +129,10 @@ export interface VerboseCommand {
 export interface WaitCommand {
   type: 'wait'
   ms: number
+}
+
+export interface WatchCommand {
+  type: 'watch'
 }
 
 export interface WindowCommand {
@@ -227,6 +237,10 @@ export namespace Commands {
     return { type: 'position', x, y }
   }
 
+  function parseReload(params: string[]): ReloadCommand {
+    return { type: 'reload' }
+  }
+
   function parseRun(params: string[]): RunCommand {
     return { type: 'run', path: parseInputPath(params.shift()!) }
   }
@@ -253,6 +267,10 @@ export namespace Commands {
 
   function parseWait(params: string[]): WaitCommand {
     return { type: 'wait', ms: parseInteger(params) }
+  }
+
+  function parseWatch(params: string[]): WatchCommand {
+    return { type: 'watch' }
   }
 
   function parseWindow(params: string[]): WindowCommand {
@@ -296,6 +314,10 @@ export namespace Commands {
             yield parsePosition(params)
             break
           }
+          case 'reload': {
+            yield parseReload(params)
+            break
+          }
           case 'run': {
             yield parseRun(params)
             break
@@ -322,6 +344,10 @@ export namespace Commands {
           }
           case 'wait': {
             yield parseWait(params)
+            break
+          }
+          case 'watch': {
+            yield parseWatch(params)
             break
           }
           case 'window': {

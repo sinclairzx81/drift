@@ -31,7 +31,7 @@ import { Events, EventListener, EventHandler } from '../events/index.mjs'
 import { ValueResolver } from './values.mjs'
 import { Color } from '../color/index.mjs'
 import { Repl } from '../repl/index.mjs'
-import { Barrier } from '../async/index.mjs'
+import { Barrier, Delay } from '../async/index.mjs'
 import { Build } from '../build/index.mjs'
 
 import * as Path from 'node:path'
@@ -73,18 +73,20 @@ export class Session {
     this.#setup().catch((error) => console.error(error))
   }
 
+  /** Subscribes to reload calls made from the page */
+  public on(event: 'reload', handler: EventHandler<void>): EventListener
   /** Subscribes once to exit calls made from the page */
   public on(event: 'close', handler: EventHandler<number>): EventListener
   /** Subscribes once to unhandled errors occuring in the page */
   public on(event: 'error', handler: EventHandler<Exception | null>): EventListener
   /** Subscribes once to events */
   public on(event: string, handler: EventHandler<any>): EventListener {
-    return this.#events.once(event, handler)
+    return this.#events.on(event, handler)
   }
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
   // Setup
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
 
   async #setup() {
     this.#devtools.Runtime.on('executionContextCreated', (event) => this.#onExecutionContextCreated(event))
@@ -98,9 +100,18 @@ export class Session {
     this.#ready.resume()
   }
 
-  // ---------------------------------------------------------------
-  // Interface
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // Session Interface
+  // --------------------------------------------------------------------
+
+  public async reload() {
+    await this.#ready.wait()
+    this.#ready.pause()
+    const result = await this.#devtools.Runtime.evaluate({ expression: `window.location.reload()` })
+    if (result.exceptionDetails) {
+      return this.#handleError(result.exceptionDetails)
+    }
+  }
 
   public async evaluate(expression: string): Promise<unknown> {
     await this.#ready.wait()
@@ -127,24 +138,39 @@ export class Session {
     await this.#ready.wait()
     if (!Fs.existsSync(path)) return this.#consoleError(`run: file '${path}' not found`)
     const expression = `(async function() { ${Build.build(path)} })();`
-    const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
-    if (compileResult.exceptionDetails) {
-      this.#handleError(compileResult.exceptionDetails)
-      return
+    const result = await this.#devtools.Runtime.evaluate({ expression })
+    if (result.exceptionDetails) {
+      return this.#handleError(result.exceptionDetails)
     }
-    await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
+
+    // ----------------------------------------------------------------------
+    // todo: investigate esm as the default.
+    // ----------------------------------------------------------------------
+
+    // const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
+    // if (compileResult.exceptionDetails) {
+    //   return this.#handleError(compileResult.exceptionDetails)
+    // }
+    // await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
   }
 
   public async css(path: string): Promise<void> {
     await this.#ready.wait()
     if (!Fs.existsSync(path)) return this.#consoleError(`css: file '${path}' not found`)
     const expression = `document.head.insertAdjacentHTML("beforeend", \`\n<style>\n${Build.build(path)}</style>\`)`
-    const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
-    if (compileResult.exceptionDetails) {
-      this.#handleError(compileResult.exceptionDetails)
-      return
+    const result = await this.#devtools.Runtime.evaluate({ expression })
+    if (result.exceptionDetails) {
+      return this.#handleError(result.exceptionDetails)
     }
-    await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
+
+    // ----------------------------------------------------------------------
+    // todo: investigate esm as the default.
+    // ----------------------------------------------------------------------
+    // const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
+    // if (compileResult.exceptionDetails) {
+    //   return this.#handleError(compileResult.exceptionDetails)
+    // }
+    // await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
   }
 
   public async position(x: number, y: number) {
@@ -221,9 +247,10 @@ export class Session {
       y: y,
     })
   }
-  // ---------------------------------------------------------------
-  // Image
-  // ---------------------------------------------------------------
+
+  // --------------------------------------------------------------------
+  // Image and Pdf Output
+  // --------------------------------------------------------------------
 
   #ensureDirectoryExists(path: string) {
     Fs.mkdirSync(path, { recursive: true })
@@ -261,9 +288,9 @@ export class Session {
     }
   }
 
-  // ---------------------------------------------------------------
-  // Console Output
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // Console Logging
+  // --------------------------------------------------------------------
 
   #consoleLog(...args: any[]) {
     this.#repl.disable()
@@ -289,9 +316,9 @@ export class Session {
     this.#repl.enable()
   }
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
   // Asserts
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
 
   #isNumber(value: unknown): value is number {
     return typeof value === 'number'
@@ -301,9 +328,9 @@ export class Session {
     return typeof value === 'string'
   }
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
   // Error Handling
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
 
   #handleError(exceptionDetails: DevToolsInterface.Runtime.ExceptionDetails) {
     const exception = new Exception(exceptionDetails)
@@ -311,9 +338,9 @@ export class Session {
     this.#events.send('error', exception)
   }
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
   // Events
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------
 
   async #onExecutionContextCreated(event: DevToolsInterface.Runtime.ExecutionContextCreatedEvent) {
     // Execution context create signals the browser has entered a new website / page.
@@ -325,6 +352,7 @@ export class Session {
     // Augment window.* with drift commands
     const expressions = [
       'window.close    = function(code = 0) { console.log("<<close>>", code) }',
+      'window.reload   = function()         { console.log("<<reload>>") }',
       'window.url      = function(endpoint) { console.log("<<url>>", endpoint) }',
       'window.run      = function(path)     { console.log("<<run>>", path) }',
       'window.css      = function(path)     { console.log("<<css>>", path) }',
@@ -351,7 +379,9 @@ export class Session {
   async #onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {
     // Intercept '<<command>>' messages and dispatch accordingly
     const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
-    if (args.length === 2 && args[0] === '<<close>>') {
+    if (args.length === 1 && args[0] === '<<reload>>') {
+      return this.#events.send('reload', void 0) // exterior emit to allow script/css reload
+    } else if (args.length === 2 && args[0] === '<<close>>') {
       return this.#events.send('close', args[1] === undefined ? 0 : args[1])
     } else if (args.length === 2 && args[0] === '<<run>>' && this.#isString(args[1])) {
       return await this.run(args[1])

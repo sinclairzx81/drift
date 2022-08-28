@@ -26,5 +26,4 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export * from './adapter.mjs'
-export * from './devtools.mjs'
+export * from './watch.mjs'

@@ -26,7 +26,6 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-
 import { Events, EventHandler, EventListener } from '../../events/index.mjs'
 import { Retry, RetryOptions } from '../../async/index.mjs'
 import { Mutex } from '../../mutex/index.mjs'

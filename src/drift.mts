@@ -26,10 +26,9 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Platform, Color, Build, ChromeStart, Session, Repl, Commands, Delay, Command, UserCommand } from './index.mjs'
-import { existsSync, readFileSync } from 'node:fs'
-import { writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { Platform, Color, Watch, Chrome, ChromeStart, Session, Repl, Commands, Delay, Command, UserCommand } from './index.mjs'
+import * as Fs from 'node:fs'
+import * as Path from 'node:path'
 
 // ------------------------------------------------------------------------
 // Util Functions
@@ -43,21 +42,46 @@ function has_command(type: Command['type'], commands: Command[]) {
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
 function user_dir(commands: Command[]) {
   const command = commands.find((command) => command.type === 'user') as UserCommand | undefined
-  if (command === undefined) return join(Platform.resolveDirname(import.meta.url), 'user')
-  return resolve(command.path)
+  if (command === undefined) return Path.join(Platform.resolveDirname(import.meta.url), 'user')
+  return Path.resolve(command.path)
 }
 
 /** Resolves the current package version */
 function version() {
-  const path = join(Platform.resolveDirname(import.meta.url), 'package.json')
-  if (!existsSync(path)) return Color.White('0.8.10')
-  const packageJson = JSON.parse(readFileSync(path, 'utf-8'))
+  const path = Path.join(Platform.resolveDirname(import.meta.url), 'package.json')
+  if (!Fs.existsSync(path)) return Color.White('0.8.10')
+  const packageJson = JSON.parse(Fs.readFileSync(path, 'utf-8'))
   return Color.White(packageJson.version)
 }
 
 /** Prints standard command message */
 function log(command: string, ...params: any[]) {
   console.log(Color.Gray(command), ...params)
+}
+
+/** Reloads the page then re-runs the run and css commands */
+async function reload(session: Session, commands: Command[]) {
+  log('reload')
+  await session.reload()
+  for (const command of commands) {
+    switch (command.type) {
+      case 'run': {
+        await session.run(command.path)
+        break
+      }
+      case 'css': {
+        await session.css(command.path)
+        break
+      }
+    }
+  }
+}
+
+/** Closes handles and terminates the process */
+async function close(browser: Chrome, watch: Watch, code: number) {
+  watch.close()
+  await browser.close()
+  process.exit(code)
 }
 
 function banner() {
@@ -90,25 +114,27 @@ Examples:
 
 Commands:
 
-  ${Color.Gray('url')}       ${Color.Blue('endpoint')}  Navigate page to given endpoint url
-  ${Color.Gray('run')}       ${Color.Blue('path')}      Runs a script on the current page
-  ${Color.Gray('css')}       ${Color.Blue('path')}      Adds a stylesheet to the current page
-  ${Color.Gray('save')}      ${Color.Blue('path')}      Save current page as png, jpeg or pdf format
-  ${Color.Gray('user')}      ${Color.Blue('path')}      Sets the chrome user data directory
-  ${Color.Gray('size')}      ${Color.Blue('w h')}       Sets desktop window size
-  ${Color.Gray('position')}  ${Color.Blue('x y')}       Sets desktop window position
-  ${Color.Gray('click')}     ${Color.Blue('x y')}       Send mousedown event to the current url
-  ${Color.Gray('wait')}      ${Color.Blue('ms')}        Wait for the given milliseconds
-  ${Color.Gray('close')}     ${Color.Blue('')}          Close drift process
+  ${Color.Gray('url')}         ${Color.Blue('endpoint')}    Navigate page to url endpoint
+  ${Color.Gray('run')}         ${Color.Blue('path')}        Run script on current page
+  ${Color.Gray('css')}         ${Color.Blue('path')}        Add stylesheet to current page
+  ${Color.Gray('save')}        ${Color.Blue('path')}        Save current page as png, jpeg or pdf format
+  ${Color.Gray('user')}        ${Color.Blue('path')}        Set chrome user data directory
+  ${Color.Gray('position')}    ${Color.Blue('x y')}         Set desktop window position
+  ${Color.Gray('size')}        ${Color.Blue('w h')}         Set desktop window size
+  ${Color.Gray('click')}       ${Color.Blue('x y')}         Send mousedown event current page
+  ${Color.Gray('wait')}        ${Color.Blue('ms')}          Wait for milliseconds to elapse
+  ${Color.Gray('reload')}      ${Color.Blue('')}            Reload the current page
+  ${Color.Gray('close')}       ${Color.Blue('')}            Close drift
 
 Flags:
 
-  ${Color.Gray('window')}    ${Color.Blue('')}          Open chrome with desktop window
-  ${Color.Gray('incognto')}  ${Color.Blue('')}          Open chrome in incognito mode
-  ${Color.Gray('devtools')}  ${Color.Blue('')}          Open chrome with devtools
-  ${Color.Gray('verbose')}   ${Color.Blue('')}          Emit chrome logs to stdout
-  ${Color.Gray('fail')}      ${Color.Blue('')}          Close drift on any error
-  ${Color.Gray('help')}      ${Color.Blue('')}          Show this help message
+  ${Color.Gray('window')}      ${Color.Blue('')}            Open chrome with window
+  ${Color.Gray('devtools')}    ${Color.Blue('')}            Open chrome with devtools
+  ${Color.Gray('incognto')}    ${Color.Blue('')}            Open chrome with incognito
+  ${Color.Gray('verbose')}     ${Color.Blue('')}            Send chrome logs to stdout
+  ${Color.Gray('watch')}       ${Color.Blue('')}            Reload page on file change
+  ${Color.Gray('fail')}        ${Color.Blue('')}            Close drift on exceptions
+  ${Color.Gray('help')}        ${Color.Blue('')}            Show this help message
 
 `)
 }
@@ -142,6 +168,7 @@ if (commands.length === 0) {
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
+
 const incognito = has_command('incognito', commands)
 const verbose = has_command('verbose', commands)
 const devtools = has_command('devtools', commands)
@@ -150,11 +177,22 @@ const fail = has_command('fail', commands)
 const user = user_dir(commands)
 
 const repl = new Repl()
+const watch = new Watch()
 const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })
 const session = new Session(await browser.webSocketDebuggerUrl, repl)
+
+session.on('reload', async () => {
+  await reload(session, commands)
+})
+
 session.on('close', async (code) => {
-  await browser.close()
-  process.exit(code)
+  await close(browser, watch, code)
+})
+
+session.on('error', async () => {
+  if (!fail) return
+  log('fail', 'close')
+  await close(browser, watch, 1)
 })
 
 browser.on('log', (content) => {
@@ -164,15 +202,7 @@ browser.on('log', (content) => {
 })
 
 browser.on('exit', async () => {
-  await browser.close()
-  process.exit(0)
-})
-
-session.on('error', async () => {
-  if (!fail) return
-  log('fail', 'close')
-  await browser.close()
-  process.exit(1)
+  await close(browser, watch, 0)
 })
 
 // --------------------------------------------------------------------
@@ -188,8 +218,8 @@ for (const command of commands) {
     }
     case 'close': {
       log('close')
-      await browser.close()
-      process.exit(0)
+      close(browser, watch, 0)
+      break
     }
     case 'css': {
       log('css', command.path)
@@ -204,6 +234,11 @@ for (const command of commands) {
     case 'position': {
       log('position', command.x, command.y)
       await session.position(command.x, command.y)
+      break
+    }
+    case 'reload': {
+      log('reload')
+      await session.reload()
       break
     }
     case 'save': {
@@ -230,6 +265,27 @@ for (const command of commands) {
 }
 
 // --------------------------------------------------------------------
+// Watch
+// --------------------------------------------------------------------
+
+watch.on('change', () => reload(session, commands))
+
+if (has_command('watch', commands)) {
+  for (const command of commands) {
+    switch (command.type) {
+      case 'run': {
+        watch.add(command.path)
+        break
+      }
+      case 'css': {
+        watch.add(command.path)
+        break
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------------
 // Drift !!
 // --------------------------------------------------------------------
 
@@ -241,4 +297,4 @@ for await (const input of repl) {
   await session.evaluate(input)
 }
 
-await browser.close()
+await close(browser, watch, 0)

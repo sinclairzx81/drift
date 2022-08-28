@@ -59,25 +59,27 @@ Examples:
 
 Commands:
 
-  url       endpoint  Navigate page to given endpoint url
-  run       path      Runs a script on the current page
-  css       path      Adds a stylesheet to the current page
-  save      path      Save current page as png, jpeg or pdf format
-  user      path      Sets the chrome user data directory
-  size      w h       Sets desktop window size
-  position  x y       Sets desktop window position
-  click     x y       Send mousedown event to the current url
-  wait      ms        Wait for the given milliseconds
-  close               Close drift process
+  url         endpoint    Navigate page to url endpoint
+  run         path        Run script on current page
+  css         path        Add stylesheet to current page
+  save        path        Save current page as png, jpeg or pdf format
+  user        path        Set chrome user data directory
+  position    x y         Set desktop window position
+  size        w h         Set desktop window size
+  click       x y         Send mousedown event current page
+  wait        ms          Wait for milliseconds to elapse
+  reload                  Reload the current page
+  close                   Close drift
 
 Flags:
 
-  window              Open chrome with desktop window
-  incognto            Open chrome in incognito mode
-  devtools            Open chrome with devtools
-  verbose             Emit chrome logs to stdout
-  fail                Close drift on any error
-  help                Show this help message
+  window                  Open chrome with window
+  devtools                Open chrome with devtools
+  incognto                Open chrome with incognito
+  verbose                 Send chrome logs to stdout
+  watch                   Reload page on file change
+  fail                    Close drift on exceptions
+  help                    Show this help message
 
 
 ```

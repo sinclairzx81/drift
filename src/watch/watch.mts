@@ -26,5 +26,40 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export * from './adapter.mjs'
-export * from './devtools.mjs'
+import { Events, EventHandler, EventListener } from '../events/index.mjs'
+import { Debounce } from '../async/index.mjs'
+import * as Fs from 'node:fs'
+
+export class Watch {
+  #watchers: Fs.FSWatcher[]
+  #debounce: Debounce
+  #events: Events
+
+  constructor() {
+    this.#watchers = []
+    this.#events = new Events()
+    this.#debounce = new Debounce(500, false)
+  }
+
+  public on(event: 'change', handler: EventHandler<void>): EventListener
+  public on(event: string, handler: EventHandler<any>): EventListener {
+    return this.#events.on(event, handler)
+  }
+
+  public add(path: string) {
+    const watcher = Fs.watch(path)
+    watcher.on('change', () => this.#onChange())
+    this.#watchers.push(watcher)
+  }
+
+  public close() {
+    while (this.#watchers.length > 0) {
+      const watcher = this.#watchers.shift()!
+      watcher.close()
+    }
+  }
+
+  #onChange() {
+    this.#debounce.run(() => this.#events.send('change', void 0))
+  }
+}
