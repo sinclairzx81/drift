@@ -35,6 +35,7 @@ import * as Fs from 'node:fs'
 // -------------------------------------------------------------------------
 
 export type Command =
+  | ArgsCommand
   | ClickCommand
   | CloseCommand
   | CssCommand
@@ -53,6 +54,11 @@ export type Command =
   | WaitCommand
   | WatchCommand
   | WindowCommand
+
+export interface ArgsCommand {
+  type: 'args'
+  args: string[]
+}
 
 export interface ClickCommand {
   type: 'click'
@@ -164,6 +170,12 @@ export namespace Commands {
     return isNumericString(input) && !input.includes('.')
   }
 
+  function parseArgumentList(params: string[]) {
+    if (params.length === 0) throw Error('Expected at least one args value')
+    const next = params.shift()!
+    return next.split(' ')
+  }
+
   function parseSaveFormat(path: string): `jpeg` | 'png' | 'pdf' {
     const ext = Path.extname(path)
     if (['.jpg', '.jpeg'].includes(ext)) return 'jpeg'
@@ -200,6 +212,10 @@ export namespace Commands {
   // -------------------------------------------------------------------------
   // Command Parser
   // -------------------------------------------------------------------------
+
+  function parseArgs(params: string[]): ArgsCommand {
+    return { type: 'args', args: parseArgumentList(params) }
+  }
 
   function parseClick(params: string[]): ClickCommand {
     const x = parseInteger(params)
@@ -282,6 +298,10 @@ export namespace Commands {
       const command = params.shift()!
       try {
         switch (command) {
+          case 'args': {
+            yield parseArgs(params)
+            break
+          }
           case 'click': {
             yield parseClick(params)
             break

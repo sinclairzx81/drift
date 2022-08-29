@@ -27,12 +27,41 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { Platform } from '../platform/index.mjs'
-const esbuild = await Platform.ambientImport<typeof import('esbuild')>('esbuild')
-import { existsSync } from 'node:fs'
+import * as Fs from 'node:fs'
 
+const esbuild = await Platform.ambientImport<typeof import('esbuild')>('esbuild')
+import type { PluginBuild } from 'esbuild'
+
+export namespace Plugin {
+  export const name = '@sinclair/drift/esbuild-plugin'
+  export function setup(build: PluginBuild) {
+    build.onResolve({ filter: /^https?:\/\// }, (args) => {
+      return { path: args.path, external: true }
+    })
+  }
+}
+
+export namespace Compiler {
+  export async function build(path: string) {
+    if (!Fs.existsSync(path)) throw Error(`Cannot find entry path '${path}'`)
+    const result = await esbuild.build({
+      entryPoints: [path],
+      plugins: [Plugin],
+      bundle: true,
+      platform: 'node',
+      format: 'esm',
+      write: false,
+      outdir: 'out',
+    })
+    return result.outputFiles ? result.outputFiles[0].text : ''
+  }
+}
+
+// ------------------------------------------------------------
+// Original
+// ------------------------------------------------------------
 export namespace Build {
   export function build(path: string): string {
-    if (!existsSync(path)) throw Error(`Cannot find entry path '${path}'`)
     const result = esbuild.buildSync({
       entryPoints: [path],
       bundle: true,

@@ -26,17 +26,23 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Platform, Color, Watch, Chrome, ChromeStart, Session, Repl, Commands, Delay, Command, UserCommand } from './index.mjs'
+import { Platform, Color, Watch, Chrome, ChromeStart, Session, Repl, Commands, Delay, ArgsCommand, Command, UserCommand } from './index.mjs'
 import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 
 // ------------------------------------------------------------------------
-// Util Functions
+// Helpers
 // ------------------------------------------------------------------------
 
-/** Checks if this command exists */
+/** Checks if command exists */
 function has_command(type: Command['type'], commands: Command[]) {
   return commands.find((command) => command.type === type) !== undefined
+}
+
+/** Gets the command */
+function get_command_args(commands: Command[]): string[] {
+  const command = commands.find((command) => command.type === 'args') as ArgsCommand | undefined
+  return command ? command.args : []
 }
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
@@ -123,6 +129,7 @@ Commands:
   ${Color.Gray('size')}        ${Color.Blue('w h')}         Set desktop window size
   ${Color.Gray('click')}       ${Color.Blue('x y')}         Send mousedown event current page
   ${Color.Gray('wait')}        ${Color.Blue('ms')}          Wait for milliseconds to elapse
+  ${Color.Gray('args')}        ${Color.Blue('args')}        Adds args to window.args
   ${Color.Gray('reload')}      ${Color.Blue('')}            Reload the current page
   ${Color.Gray('close')}       ${Color.Blue('')}            Close drift
 
@@ -164,7 +171,7 @@ if (commands.length === 0) {
 }
 
 // --------------------------------------------------------------------
-// Connect
+// Browser
 // --------------------------------------------------------------------
 
 log('drift', 'connecting to chrome')
@@ -175,11 +182,17 @@ const devtools = has_command('devtools', commands)
 const headless = !has_command('window', commands)
 const fail = has_command('fail', commands)
 const user = user_dir(commands)
-
 const repl = new Repl()
 const watch = new Watch()
 const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })
-const session = new Session(await browser.webSocketDebuggerUrl, repl)
+
+// --------------------------------------------------------------------
+// Session
+// --------------------------------------------------------------------
+
+const webSocketDebuggerUrl = await browser.webSocketDebuggerUrl
+const args = get_command_args(commands)
+const session = new Session(repl, { webSocketDebuggerUrl, args })
 
 session.on('reload', async () => {
   await reload(session, commands)

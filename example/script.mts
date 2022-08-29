@@ -1,11 +1,7 @@
-// npm start run example/run.ts
+// npm start run example/script.mts
 
-import { Inner } from './inner/index.mjs'
-
-const inner = new Inner()
-
-export async function esm() {
-  return 'esm modules working'
+export async function message() {
+  return 'hello from esm module'
 }
 
-console.log(await esm())
+console.log(await message())

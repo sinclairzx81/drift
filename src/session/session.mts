@@ -31,8 +31,8 @@ import { Events, EventListener, EventHandler } from '../events/index.mjs'
 import { ValueResolver } from './values.mjs'
 import { Color } from '../color/index.mjs'
 import { Repl } from '../repl/index.mjs'
-import { Barrier, Delay } from '../async/index.mjs'
-import { Build } from '../build/index.mjs'
+import { Barrier } from '../async/index.mjs'
+import { Compiler } from '../build/index.mjs'
 
 import * as Path from 'node:path'
 import * as Fs from 'node:fs'
@@ -57,16 +57,23 @@ export class Exception extends Error {
 // Session
 // ------------------------------------------------------------------------
 
+export interface SessionOptions {
+  webSocketDebuggerUrl: string
+  args: string[]
+}
+
 export class Session {
+  readonly #options: SessionOptions
   readonly #resolver: ValueResolver
   readonly #devtools: DevToolsInterface.DevTools
   readonly #repl: Repl
   readonly #events: Events
   readonly #ready: Barrier
 
-  constructor(websocketDebuggerEndpoint: string, repl: Repl) {
+  constructor(repl: Repl, options: SessionOptions) {
     this.#repl = repl
-    this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(websocketDebuggerEndpoint))
+    this.#options = options
+    this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(this.#options.webSocketDebuggerUrl))
     this.#resolver = new ValueResolver(this.#devtools)
     this.#events = new Events()
     this.#ready = new Barrier(true)
@@ -128,7 +135,7 @@ export class Session {
     // ----------------------------------------------------------------------
 
     const value = await this.#resolver.resolve(result.result)
-    const regex = /console\.((log)|(warn)|(table)|(error))\([^\)]*\)/
+    const regex = /console\.((log)|(warn)|(error)|(table))\([^\)]*\)/
     return regex.test(expression)
       ? setTimeout(() => this.#consoleLog(value), 50) // consoleAPICalled first
       : this.#consoleLog(value)
@@ -141,7 +148,7 @@ export class Session {
       '(function() {',
       '  const script = document.createElement("script");',
       '  script.type = "module";',
-      '  script.innerHTML = (`\n' + this.#formatCode(Build.build(path), 4, 2) + '`);',
+      '  script.innerHTML = (`\n' + this.#formatCode(await Compiler.build(path)) + '`);',
       '  document.head.appendChild(script);',
       '})();',
     ].join('\n')
@@ -154,7 +161,7 @@ export class Session {
   public async css(path: string): Promise<void> {
     await this.#ready.wait()
     if (!Fs.existsSync(path)) return this.#consoleError(`css: file '${path}' not found`)
-    const expression = 'document.head.insertAdjacentHTML("beforeend", `<style>\n' + this.#formatCode(Build.build(path), 2, 2) + '</style>\n`)'
+    const expression = 'document.head.insertAdjacentHTML("beforeend", `<style>\n' + (await Compiler.build(path)) + '</style>\n`)'
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       return this.#handleError(result.exceptionDetails)
@@ -237,26 +244,21 @@ export class Session {
   }
 
   // --------------------------------------------------------------------
-  // Code Formatting
+  // Formatting
   // --------------------------------------------------------------------
 
-  #formatCode(input: string, align: number, tabspace: number): string {
-    let indent = 0
-    const output: string[] = []
-    for (const line of input.split('\n')) {
-      if (line.includes('}')) {
-        indent -= 1
-      }
-      output.push(`${''.padStart(align + indent * 2, ' ')}${line}`)
-      if (line.includes('{')) {
-        indent += 1
-      }
-    }
-    return output.join('\n')
+  #formatArgs(): string {
+    const args = this.#options.args.map((arg) => `"${arg}"`).join(', ')
+    return `[${args}]`
+  }
+
+  #formatCode(input: string): string {
+    // note: the following line fails when formatting itself (quine). consider more robust implementation.
+    return input.replace(/`/g, '\\`').replace(/\\\\`/g, '\\\\\\`').replace(/\$\{/g, '\\${')
   }
 
   // --------------------------------------------------------------------
-  // Image and Pdf Output
+  // Imaging
   // --------------------------------------------------------------------
 
   #ensureDirectoryExists(path: string) {
@@ -357,21 +359,22 @@ export class Session {
       this.#consoleLog(Color.Gray('drift'), current.url)
     }
     // Augment window.* with drift commands
-    const expressions = [
-      'window.close    = function(code = 0) { console.log("<<close>>", code) }',
-      'window.reload   = function()         { console.log("<<reload>>") }',
-      'window.url      = function(endpoint) { console.log("<<url>>", endpoint) }',
-      'window.run      = function(path)     { console.log("<<run>>", path) }',
-      'window.css      = function(path)     { console.log("<<css>>", path) }',
-      'window.position = function(x, y)     { console.log("<<position>>", x, y) }',
-      'window.size     = function(w, h)     { console.log("<<size>>", w, h) }',
-      'window.click    = function(x, y)     { console.log("<<click>>", x, y) }',
-      'window.save     = function(path)     { console.log("<<save>>", path) }',
-    ]
-    for (const expression of expressions) {
-      await this.#devtools.Runtime.evaluate({ contextId: event.context.id, expression })
-    }
-
+    const expression = [
+      'window.Drift = {',
+      `  args:     ${this.#formatArgs()},`,
+      '  wait:     function(ms = 0)   { return new Promise(resolve => setTimeout(resolve, ms)) },',
+      '  close:    function(code = 0) { console.log("<<close>>", code) },',
+      '  reload:   function()         { console.log("<<reload>>") },',
+      '  url:      function(endpoint) { console.log("<<url>>", endpoint) },',
+      '  run:      function(path)     { console.log("<<run>>", path) },',
+      '  css:      function(path)     { console.log("<<css>>", path) },',
+      '  position: function(x, y)     { console.log("<<position>>", x, y) },',
+      '  size:     function(w, h)     { console.log("<<size>>", w, h) },',
+      '  click:    function(x, y)     { console.log("<<click>>", x, y) },',
+      '  save:     function(path)     { console.log("<<save>>", path) }',
+      '}',
+    ].join('\n')
+    await this.#devtools.Runtime.evaluate({ contextId: event.context.id, expression })
     this.#ready.resume()
   }
 

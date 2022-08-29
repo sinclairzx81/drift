@@ -25,9 +25,9 @@ $ drift url http://localhost:5000
 
 ## Overview
 
-Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It is built upon the Chrome DevTools Protocol and implements an interactive repl for running code in remote Chrome instances and pipes browser logging to stdout. It is built to enable non-visual browser functionality (such as WebRTC and IndexedDB) to be developed and tested entirely within a terminal window.
+Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It is built upon the Chrome DevTools Protocol and implements an interactive repl for running code in remote Chrome instances and sends browser logging to stdout. It is built to enable browser functionality to be developed and tested entirely within a terminal window.
 
-Drift is designed to be a Node like tool for dynamically running JavaScript code in constrained browser environments. It can be useful for automation, browser testing in CI environments or used as a general purpose scripting tool.
+Drift is designed to be a Node like tool for dynamically running JavaScript in constrained browser environments. It can be used for browser automation, testing code in CI or used as a general purpose scripting environment.
 
 License MIT
 
@@ -36,6 +36,7 @@ License MIT
 - [Install](#Install)
 - [Commands](#Commands)
 - [Examples](#Examples)
+- [Runtime](#Runtime)
 - [Testing](#Testing)
 - [Demo](#Demo)
 - [Contribute](#Contribute)
@@ -117,12 +118,47 @@ $ drift window run index.ts wait 5000 close
 $ drift url https://github.com wait 4000 save screenshot.png
 ```
 
+## Runtime
+
+Drift adds the following API in the browser runtime environment.
+
+```typescript
+declare global {
+    /** Drift Runtime. Only available if webpage run via Drift command line */
+    Drift: {
+      /** Command line arguments */
+      args: string[]
+      /** Wait for milliseconds to elapse */
+      wait: (ms: number) => Promise<void>
+      /** Close drift */
+      close(exitcode?: number): void
+      /** Reload the current page */
+      reload(): void
+      /** Navigate page to url endpoint */
+      url(url: string): void
+      /** Run script on current page */
+      run(path: string): void
+      /** Add style to current page */
+      css(path: string): void
+      /** Set desktop window position */
+      position(x: number, y: number): void
+      /** Set desktop window size */
+      size(w: number, h: number): void
+      /** Send mousedown event current page */
+      click(x: number, y: number): void
+      /** Save current page as png, jpeg or pdf format */
+      save(path: string): void
+    }
+}
+
+```
+
 ## Testing
 
 Drift modifies the `window.close(...)` function to allow browser scripts to terminate the Drift process from within a page. Scripts can call `window.close(...)` with an optional exit code. This functionality allows Drift to be used in CI environments that interpret non zero exit codes as errors.
 
 ```typescript
-test().then(() => window.close(0)).catch(() => window.close(1))
+test().then(() => Drift.close(0)).catch(() => Drift.close(1))
 ```
 
 Which can be run on CI environments with the following.
