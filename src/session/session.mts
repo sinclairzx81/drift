@@ -144,14 +144,17 @@ export class Session {
   public async run(path: string): Promise<void> {
     await this.#ready.wait()
     if (!Fs.existsSync(path)) return this.#consoleError(`run: file '${path}' not found`)
+    const code = await Compiler.build(path)
+    const encoded = this.#encodeScript(code)
     const expression = [
       '(function() {',
-      '  const script = document.createElement("script");',
-      '  script.type = "module";',
-      '  script.innerHTML = (`\n' + this.#formatCode(await Compiler.build(path)) + '`);',
-      '  document.head.appendChild(script);',
+      '  const script = document.createElement("script")',
+      '  script.type = "module"',
+      `  script.innerHTML = atob('${encoded}')`,
+      '  document.head.appendChild(script)',
       '})();',
     ].join('\n')
+    console.log(expression)
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       return this.#handleError(result.exceptionDetails)
@@ -244,17 +247,16 @@ export class Session {
   }
 
   // --------------------------------------------------------------------
-  // Formatting
+  // Encoding
   // --------------------------------------------------------------------
 
-  #formatArgs(): string {
+  #encodeArgs(): string {
     const args = this.#options.args.map((arg) => `"${arg}"`).join(', ')
     return `[${args}]`
   }
 
-  #formatCode(input: string): string {
-    // note: the following line fails when formatting itself (quine). consider more robust implementation.
-    return input.replace(/`/g, '\\`').replace(/\\\\`/g, '\\\\\\`').replace(/\$\{/g, '\\${')
+  #encodeScript(code: string) {
+    return Buffer.from(code).toString('base64')
   }
 
   // --------------------------------------------------------------------
@@ -361,7 +363,7 @@ export class Session {
     // Augment window.* with drift commands
     const expression = [
       'window.Drift = {',
-      `  args:     ${this.#formatArgs()},`,
+      `  args:     ${this.#encodeArgs()},`,
       '  wait:     function(ms = 0)   { return new Promise(resolve => setTimeout(resolve, ms)) },',
       '  close:    function(code = 0) { console.log("<<close>>", code) },',
       '  reload:   function()         { console.log("<<reload>>") },',
