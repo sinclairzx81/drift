@@ -123,7 +123,6 @@ $ drift url https://github.com wait 4000 save screenshot.png
 The following Runtime API is available when running Chrome through Drift.
 
 ```typescript
-/** Drift runtime environment. */
 declare var Drift: {
   /** Command line arguments */
   args: string[]
