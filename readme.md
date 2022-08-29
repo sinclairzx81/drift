@@ -54,14 +54,14 @@ Examples:
   $ drift url https://domain.com
   $ drift run script.ts
   $ drift url https://domain.com run script.ts
-  $ drift url https://domain.com wait 1000 save screenshot.png
+  $ drift url https://domain.com wait 1000 save image.png
   $ drift window devtools url https://domain.com
 
 Commands:
 
-  url         endpoint    Navigate page to url endpoint
+  url         url         Navigate page to url endpoint
   run         path        Run script on current page
-  css         path        Add stylesheet to current page
+  css         path        Add style to current page
   save        path        Save current page as png, jpeg or pdf format
   user        path        Set chrome user data directory
   position    x y         Set desktop window position

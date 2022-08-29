@@ -137,40 +137,28 @@ export class Session {
   public async run(path: string): Promise<void> {
     await this.#ready.wait()
     if (!Fs.existsSync(path)) return this.#consoleError(`run: file '${path}' not found`)
-    const expression = `(async function() { ${Build.build(path)} })();`
+    const expression = [
+      '(function() {',
+      '  const script = document.createElement("script");',
+      '  script.type = "module";',
+      '  script.innerHTML = (`\n' + this.#formatCode(Build.build(path), 4, 2) + '`);',
+      '  document.head.appendChild(script);',
+      '})();',
+    ].join('\n')
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       return this.#handleError(result.exceptionDetails)
     }
-
-    // ----------------------------------------------------------------------
-    // todo: investigate esm as the default.
-    // ----------------------------------------------------------------------
-
-    // const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
-    // if (compileResult.exceptionDetails) {
-    //   return this.#handleError(compileResult.exceptionDetails)
-    // }
-    // await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
   }
 
   public async css(path: string): Promise<void> {
     await this.#ready.wait()
     if (!Fs.existsSync(path)) return this.#consoleError(`css: file '${path}' not found`)
-    const expression = `document.head.insertAdjacentHTML("beforeend", \`\n<style>\n${Build.build(path)}</style>\`)`
+    const expression = 'document.head.insertAdjacentHTML("beforeend", `<style>\n' + this.#formatCode(Build.build(path), 2, 2) + '</style>\n`)'
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       return this.#handleError(result.exceptionDetails)
     }
-
-    // ----------------------------------------------------------------------
-    // todo: investigate esm as the default.
-    // ----------------------------------------------------------------------
-    // const compileResult = await this.#devtools.Runtime.compileScript({ expression, persistScript: true, sourceURL: 'module.esm' })
-    // if (compileResult.exceptionDetails) {
-    //   return this.#handleError(compileResult.exceptionDetails)
-    // }
-    // await this.#devtools.Runtime.runScript({ scriptId: compileResult.scriptId!, awaitPromise: true })
   }
 
   public async position(x: number, y: number) {
@@ -246,6 +234,25 @@ export class Session {
       x: x,
       y: y,
     })
+  }
+
+  // --------------------------------------------------------------------
+  // Code Formatting
+  // --------------------------------------------------------------------
+
+  #formatCode(input: string, align: number, tabspace: number): string {
+    let indent = 0
+    const output: string[] = []
+    for (const line of input.split('\n')) {
+      if (line.includes('}')) {
+        indent -= 1
+      }
+      output.push(`${''.padStart(align + indent * 2, ' ')}${line}`)
+      if (line.includes('{')) {
+        indent += 1
+      }
+    }
+    return output.join('\n')
   }
 
   // --------------------------------------------------------------------

@@ -109,14 +109,14 @@ Examples:
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')}
   $ drift ${Color.Gray('run')} ${Color.Blue('script.ts')}
   $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('run')} ${Color.Blue('script.ts')}
-  $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('wait')} ${Color.Blue('1000')} ${Color.Gray('save')} ${Color.Blue('screenshot.png')}
+  $ drift ${Color.Gray('url')} ${Color.Blue('https://domain.com')} ${Color.Gray('wait')} ${Color.Blue('1000')} ${Color.Gray('save')} ${Color.Blue('image.png')}
   $ drift ${Color.Gray('window')} ${Color.Gray('devtools')} ${Color.Gray('url')} ${Color.Blue('https://domain.com')}
 
 Commands:
 
-  ${Color.Gray('url')}         ${Color.Blue('endpoint')}    Navigate page to url endpoint
+  ${Color.Gray('url')}         ${Color.Blue('url')}         Navigate page to url endpoint
   ${Color.Gray('run')}         ${Color.Blue('path')}        Run script on current page
-  ${Color.Gray('css')}         ${Color.Blue('path')}        Add stylesheet to current page
+  ${Color.Gray('css')}         ${Color.Blue('path')}        Add style to current page
   ${Color.Gray('save')}        ${Color.Blue('path')}        Save current page as png, jpeg or pdf format
   ${Color.Gray('user')}        ${Color.Blue('path')}        Set chrome user data directory
   ${Color.Gray('position')}    ${Color.Blue('x y')}         Set desktop window position
