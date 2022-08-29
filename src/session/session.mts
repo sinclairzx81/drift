@@ -154,7 +154,6 @@ export class Session {
       '  document.head.appendChild(script)',
       '})();',
     ].join('\n')
-    console.log(expression)
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       return this.#handleError(result.exceptionDetails)
