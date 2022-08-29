@@ -17,7 +17,7 @@
   },
   "type": "module",
   "main": "index.mjs",
-  "types": "index.d.mts",
+  "types": "runtime.d.ts",
   "bin": {
     "drift": "./start.mjs"
   },

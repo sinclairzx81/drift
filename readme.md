@@ -120,44 +120,47 @@ $ drift url https://github.com wait 4000 save screenshot.png
 
 ## Runtime
 
-Drift adds the following API to the Chrome runtime environment.
+The following Runtime API is available when running Chrome through Drift.
 
 ```typescript
-declare global {
-  interface Window {
-    /** Drift Runtime. Only available if page is started via Drift command line */
-    Drift: {
-      /** Command line arguments */
-      args: string[]
-      /** Add style to current page */
-      css(path: string): void
-      /** Send mousedown event current page */
-      click(x: number, y: number): void
-      /** Close drift */
-      close(exitcode?: number): void
-      /** Set desktop window position */
-      position(x: number, y: number): void
-      /** Reload the current page */
-      reload(): void
-      /** Run script on current page */
-      run(path: string): void
-      /** Set desktop window size */
-      size(w: number, h: number): void
-      /** Save current page as png, jpeg or pdf format */
-      save(path: string): void
-      /** Navigate page to url endpoint */
-      url(url: string): void
-      /** Wait for milliseconds to elapse */
-      wait(ms: number): Promise<void>
-    }
-  }
+declare var Drift: {
+    /** Command line arguments */
+    args: string[];
+    /** Add style to current page */
+    css(path: string): void;
+    /** Send mousedown event current page */
+    click(x: number, y: number): void;
+    /** Close drift */
+    close(exitcode?: number): void;
+    /** Set desktop window position */
+    position(x: number, y: number): void;
+    /** Reload the current page */
+    reload(): void;
+    /** Run script on current page */
+    run(path: string): void;
+    /** Set desktop window size */
+    size(w: number, h: number): void;
+    /** Save current page as png, jpeg or pdf format */
+    save(path: string): void;
+    /** Navigate page to url endpoint */
+    url(url: string): void;
+    /** Wait for milliseconds to elapse */
+    wait(ms: number): Promise<void>;
 }
 
+```
+To use in TypeScript, add the following to `tsconfig.json`.
+```typescript
+{
+  "compilerOptions": {
+    "types": ["@sinclair/drift"]
+  }
+}
 ```
 
 ## Testing
 
-Drift modifies the `window.close(...)` function to allow browser scripts to terminate the Drift process from within a page. Scripts can call `window.close(...)` with an optional exit code. This functionality allows Drift to be used in CI environments that interpret non zero exit codes as errors.
+Use `Drift.close(...)` in CI environments to exit Drift with a non zero exit code on error. CI environments will interpret this is a failed process.
 
 ```typescript
 test().then(() => Drift.close(0)).catch(() => Drift.close(1))

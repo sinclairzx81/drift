@@ -65,6 +65,7 @@ export async function parallel(...args) {
 export async function build(target = 'target/build') {
   await clean()
   await shell(`tsc -p src/tsconfig.json --outDir ${target} --declaration`)
+  await folder(target).add('src/runtime.d.ts')
   await folder(target).add('src/start.mjs')
   await folder(target).add('readme.md')
   await folder(target).add('license')
