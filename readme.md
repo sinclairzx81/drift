@@ -124,31 +124,33 @@ Drift adds the following API to the Chrome runtime.
 
 ```typescript
 declare global {
-    /** Drift Runtime. Only available if webpage run via Drift command line */
+  interface Window {
+    /** Drift Runtime. Only available if page is started via Drift command line */
     Drift: {
       /** Command line arguments */
       args: string[]
-      /** Wait for milliseconds to elapse */
-      wait: (ms: number) => Promise<void>
-      /** Close drift */
-      close(exitcode?: number): void
-      /** Reload the current page */
-      reload(): void
-      /** Navigate page to url endpoint */
-      url(url: string): void
-      /** Run script on current page */
-      run(path: string): void
       /** Add style to current page */
       css(path: string): void
-      /** Set desktop window position */
-      position(x: number, y: number): void
-      /** Set desktop window size */
-      size(w: number, h: number): void
       /** Send mousedown event current page */
       click(x: number, y: number): void
+      /** Close drift */
+      close(exitcode?: number): void
+      /** Set desktop window position */
+      position(x: number, y: number): void
+      /** Reload the current page */
+      reload(): void
+      /** Run script on current page */
+      run(path: string): void
+      /** Set desktop window size */
+      size(w: number, h: number): void
       /** Save current page as png, jpeg or pdf format */
       save(path: string): void
+      /** Navigate page to url endpoint */
+      url(url: string): void
+      /** Wait for milliseconds to elapse */
+      wait(ms: number): Promise<void>
     }
+  }
 }
 
 ```
