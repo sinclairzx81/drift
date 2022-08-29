@@ -1,5 +1,5 @@
-// -----------------------------------------------------------
-// Runs the cli in interactive watch mode..
-// -----------------------------------------------------------
+const { Remote } = await import('./remote.mjs')
 
-import '../src/drift.mjs'
+const remote = new Remote()
+
+export {}

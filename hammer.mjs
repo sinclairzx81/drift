@@ -31,7 +31,7 @@ export async function codegen() {
 
 export async function start(...args) {
   const params = args.join(' ')
-  await shell(`hammer run "example/index.mts user target/user ${params}" --dist target/example`)
+  await shell(`hammer run "example/start.mts user target/user ${params}" --dist target/example`)
 }
 
 // ---------------------------------------------------------------------
