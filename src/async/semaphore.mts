@@ -26,11 +26,58 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export * from './barrier.mjs'
-export * from './debounce.mjs'
-export * from './deferred.mjs'
-export * from './delay.mjs'
-export * from './responder.mjs'
-export * from './retry.mjs'
-export * from './semaphore.mjs'
-export * from './timeout.mjs'
+interface Awaiter<T = any> {
+  executor(): Promise<T> | T
+  resolve(value: T): void
+  reject(error: Error): void
+}
+
+export class Semaphore {
+  readonly #awaiters: Array<Awaiter>
+  readonly #concurrency: number = 1
+  readonly #delay: number = 0
+  #running: number
+
+  constructor(concurrency: number = 1, delay: number = 0) {
+    this.#concurrency = concurrency
+    this.#delay = delay
+    this.#awaiters = []
+    this.#running = 0
+  }
+
+  public run<T = any>(executor: () => Promise<T> | T): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      this.#awaiters.push({ executor, resolve, reject })
+      this.#dispatch()
+    })
+  }
+
+  #increment() {
+    this.#running += 1
+  }
+
+  #decrement() {
+    this.#running -= 1
+  }
+
+  #resume() {
+    setTimeout(() => {
+      this.#decrement()
+      this.#dispatch()
+    }, this.#delay)
+  }
+
+  async #dispatch(): Promise<any> {
+    if (this.#awaiters.length === 0 || this.#running >= this.#concurrency) {
+      return
+    }
+    const awaiter = this.#awaiters.shift()!
+    this.#increment()
+    try {
+      awaiter.resolve(await awaiter.executor())
+    } catch (error) {
+      awaiter.reject(error as any)
+    }
+    this.#resume()
+  }
+}

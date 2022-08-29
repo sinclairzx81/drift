@@ -31,7 +31,7 @@ import { Events, EventListener, EventHandler } from '../events/index.mjs'
 import { ValueResolver } from './values.mjs'
 import { Color } from '../color/index.mjs'
 import { Repl } from '../repl/index.mjs'
-import { Barrier } from '../async/index.mjs'
+import { Barrier, Semaphore } from '../async/index.mjs'
 import { Compiler } from '../build/index.mjs'
 
 import * as Path from 'node:path'
@@ -64,17 +64,19 @@ export interface SessionOptions {
 
 export class Session {
   readonly #options: SessionOptions
-  readonly #resolver: ValueResolver
   readonly #devtools: DevToolsInterface.DevTools
+  readonly #resolver: ValueResolver
   readonly #repl: Repl
+  readonly #semaphore: Semaphore
   readonly #events: Events
   readonly #ready: Barrier
 
   constructor(repl: Repl, options: SessionOptions) {
-    this.#repl = repl
     this.#options = options
     this.#devtools = new DevToolsInterface.DevTools(new DevToolsAdapter(this.#options.webSocketDebuggerUrl))
     this.#resolver = new ValueResolver(this.#devtools)
+    this.#repl = repl
+    this.#semaphore = new Semaphore(1)
     this.#events = new Events()
     this.#ready = new Barrier(true)
     this.#setup().catch((error) => console.error(error))
@@ -381,40 +383,42 @@ export class Session {
   }
 
   async #onConsoleApiCalled(event: DevToolsInterface.Runtime.ConsoleAPICalledEvent) {
-    // Intercept '<<command>>' messages and dispatch accordingly
-    const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
-    if (args.length === 1 && args[0] === '<<reload>>') {
-      return this.#events.send('reload', void 0) // exterior emit to allow script/css reload
-    } else if (args.length === 2 && args[0] === '<<close>>') {
-      return this.#events.send('close', args[1] === undefined ? 0 : args[1])
-    } else if (args.length === 2 && args[0] === '<<run>>' && this.#isString(args[1])) {
-      return await this.run(args[1])
-    } else if (args.length === 2 && args[0] === '<<css>>' && this.#isString(args[1])) {
-      return await this.css(args[1])
-    } else if (args.length === 2 && args[0] === '<<url>>' && this.#isString(args[1])) {
-      return await this.url(args[1])
-    } else if (args.length === 2 && args[0] === '<<save>>' && this.#isString(args[1])) {
-      return await this.save(args[1])
-    } else if (args.length === 3 && args[0] === '<<size>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
-      return await this.size(args[1], args[2])
-    } else if (args.length === 3 && args[0] === '<<position>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
-      return await this.position(args[1], args[2])
-    } else if (args.length === 3 && args[0] === '<<click>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
-      return await this.click(args[1], args[2])
-    } else {
-    }
+    await this.#semaphore.run(async () => {
+      // Intercept '<<command>>' messages and dispatch accordingly
+      const args = await Promise.all(event.args.map((arg) => this.#resolver.resolve(arg)))
+      if (args.length === 1 && args[0] === '<<reload>>') {
+        return this.#events.send('reload', void 0) // exterior emit to allow script/css reload
+      } else if (args.length === 2 && args[0] === '<<close>>') {
+        return this.#events.send('close', args[1] === undefined ? 0 : args[1])
+      } else if (args.length === 2 && args[0] === '<<run>>' && this.#isString(args[1])) {
+        return await this.run(args[1])
+      } else if (args.length === 2 && args[0] === '<<css>>' && this.#isString(args[1])) {
+        return await this.css(args[1])
+      } else if (args.length === 2 && args[0] === '<<url>>' && this.#isString(args[1])) {
+        return await this.url(args[1])
+      } else if (args.length === 2 && args[0] === '<<save>>' && this.#isString(args[1])) {
+        return await this.save(args[1])
+      } else if (args.length === 3 && args[0] === '<<size>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
+        return await this.size(args[1], args[2])
+      } else if (args.length === 3 && args[0] === '<<position>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
+        return await this.position(args[1], args[2])
+      } else if (args.length === 3 && args[0] === '<<click>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
+        return await this.click(args[1], args[2])
+      } else {
+      }
 
-    // Process console logs as normal
-    switch (event.type) {
-      case 'clear':
-        return this.#consoleClear()
-      case 'table':
-        return this.#consoleTable(...args)
-      case 'error':
-        return this.#consoleError(...args)
-      default:
-        return this.#consoleLog(...args)
-    }
+      // Process console logs as normal
+      switch (event.type) {
+        case 'clear':
+          return this.#consoleClear()
+        case 'table':
+          return this.#consoleTable(...args)
+        case 'error':
+          return this.#consoleError(...args)
+        default:
+          return this.#consoleLog(...args)
+      }
+    })
   }
 
   #onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
