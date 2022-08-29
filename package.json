@@ -1,7 +1,7 @@
 {
   "name": "@sinclair/drift",
   "description": "Run Chrome from the Terminal",
-  "version": "0.8.33",
+  "version": "0.8.34",
   "author": "sinclairzx81",
   "keywords": [
     "chrome",
@@ -17,6 +17,7 @@
   },
   "type": "module",
   "main": "index.mjs",
+  "types": "index.d.mts",
   "bin": {
     "drift": "./start.mjs"
   },
