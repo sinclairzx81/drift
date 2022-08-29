@@ -120,7 +120,7 @@ $ drift url https://github.com wait 4000 save screenshot.png
 
 ## Runtime
 
-Drift adds the following API to the Chrome runtime.
+Drift adds the following API to the Chrome runtime environment.
 
 ```typescript
 declare global {
