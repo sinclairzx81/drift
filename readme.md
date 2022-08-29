@@ -130,8 +130,8 @@ declare var Drift: {
   css(path: string): void
   /** Send mousedown event current page */
   click(x: number, y: number): void
-  /** Close drift */
-  close(exitcode?: number): void
+  /** Close drift with optional exit code */
+  close(exitcode?: number): never
   /** Set desktop window position */
   position(x: number, y: number): void
   /** Reload the current page */
