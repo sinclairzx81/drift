@@ -82,7 +82,7 @@ export namespace ChromeStart {
     flags.push('--no-default-browser-check')
 
     const process = Process.spawn(ChromePath.get(), flags)
-    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port, { times: 40, delay: 100 }) // 4 seconds
+    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port, { times: 256, delay: 100 }) // 4 seconds
     const chrome = new Chrome(process, webSocketDebuggerUrl, options.verbose)
     await mutex.unlock()
     return chrome
