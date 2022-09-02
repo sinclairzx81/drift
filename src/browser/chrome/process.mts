@@ -82,7 +82,10 @@ export namespace ChromeStart {
     flags.push('--no-default-browser-check')
 
     const process = Process.spawn(ChromePath.get(), flags)
-    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port, { times: 256, delay: 100 }) // 4 seconds
+    // Sometimes chrome is slow to start, slow to bind, and sometimes it doesn't return a socket endpoint
+    // at all. It's assumed chrome is initializing internally, so we retry until it hopefully wakes up
+    // and returns a socket endpoint. This behavior is usually observed in CI environments.
+    const webSocketDebuggerUrl = await getWebSocketDebuggerUrl(port, { times: 256, delay: 100 })
     const chrome = new Chrome(process, webSocketDebuggerUrl, options.verbose)
     await mutex.unlock()
     return chrome
