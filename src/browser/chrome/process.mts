@@ -75,6 +75,7 @@ export namespace ChromeStart {
     if (options.devtools) flags.push('--auto-open-devtools-for-tabs')
     if (options.incognito) flags.push('--incognito')
     if (options.headless) flags.push('--headless')
+    flags.push('--no-first-run')
     flags.push('--hide-crash-restore-bubble')
     flags.push(`--user-data-dir=${user}`)
     flags.push(`--remote-debugging-port=${port}`)
