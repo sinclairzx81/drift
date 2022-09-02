@@ -25,9 +25,9 @@ $ drift url http://localhost:5000
 
 ## Overview
 
-Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It is built upon the Chrome DevTools Protocol and implements an interactive repl for running code in remote Chrome instances and sends browser logging to stdout. It is built to enable browser functionality to be developed and tested entirely within a terminal window.
+Drift is a command line tool that integrates the Chrome Developer Console into the terminal. It is built upon the Chrome DevTools Protocol and implements an interactive repl for running code in remote Chrome instances. Drift enables browser functionality to be developed and tested entirely from within a terminal window.
 
-Drift is designed to be a Node like tool for dynamically running JavaScript in constrained browser environments. It can be used for browser automation, testing code in CI or used as a general purpose scripting environment.
+Drift works similar to Node but runs code in constrained browser environments. It can be used for browser automation, running browser code in CI environments or used as a general purpose scripting tool.
 
 License MIT
 
@@ -41,8 +41,9 @@ License MIT
 
 ## Commands
 
-Drift provides the following command line interface.
+The Drift CLI accepts a series of commands which are run in sequence against a sandboxed Chrome instance. When all commands have completed, Drift will enter an interactive repl similar to the Chrome DevTools Console. 
 
+The following is the Drift command line interface
 ```
 Format:
 
@@ -118,7 +119,7 @@ $ drift url https://github.com wait 4000 save screenshot.png
 
 ## Testing
 
-Use `Drift.close(...)` in CI environments to exit Drift with a non zero exit code on error. CI environments will interpret this is a failed process.
+When testing browser code in CI environments, call `Drift.close(...)` within the code to terminate the process with a non zero exit code on errors. CI environments will interpret this is a failed process.
 
 ```typescript
 test().then(() => Drift.close(0)).catch(() => Drift.close(1))
