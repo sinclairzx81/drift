@@ -36,9 +36,7 @@ License MIT
 - [Install](#Install)
 - [Commands](#Commands)
 - [Examples](#Examples)
-- [Runtime](#Runtime)
 - [Testing](#Testing)
-- [Demo](#Demo)
 - [Contribute](#Contribute)
 
 ## Commands
@@ -118,46 +116,6 @@ $ drift window run index.ts wait 5000 close
 $ drift url https://github.com wait 4000 save screenshot.png
 ```
 
-## Runtime
-
-The following Runtime API is available when running Chrome through Drift.
-
-```typescript
-declare var Drift: {
-  /** Command line arguments */
-  args: string[]
-  /** Add style to current page */
-  css(path: string): void
-  /** Send mousedown event current page */
-  click(x: number, y: number): void
-  /** Close drift with optional exit code */
-  close(exitcode?: number): never
-  /** Set desktop window position */
-  position(x: number, y: number): void
-  /** Reload the current page */
-  reload(): void
-  /** Run script on current page */
-  run(path: string): void
-  /** Set desktop window size */
-  size(w: number, h: number): void
-  /** Save current page as png, jpeg or pdf format */
-  save(path: string): void
-  /** Navigate page to url endpoint */
-  url(url: string): void
-  /** Wait for milliseconds to elapse */
-  wait(ms: number): Promise<void>
-}
-
-```
-To use in TypeScript, add the following to `tsconfig.json`.
-```typescript
-{
-  "compilerOptions": {
-    "types": ["@sinclair/drift"]
-  }
-}
-```
-
 ## Testing
 
 Use `Drift.close(...)` in CI environments to exit Drift with a non zero exit code on error. CI environments will interpret this is a failed process.
@@ -171,12 +129,6 @@ Which can be run on CI environments with the following.
 ```bash
 $ drift run test.ts
 ```
-
-## Demo
-
-The following demonstrates using Drift to operate Chrome via the Terminal
-
-![Drift Demo](.build/assets/drift.gif "Drift Demo")
 
 ## Contribute
 
