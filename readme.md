@@ -64,7 +64,7 @@ Commands:
   css         path        Add style to current page
   save        path        Save current page as png, jpeg or pdf format
   user        path        Set chrome user data directory
-  args        [...argv]   Adds command line args to Drift.argv
+  args        [...args]   Adds command line args to Drift.args
   watch       [...path]   Reload on save for run, css and additional paths
   position    x y         Set desktop window position
   size        w h         Set desktop window size

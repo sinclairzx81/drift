@@ -142,7 +142,7 @@ Commands:
   ${Color.Gray('css')}         ${Color.Blue('path')}        Add style to current page
   ${Color.Gray('save')}        ${Color.Blue('path')}        Save current page as png, jpeg or pdf format
   ${Color.Gray('user')}        ${Color.Blue('path')}        Set chrome user data directory
-  ${Color.Gray('args')}        ${Color.Blue('[...argv]')}   Adds command line args to Drift.argv
+  ${Color.Gray('args')}        ${Color.Blue('[...args]')}   Adds command line args to Drift.args
   ${Color.Gray('watch')}       ${Color.Blue('[...path]')}   Reload on save for run, css and additional paths
   ${Color.Gray('position')}    ${Color.Blue('x y')}         Set desktop window position
   ${Color.Gray('size')}        ${Color.Blue('w h')}         Set desktop window size
