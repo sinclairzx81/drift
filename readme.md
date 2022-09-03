@@ -47,7 +47,7 @@ The following is the Drift command line interface
 ```
 Format:
 
-  $ drift [...command | flag]
+  $ drift [...command]
 
 Examples:
 
@@ -59,26 +59,27 @@ Examples:
 
 Commands:
 
-  url         url         Navigate page to url endpoint
-  run         path        Run script on current page
-  css         path        Add style to current page
-  save        path        Save current page as png, jpeg or pdf format
-  user        path        Set chrome user data directory
-  args        [...args]   Adds command line args to Drift.args
-  watch       [...path]   Reload on save for run, css and additional paths
-  position    x y         Set desktop window position
-  size        w h         Set desktop window size
-  click       x y         Send mousedown event current page
-  wait        ms          Wait for milliseconds to elapse
-  reload                  Reload the current page
+  url         url         Load page
+  run         path        Add script to page
+  css         path        Add style to page
+  save        path        Save page as image or pdf
+  args        [...args]   Adds args to Drift.args
+  watch       [...path]   Watch and reload
+  user        path        User directory
+  mousedown   x y         Send mousedown event
+  position    x y         Desktop window position
+  size        w h         Desktop window size
+  wait        ms          Wait timeout
+  reload                  Reload page
   close                   Close drift
 
 Flags:
 
-  window                  Open chrome with window
-  devtools                Open chrome with devtools
-  incognto                Open chrome with incognito
-  verbose                 Send chrome logs to stdout
+  window                  Open window
+  devtools                Open devtools
+  incognto                Open incognito
+  verbose                 Log Chrome messages
+  reset                   Reset user directory
   fail                    Close drift on exceptions
   help                    Show this help message
 

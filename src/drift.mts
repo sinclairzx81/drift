@@ -63,7 +63,7 @@ function get_watch_paths(commands: Command[]): string[] {
 }
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
-function user_dir(commands: Command[]) {
+function get_user_dir(commands: Command[]) {
   const command = commands.find((command) => command.type === 'user') as UserCommand | undefined
   if (command === undefined) return Path.join(Platform.resolveDirname(import.meta.url), 'user')
   return Path.resolve(command.path)
@@ -125,7 +125,7 @@ function help() {
   console.log(`
 Format:
 
-  $ drift [...command | flag]
+  $ drift [...command]
 
 Examples:
 
@@ -137,26 +137,27 @@ Examples:
 
 Commands:
 
-  ${Color.Gray('url')}         ${Color.Blue('url')}         Navigate page to url endpoint
-  ${Color.Gray('run')}         ${Color.Blue('path')}        Run script on current page
-  ${Color.Gray('css')}         ${Color.Blue('path')}        Add style to current page
-  ${Color.Gray('save')}        ${Color.Blue('path')}        Save current page as png, jpeg or pdf format
-  ${Color.Gray('user')}        ${Color.Blue('path')}        Set chrome user data directory
-  ${Color.Gray('args')}        ${Color.Blue('[...args]')}   Adds command line args to Drift.args
-  ${Color.Gray('watch')}       ${Color.Blue('[...path]')}   Reload on save for run, css and additional paths
-  ${Color.Gray('position')}    ${Color.Blue('x y')}         Set desktop window position
-  ${Color.Gray('size')}        ${Color.Blue('w h')}         Set desktop window size
-  ${Color.Gray('click')}       ${Color.Blue('x y')}         Send mousedown event current page
-  ${Color.Gray('wait')}        ${Color.Blue('ms')}          Wait for milliseconds to elapse
-  ${Color.Gray('reload')}      ${Color.Blue('')}            Reload the current page
+  ${Color.Gray('url')}         ${Color.Blue('url')}         Load page
+  ${Color.Gray('run')}         ${Color.Blue('path')}        Add script to page
+  ${Color.Gray('css')}         ${Color.Blue('path')}        Add style to page
+  ${Color.Gray('save')}        ${Color.Blue('path')}        Save page as image or pdf
+  ${Color.Gray('args')}        ${Color.Blue('[...args]')}   Adds args to Drift.args
+  ${Color.Gray('watch')}       ${Color.Blue('[...path]')}   Watch and reload
+  ${Color.Gray('user')}        ${Color.Blue('path')}        User directory
+  ${Color.Gray('mousedown')}   ${Color.Blue('x y')}         Send mousedown event
+  ${Color.Gray('position')}    ${Color.Blue('x y')}         Desktop window position
+  ${Color.Gray('size')}        ${Color.Blue('w h')}         Desktop window size
+  ${Color.Gray('wait')}        ${Color.Blue('ms')}          Wait timeout
+  ${Color.Gray('reload')}      ${Color.Blue('')}            Reload page
   ${Color.Gray('close')}       ${Color.Blue('')}            Close drift
 
 Flags:
-  
-  ${Color.Gray('window')}      ${Color.Blue('')}            Open chrome with window
-  ${Color.Gray('devtools')}    ${Color.Blue('')}            Open chrome with devtools
-  ${Color.Gray('incognto')}    ${Color.Blue('')}            Open chrome with incognito
-  ${Color.Gray('verbose')}     ${Color.Blue('')}            Send chrome logs to stdout
+
+  ${Color.Gray('window')}      ${Color.Blue('')}            Open window
+  ${Color.Gray('devtools')}    ${Color.Blue('')}            Open devtools
+  ${Color.Gray('incognto')}    ${Color.Blue('')}            Open incognito
+  ${Color.Gray('verbose')}     ${Color.Blue('')}            Log Chrome messages
+  ${Color.Gray('reset')}       ${Color.Blue('')}            Reset user directory
   ${Color.Gray('fail')}        ${Color.Blue('')}            Close drift on exceptions
   ${Color.Gray('help')}        ${Color.Blue('')}            Show this help message
 
@@ -187,6 +188,18 @@ if (commands.length === 0) {
   banner()
 }
 
+// ------------------------------------------------------------------------
+// Clear
+// ------------------------------------------------------------------------
+
+if (has_command('reset', commands)) {
+  const user_dir = get_user_dir(commands)
+  log('reset', user_dir)
+  if (Fs.existsSync(user_dir)) {
+    Fs.rmSync(get_user_dir(commands), { recursive: true })
+  }
+}
+
 // --------------------------------------------------------------------
 // Browser
 // --------------------------------------------------------------------
@@ -198,7 +211,7 @@ const verbose = has_command('verbose', commands)
 const devtools = has_command('devtools', commands)
 const headless = !has_command('window', commands)
 const fail = has_command('fail', commands)
-const user = user_dir(commands)
+const user = get_user_dir(commands)
 const repl = new Repl()
 const watch = new Watch()
 const browser = await ChromeStart.start({ user, headless, verbose, incognito, devtools })
@@ -241,11 +254,6 @@ browser.on('exit', async () => {
 
 for (const command of commands) {
   switch (command.type) {
-    case 'click': {
-      log('viewport', command.x, command.y)
-      await session.click(command.x, command.y)
-      break
-    }
     case 'close': {
       log('close')
       close(browser, watch, 0)
@@ -256,9 +264,9 @@ for (const command of commands) {
       await session.css(command.path)
       break
     }
-    case 'run': {
-      log('run', command.path)
-      await session.run(command.path)
+    case 'mousedown': {
+      log('mousedown', command.x, command.y)
+      await session.mousedown(command.x, command.y)
       break
     }
     case 'position': {
@@ -269,6 +277,11 @@ for (const command of commands) {
     case 'reload': {
       log('reload')
       await session.reload()
+      break
+    }
+    case 'run': {
+      log('run', command.path)
+      await session.run(command.path)
       break
     }
     case 'save': {

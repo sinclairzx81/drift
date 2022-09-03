@@ -36,7 +36,6 @@ import * as Fs from 'node:fs'
 
 export type Command =
   | ArgsCommand
-  | ClickCommand
   | CloseCommand
   | CssCommand
   | DevToolsCommand
@@ -44,8 +43,10 @@ export type Command =
   | HelpCommand
   | IncognitoCommand
   | UrlCommand
+  | MouseDownCommand
   | PositionCommand
   | ReloadCommand
+  | ResetCommand
   | RunCommand
   | SaveCommand
   | SizeCommand
@@ -58,12 +59,6 @@ export type Command =
 export interface ArgsCommand {
   type: 'args'
   args: string[]
-}
-
-export interface ClickCommand {
-  type: 'click'
-  x: number
-  y: number
 }
 
 export interface CloseCommand {
@@ -96,6 +91,12 @@ export interface UrlCommand {
   url: string
 }
 
+export interface MouseDownCommand {
+  type: 'mousedown'
+  x: number
+  y: number
+}
+
 export interface PositionCommand {
   type: 'position'
   x: number
@@ -104,6 +105,10 @@ export interface PositionCommand {
 
 export interface ReloadCommand {
   type: 'reload'
+}
+
+export interface ResetCommand {
+  type: 'reset'
 }
 
 export interface RunCommand {
@@ -243,6 +248,7 @@ export namespace Commands {
       'incognito',
       'position',
       'reload',
+      'reset',
       'run',
       'save',
       'size',
@@ -263,10 +269,10 @@ export namespace Commands {
     return { type: 'args', args: parseArgumentList(params) }
   }
 
-  function parseClick(params: string[]): ClickCommand {
+  function parseMousedown(params: string[]): MouseDownCommand {
     const x = parseInteger(params)
     const y = parseInteger(params)
-    return { type: 'click', x, y }
+    return { type: 'mousedown', x, y }
   }
 
   function parseClose(params: string[]): CloseCommand {
@@ -301,6 +307,10 @@ export namespace Commands {
 
   function parseReload(params: string[]): ReloadCommand {
     return { type: 'reload' }
+  }
+
+  function parseReset(params: string[]): ResetCommand {
+    return { type: 'reset' }
   }
 
   function parseRun(params: string[]): RunCommand {
@@ -349,10 +359,6 @@ export namespace Commands {
             yield parseArgs(params)
             break
           }
-          case 'click': {
-            yield parseClick(params)
-            break
-          }
           case 'close': {
             yield parseClose(params)
             break
@@ -377,12 +383,20 @@ export namespace Commands {
             yield parseIncognito(params)
             break
           }
+          case 'mousedown': {
+            yield parseMousedown(params)
+            break
+          }
           case 'position': {
             yield parsePosition(params)
             break
           }
           case 'reload': {
             yield parseReload(params)
+            break
+          }
+          case 'reset': {
+            yield parseReset(params)
             break
           }
           case 'run': {

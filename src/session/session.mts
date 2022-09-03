@@ -225,7 +225,7 @@ export class Session {
     }
   }
 
-  public async click(x: number, y: number) {
+  public async mousedown(x: number, y: number) {
     function toButtonsMask(buttons: string[]): number {
       let mask = 0
       if (buttons.includes('left')) mask |= 1
@@ -410,7 +410,7 @@ export class Session {
       } else if (args.length === 3 && args[0] === '<<position>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
         return await this.position(args[1], args[2])
       } else if (args.length === 3 && args[0] === '<<click>>' && this.#isNumber(args[1]) && this.#isNumber(args[2])) {
-        return await this.click(args[1], args[2])
+        return await this.mousedown(args[1], args[2])
       } else {
       }
 
