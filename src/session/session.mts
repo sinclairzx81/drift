@@ -428,7 +428,7 @@ export class Session {
     })
   }
 
-  #onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
-    this.#handleError(event.exceptionDetails)
+  async #onExceptionThrown(event: DevToolsInterface.Runtime.ExceptionThrownEvent) {
+    return await this.#semaphore.run(() => this.#handleError(event.exceptionDetails))
   }
 }
