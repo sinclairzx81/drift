@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Platform, Color, Watch, Chrome, ChromeStart, Session, Repl, Commands, Delay, ArgsCommand, Command, UserCommand } from './index.mjs'
+import { Platform, Color, Watch, Chrome, ChromeStart, Session, Repl, Commands, Delay, ArgsCommand, WatchCommand, Command, UserCommand } from './index.mjs'
 import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 
@@ -43,6 +43,23 @@ function has_command(type: Command['type'], commands: Command[]) {
 function get_command_args(commands: Command[]): string[] {
   const command = commands.find((command) => command.type === 'args') as ArgsCommand | undefined
   return command ? command.args : []
+}
+
+/** Returns all watch paths */
+function get_watch_paths(commands: Command[]): string[] {
+  if (!has_command('watch', commands)) return []
+  return commands.reduce((acc, command) => {
+    switch (command.type) {
+      case 'watch':
+        return [...acc, ...command.paths]
+      case 'run':
+        return [...acc, command.path]
+      case 'css':
+        return [...acc, command.path]
+      default:
+        return acc
+    }
+  }, [] as string[])
 }
 
 /** Resolves the chrome user directory. Will default to node_modules directory if not specified. */
@@ -283,19 +300,8 @@ for (const command of commands) {
 
 watch.on('change', () => reload(session, commands))
 
-if (has_command('watch', commands)) {
-  for (const command of commands) {
-    switch (command.type) {
-      case 'run': {
-        watch.add(command.path)
-        break
-      }
-      case 'css': {
-        watch.add(command.path)
-        break
-      }
-    }
-  }
+for (const path of get_watch_paths(commands)) {
+  watch.add(path)
 }
 
 // --------------------------------------------------------------------

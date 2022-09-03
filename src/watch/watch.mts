@@ -39,7 +39,7 @@ export class Watch {
   constructor() {
     this.#watchers = []
     this.#events = new Events()
-    this.#debounce = new Debounce(200, false)
+    this.#debounce = new Debounce(200, true)
   }
 
   public on(event: 'change', handler: EventHandler<void>): EventListener
@@ -48,8 +48,11 @@ export class Watch {
   }
 
   public add(path: string) {
-    if (!Fs.existsSync(path) || Fs.statSync(path).isDirectory()) return
-    const targetDirectory = Path.dirname(path)
+    if (!Fs.existsSync(path)) return
+    // note: The current watch strategy is to watch directories, not files. If we observe
+    // issues watching directory changes across different operating systems, implement
+    // with file watching instead.
+    const targetDirectory = Fs.statSync(path).isDirectory() ? path : Path.dirname(path)
     switch (process.platform) {
       case 'win32':
         return this.#watchWindows(targetDirectory)

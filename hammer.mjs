@@ -14,7 +14,7 @@ export async function clean() {
 // ---------------------------------------------------------------------
 
 export async function format() {
-  await shell('prettier --no-semi --single-quote --print-width 240 --trailing-comma all --write src .build example hammer.mjs tsconfig.json')
+  await shell('prettier --no-semi --single-quote --print-width 180 --trailing-comma all --write src .build example hammer.mjs tsconfig.json')
 }
 
 // ---------------------------------------------------------------------

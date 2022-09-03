@@ -139,6 +139,7 @@ export interface WaitCommand {
 
 export interface WatchCommand {
   type: 'watch'
+  paths: string[]
 }
 
 export interface WindowCommand {
@@ -171,9 +172,30 @@ export namespace Commands {
   }
 
   function parseArgumentList(params: string[]) {
-    if (params.length === 0) throw Error('Expected at least one args value')
-    const next = params.shift()!
-    return next.split(' ')
+    const args: string[] = []
+    while (params.length > 0) {
+      const next = params.shift()!
+      if (isCommand(next)) {
+        params.unshift(next)
+        break
+      }
+      args.push(next)
+    }
+    return args
+  }
+
+  function parseWatchList(params: string[]) {
+    const paths: string[] = []
+    while (params.length > 0) {
+      const next = params.shift()!
+      if (isCommand(next)) {
+        params.unshift(next)
+        break
+      }
+      if (!Fs.existsSync(next)) throw Error(`Watch path '${next}' does not exist`)
+      paths.push(next)
+    }
+    return paths
   }
 
   function parseSaveFormat(path: string): `jpeg` | 'png' | 'pdf' {
@@ -207,6 +229,30 @@ export namespace Commands {
 
   function parseUrl(params: string[]): UrlCommand {
     return { type: 'url', url: parseUrlString(params.shift()!) }
+  }
+
+  function isCommand(command: string) {
+    return [
+      'args',
+      'click',
+      'close',
+      'css',
+      'devtools',
+      'help',
+      'fail',
+      'incognito',
+      'position',
+      'reload',
+      'run',
+      'save',
+      'size',
+      'url',
+      'user',
+      'verbose',
+      'wait',
+      'watch',
+      'window',
+    ].includes(command)
   }
 
   // -------------------------------------------------------------------------
@@ -286,7 +332,8 @@ export namespace Commands {
   }
 
   function parseWatch(params: string[]): WatchCommand {
-    return { type: 'watch' }
+    const paths = parseWatchList(params)
+    return { type: 'watch', paths }
   }
 
   function parseWindow(params: string[]): WindowCommand {

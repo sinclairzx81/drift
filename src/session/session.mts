@@ -148,7 +148,14 @@ export class Session {
     if (!Fs.existsSync(path)) return this.#consoleError(`run: file '${path}' not found`)
     const code = await Compiler.build(path)
     const encoded = this.#encodeScript(code)
-    const expression = ['(function() {', '  const script = document.createElement("script")', '  script.type = "module"', `  script.innerHTML = atob('${encoded}')`, '  document.head.appendChild(script)', '})();'].join('\n')
+    const expression = [
+      '(function() {',
+      '  const script = document.createElement("script")',
+      '  script.type = "module"',
+      `  script.innerHTML = atob('${encoded}')`,
+      '  document.head.appendChild(script)',
+      '})();',
+    ].join('\n')
     const result = await this.#devtools.Runtime.evaluate({ expression })
     if (result.exceptionDetails) {
       return this.#handleError(result.exceptionDetails)

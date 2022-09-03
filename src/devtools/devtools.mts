@@ -103,7 +103,12 @@ export namespace DevToolsInterface {
     export type DisableResponse = {}
     export type EnableRequest = {}
     export type EnableResponse = {}
-    export type GetPartialAXTreeRequest = { nodeId?: DOM.NodeId; backendNodeId?: DOM.BackendNodeId; objectId?: Runtime.RemoteObjectId; fetchRelatives?: boolean }
+    export type GetPartialAXTreeRequest = {
+      nodeId?: DOM.NodeId
+      backendNodeId?: DOM.BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+      fetchRelatives?: boolean
+    }
     export type GetPartialAXTreeResponse = { nodes: AXNode[] }
     export type GetFullAXTreeRequest = {}
     export type GetFullAXTreeResponse = { nodes: AXNode[] }
@@ -167,7 +172,13 @@ export namespace DevToolsInterface {
     /** Detailed application cache resource information. */
     export type ApplicationCacheResource = { url: string; size: number; type: string }
     /** Detailed application cache information. */
-    export type ApplicationCache = { manifestURL: string; size: number; creationTime: number; updateTime: number; resources: ApplicationCacheResource[] }
+    export type ApplicationCache = {
+      manifestURL: string
+      size: number
+      creationTime: number
+      updateTime: number
+      resources: ApplicationCacheResource[]
+    }
     /** Frame identifier - manifest URL pair. */
     export type FrameWithManifest = { frameId: Page.FrameId; manifestURL: string; status: number }
     export type ApplicationCacheStatusUpdatedEvent = { frameId: Page.FrameId; manifestURL: string; status: number }
@@ -182,7 +193,12 @@ export namespace DevToolsInterface {
     export type GetManifestForFrameResponse = { manifestURL: string }
   }
   export namespace Audits {
-    export type GetEncodedResponseRequest = { requestId: Network.RequestId; encoding: 'webp' | 'jpeg' | 'png'; quality?: number; sizeOnly?: boolean }
+    export type GetEncodedResponseRequest = {
+      requestId: Network.RequestId
+      encoding: 'webp' | 'jpeg' | 'png'
+      quality?: number
+      sizeOnly?: boolean
+    }
     export type GetEncodedResponseResponse = { body?: string; originalSize: number; encodedSize: number }
   }
   export namespace BackgroundService {
@@ -243,7 +259,11 @@ export namespace DevToolsInterface {
     export type Bucket = { low: number; high: number; count: number }
     /** Chrome histogram. */
     export type Histogram = { name: string; sum: number; count: number; buckets: Bucket[] }
-    export type GrantPermissionsRequest = { origin: string; permissions: PermissionType[]; browserContextId?: Target.BrowserContextID }
+    export type GrantPermissionsRequest = {
+      origin: string
+      permissions: PermissionType[]
+      browserContextId?: Target.BrowserContextID
+    }
     export type GrantPermissionsResponse = {}
     export type ResetPermissionsRequest = { browserContextId?: Target.BrowserContextID }
     export type ResetPermissionsResponse = {}
@@ -254,7 +274,13 @@ export namespace DevToolsInterface {
     export type CrashGpuProcessRequest = {}
     export type CrashGpuProcessResponse = {}
     export type GetVersionRequest = {}
-    export type GetVersionResponse = { protocolVersion: string; product: string; revision: string; userAgent: string; jsVersion: string }
+    export type GetVersionResponse = {
+      protocolVersion: string
+      product: string
+      revision: string
+      userAgent: string
+      jsVersion: string
+    }
     export type GetBrowserCommandLineRequest = {}
     export type GetBrowserCommandLineResponse = { arguments: string[] }
     export type GetHistogramsRequest = { query?: string; delta?: boolean }
@@ -301,7 +327,13 @@ export namespace DevToolsInterface {
       length: number
     }
     /** CSS rule representation. */
-    export type CSSRule = { styleSheetId?: StyleSheetId; selectorList: SelectorList; origin: StyleSheetOrigin; style: CSSStyle; media?: CSSMedia[] }
+    export type CSSRule = {
+      styleSheetId?: StyleSheetId
+      selectorList: SelectorList
+      origin: StyleSheetOrigin
+      style: CSSStyle
+      media?: CSSMedia[]
+    }
     /** CSS coverage information. */
     export type RuleUsage = { styleSheetId: StyleSheetId; startOffset: number; endOffset: number; used: boolean }
     /** Text range within a resource. All numbers are zero-based. */
@@ -311,23 +343,65 @@ export namespace DevToolsInterface {
 
     export type CSSComputedStyleProperty = { name: string; value: string }
     /** CSS style representation. */
-    export type CSSStyle = { styleSheetId?: StyleSheetId; cssProperties: CSSProperty[]; shorthandEntries: ShorthandEntry[]; cssText?: string; range?: SourceRange }
+    export type CSSStyle = {
+      styleSheetId?: StyleSheetId
+      cssProperties: CSSProperty[]
+      shorthandEntries: ShorthandEntry[]
+      cssText?: string
+      range?: SourceRange
+    }
     /** CSS property declaration data. */
-    export type CSSProperty = { name: string; value: string; important?: boolean; implicit?: boolean; text?: string; parsedOk?: boolean; disabled?: boolean; range?: SourceRange }
+    export type CSSProperty = {
+      name: string
+      value: string
+      important?: boolean
+      implicit?: boolean
+      text?: string
+      parsedOk?: boolean
+      disabled?: boolean
+      range?: SourceRange
+    }
     /** CSS media rule descriptor. */
-    export type CSSMedia = { text: string; source: 'mediaRule' | 'importRule' | 'linkedSheet' | 'inlineSheet'; sourceURL?: string; range?: SourceRange; styleSheetId?: StyleSheetId; mediaList?: MediaQuery[] }
+    export type CSSMedia = {
+      text: string
+      source: 'mediaRule' | 'importRule' | 'linkedSheet' | 'inlineSheet'
+      sourceURL?: string
+      range?: SourceRange
+      styleSheetId?: StyleSheetId
+      mediaList?: MediaQuery[]
+    }
     /** Media query descriptor. */
     export type MediaQuery = { expressions: MediaQueryExpression[]; active: boolean }
     /** Media query expression descriptor. */
-    export type MediaQueryExpression = { value: number; unit: string; feature: string; valueRange?: SourceRange; computedLength?: number }
+    export type MediaQueryExpression = {
+      value: number
+      unit: string
+      feature: string
+      valueRange?: SourceRange
+      computedLength?: number
+    }
     /** Information about amount of glyphs that were rendered with given font. */
     export type PlatformFontUsage = { familyName: string; isCustomFont: boolean; glyphCount: number }
     /** Properties of a web font: https://www.w3.org/TR/2008/REC-CSS2-20080411/fonts.html#font-descriptions */
-    export type FontFace = { fontFamily: string; fontStyle: string; fontVariant: string; fontWeight: string; fontStretch: string; unicodeRange: string; src: string; platformFontFamily: string }
+    export type FontFace = {
+      fontFamily: string
+      fontStyle: string
+      fontVariant: string
+      fontWeight: string
+      fontStretch: string
+      unicodeRange: string
+      src: string
+      platformFontFamily: string
+    }
     /** CSS keyframes rule representation. */
     export type CSSKeyframesRule = { animationName: Value; keyframes: CSSKeyframeRule[] }
     /** CSS keyframe rule representation. */
-    export type CSSKeyframeRule = { styleSheetId?: StyleSheetId; origin: StyleSheetOrigin; keyText: Value; style: CSSStyle }
+    export type CSSKeyframeRule = {
+      styleSheetId?: StyleSheetId
+      origin: StyleSheetOrigin
+      keyText: Value
+      style: CSSStyle
+    }
     /** A descriptor of operation to mutate style declaration text. */
     export type StyleDeclarationEdit = { styleSheetId: StyleSheetId; range: SourceRange; text: string }
     export type FontsUpdatedEvent = { font?: FontFace }
@@ -348,7 +422,11 @@ export namespace DevToolsInterface {
     export type ForcePseudoStateRequest = { nodeId: DOM.NodeId; forcedPseudoClasses: string[] }
     export type ForcePseudoStateResponse = {}
     export type GetBackgroundColorsRequest = { nodeId: DOM.NodeId }
-    export type GetBackgroundColorsResponse = { backgroundColors?: string[]; computedFontSize?: string; computedFontWeight?: string }
+    export type GetBackgroundColorsResponse = {
+      backgroundColors?: string[]
+      computedFontSize?: string
+      computedFontWeight?: string
+    }
     export type GetComputedStyleForNodeRequest = { nodeId: DOM.NodeId }
     export type GetComputedStyleForNodeResponse = { computedStyle: CSSComputedStyleProperty[] }
     export type GetInlineStylesForNodeRequest = { nodeId: DOM.NodeId }
@@ -393,7 +471,16 @@ export namespace DevToolsInterface {
     /** type of HTTP response cached */
     export type CachedResponseType = 'basic' | 'cors' | 'default' | 'error' | 'opaqueResponse' | 'opaqueRedirect'
     /** Data entry. */
-    export type DataEntry = { requestURL: string; requestMethod: string; requestHeaders: Header[]; responseTime: number; responseStatus: number; responseStatusText: string; responseType: CachedResponseType; responseHeaders: Header[] }
+    export type DataEntry = {
+      requestURL: string
+      requestMethod: string
+      requestHeaders: Header[]
+      responseTime: number
+      responseStatus: number
+      responseStatusText: string
+      responseType: CachedResponseType
+      responseHeaders: Header[]
+    }
     /** Cache identifier. */
     export type Cache = { cacheId: CacheId; securityOrigin: string; cacheName: string }
 
@@ -488,7 +575,15 @@ export namespace DevToolsInterface {
     /** An array of quad vertices, x immediately followed by y for each point, points clock-wise. */
     export type Quad = number[]
     /** Box model. */
-    export type BoxModel = { content: Quad; padding: Quad; border: Quad; margin: Quad; width: number; height: number; shapeOutside?: ShapeOutsideInfo }
+    export type BoxModel = {
+      content: Quad
+      padding: Quad
+      border: Quad
+      margin: Quad
+      width: number
+      height: number
+      shapeOutside?: ShapeOutsideInfo
+    }
     /** CSS Shape Outside details. */
     export type ShapeOutsideInfo = { bounds: Quad; shape: any[]; marginShape: any[] }
     /** Rectangle. */
@@ -511,7 +606,13 @@ export namespace DevToolsInterface {
     export type CollectClassNamesFromSubtreeResponse = { classNames: string[] }
     export type CopyToRequest = { nodeId: NodeId; targetNodeId: NodeId; insertBeforeNodeId?: NodeId }
     export type CopyToResponse = { nodeId: NodeId }
-    export type DescribeNodeRequest = { nodeId?: NodeId; backendNodeId?: BackendNodeId; objectId?: Runtime.RemoteObjectId; depth?: number; pierce?: boolean }
+    export type DescribeNodeRequest = {
+      nodeId?: NodeId
+      backendNodeId?: BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+      depth?: number
+      pierce?: boolean
+    }
     export type DescribeNodeResponse = { node: Node }
     export type DisableRequest = {}
     export type DisableResponse = {}
@@ -523,9 +624,17 @@ export namespace DevToolsInterface {
     export type FocusResponse = {}
     export type GetAttributesRequest = { nodeId: NodeId }
     export type GetAttributesResponse = { attributes: string[] }
-    export type GetBoxModelRequest = { nodeId?: NodeId; backendNodeId?: BackendNodeId; objectId?: Runtime.RemoteObjectId }
+    export type GetBoxModelRequest = {
+      nodeId?: NodeId
+      backendNodeId?: BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+    }
     export type GetBoxModelResponse = { model: BoxModel }
-    export type GetContentQuadsRequest = { nodeId?: NodeId; backendNodeId?: BackendNodeId; objectId?: Runtime.RemoteObjectId }
+    export type GetContentQuadsRequest = {
+      nodeId?: NodeId
+      backendNodeId?: BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+    }
     export type GetContentQuadsResponse = { quads: Quad[] }
     export type GetDocumentRequest = { depth?: number; pierce?: boolean }
     export type GetDocumentResponse = { root: Node }
@@ -533,7 +642,11 @@ export namespace DevToolsInterface {
     export type GetFlattenedDocumentResponse = { nodes: Node[] }
     export type GetNodeForLocationRequest = { x: number; y: number; includeUserAgentShadowDOM?: boolean }
     export type GetNodeForLocationResponse = { backendNodeId: BackendNodeId; nodeId?: NodeId }
-    export type GetOuterHTMLRequest = { nodeId?: NodeId; backendNodeId?: BackendNodeId; objectId?: Runtime.RemoteObjectId }
+    export type GetOuterHTMLRequest = {
+      nodeId?: NodeId
+      backendNodeId?: BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+    }
     export type GetOuterHTMLResponse = { outerHTML: string }
     export type GetRelayoutBoundaryRequest = { nodeId: NodeId }
     export type GetRelayoutBoundaryResponse = { nodeId: NodeId }
@@ -569,13 +682,23 @@ export namespace DevToolsInterface {
     export type RequestChildNodesResponse = {}
     export type RequestNodeRequest = { objectId: Runtime.RemoteObjectId }
     export type RequestNodeResponse = { nodeId: NodeId }
-    export type ResolveNodeRequest = { nodeId?: NodeId; backendNodeId?: DOM.BackendNodeId; objectGroup?: string; executionContextId?: Runtime.ExecutionContextId }
+    export type ResolveNodeRequest = {
+      nodeId?: NodeId
+      backendNodeId?: DOM.BackendNodeId
+      objectGroup?: string
+      executionContextId?: Runtime.ExecutionContextId
+    }
     export type ResolveNodeResponse = { object: Runtime.RemoteObject }
     export type SetAttributeValueRequest = { nodeId: NodeId; name: string; value: string }
     export type SetAttributeValueResponse = {}
     export type SetAttributesAsTextRequest = { nodeId: NodeId; text: string; name?: string }
     export type SetAttributesAsTextResponse = {}
-    export type SetFileInputFilesRequest = { files: string[]; nodeId?: NodeId; backendNodeId?: BackendNodeId; objectId?: Runtime.RemoteObjectId }
+    export type SetFileInputFilesRequest = {
+      files: string[]
+      nodeId?: NodeId
+      backendNodeId?: BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+    }
     export type SetFileInputFilesResponse = {}
     export type GetFileInfoRequest = { objectId: Runtime.RemoteObjectId }
     export type GetFileInfoResponse = { path: string }
@@ -662,7 +785,15 @@ export namespace DevToolsInterface {
     /** Details of post layout rendered text positions. The exact layout should not be regarded as stable and may change between versions. */
     export type InlineTextBox = { boundingBox: DOM.Rect; startCharacterIndex: number; numCharacters: number }
     /** Details of an element in the DOM tree with a LayoutObject. */
-    export type LayoutTreeNode = { domNodeIndex: number; boundingBox: DOM.Rect; layoutText?: string; inlineTextNodes?: InlineTextBox[]; styleIndex?: number; paintOrder?: number; isStackingContext?: boolean }
+    export type LayoutTreeNode = {
+      domNodeIndex: number
+      boundingBox: DOM.Rect
+      layoutText?: string
+      inlineTextNodes?: InlineTextBox[]
+      styleIndex?: number
+      paintOrder?: number
+      isStackingContext?: boolean
+    }
     /** A subset of the full ComputedStyle as defined by the request whitelist. */
     export type ComputedStyle = { properties: NameValue[] }
     /** A name/value pair. */
@@ -729,8 +860,17 @@ export namespace DevToolsInterface {
     export type DisableResponse = {}
     export type EnableRequest = {}
     export type EnableResponse = {}
-    export type GetSnapshotRequest = { computedStyleWhitelist: string[]; includeEventListeners?: boolean; includePaintOrder?: boolean; includeUserAgentShadowTree?: boolean }
-    export type GetSnapshotResponse = { domNodes: DOMNode[]; layoutTreeNodes: LayoutTreeNode[]; computedStyles: ComputedStyle[] }
+    export type GetSnapshotRequest = {
+      computedStyleWhitelist: string[]
+      includeEventListeners?: boolean
+      includePaintOrder?: boolean
+      includeUserAgentShadowTree?: boolean
+    }
+    export type GetSnapshotResponse = {
+      domNodes: DOMNode[]
+      layoutTreeNodes: LayoutTreeNode[]
+      computedStyles: ComputedStyle[]
+    }
     export type CaptureSnapshotRequest = { computedStyles: string[]; includeDOMRects?: boolean }
     export type CaptureSnapshotResponse = { documents: DocumentSnapshot[]; strings: string[] }
   }
@@ -781,7 +921,10 @@ export namespace DevToolsInterface {
   }
   export namespace Emulation {
     /** Screen orientation. */
-    export type ScreenOrientation = { type: 'portraitPrimary' | 'portraitSecondary' | 'landscapePrimary' | 'landscapeSecondary'; angle: number }
+    export type ScreenOrientation = {
+      type: 'portraitPrimary' | 'portraitSecondary' | 'landscapePrimary' | 'landscapeSecondary'
+      angle: number
+    }
     /** advance: If the scheduler runs out of immediate work, the virtual time base may fast forward to allow the next delayed task (if any) to run; pause: The virtual time base may not advance; pauseIfNetworkFetchesPending: The virtual time base may not advance if there are any pending resource fetches. */
     export type VirtualTimePolicy = 'advance' | 'pause' | 'pauseIfNetworkFetchesPending'
     export type VirtualTimeBudgetExpiredEvent = { [key: string]: any }
@@ -832,7 +975,13 @@ export namespace DevToolsInterface {
     export type SetScriptExecutionDisabledResponse = {}
     export type SetTouchEmulationEnabledRequest = { enabled: boolean; maxTouchPoints?: number }
     export type SetTouchEmulationEnabledResponse = {}
-    export type SetVirtualTimePolicyRequest = { policy: VirtualTimePolicy; budget?: number; maxVirtualTimeTaskStarvationCount?: number; waitForNavigation?: boolean; initialVirtualTime?: Network.TimeSinceEpoch }
+    export type SetVirtualTimePolicyRequest = {
+      policy: VirtualTimePolicy
+      budget?: number
+      maxVirtualTimeTaskStarvationCount?: number
+      waitForNavigation?: boolean
+      initialVirtualTime?: Network.TimeSinceEpoch
+    }
     export type SetVirtualTimePolicyResponse = { virtualTimeTicksBase: number }
     export type SetTimezoneOverrideRequest = { timezoneId: string }
     export type SetTimezoneOverrideResponse = {}
@@ -845,7 +994,12 @@ export namespace DevToolsInterface {
     /** Encoding options for a screenshot. */
     export type ScreenshotParams = { format?: 'jpeg' | 'png'; quality?: number }
     export type NeedsBeginFramesChangedEvent = { needsBeginFrames: boolean }
-    export type BeginFrameRequest = { frameTimeTicks?: number; interval?: number; noDisplayUpdates?: boolean; screenshot?: ScreenshotParams }
+    export type BeginFrameRequest = {
+      frameTimeTicks?: number
+      interval?: number
+      noDisplayUpdates?: boolean
+      screenshot?: ScreenshotParams
+    }
     export type BeginFrameResponse = { hasDamage: boolean; screenshotData?: string }
     export type DisableRequest = {}
     export type DisableResponse = {}
@@ -870,7 +1024,13 @@ export namespace DevToolsInterface {
     /** Object store index. */
     export type ObjectStoreIndex = { name: string; keyPath: KeyPath; unique: boolean; multiEntry: boolean }
     /** Key. */
-    export type Key = { type: 'number' | 'string' | 'date' | 'array'; number?: number; string?: string; date?: number; array?: Key[] }
+    export type Key = {
+      type: 'number' | 'string' | 'date' | 'array'
+      number?: number
+      string?: string
+      date?: number
+      array?: Key[]
+    }
     /** Key range. */
     export type KeyRange = { lower?: Key; upper?: Key; lowerOpen: boolean; upperOpen: boolean }
     /** Data entry. */
@@ -881,13 +1041,26 @@ export namespace DevToolsInterface {
     export type ClearObjectStoreResponse = {}
     export type DeleteDatabaseRequest = { securityOrigin: string; databaseName: string }
     export type DeleteDatabaseResponse = {}
-    export type DeleteObjectStoreEntriesRequest = { securityOrigin: string; databaseName: string; objectStoreName: string; keyRange: KeyRange }
+    export type DeleteObjectStoreEntriesRequest = {
+      securityOrigin: string
+      databaseName: string
+      objectStoreName: string
+      keyRange: KeyRange
+    }
     export type DeleteObjectStoreEntriesResponse = {}
     export type DisableRequest = {}
     export type DisableResponse = {}
     export type EnableRequest = {}
     export type EnableResponse = {}
-    export type RequestDataRequest = { securityOrigin: string; databaseName: string; objectStoreName: string; indexName: string; skipCount: number; pageSize: number; keyRange?: KeyRange }
+    export type RequestDataRequest = {
+      securityOrigin: string
+      databaseName: string
+      objectStoreName: string
+      indexName: string
+      skipCount: number
+      pageSize: number
+      keyRange?: KeyRange
+    }
     export type RequestDataResponse = { objectStoreDataEntries: DataEntry[]; hasMore: boolean }
     export type GetMetadataRequest = { securityOrigin: string; databaseName: string; objectStoreName: string }
     export type GetMetadataResponse = { entriesCount: number; keyGeneratorValue: number }
@@ -897,7 +1070,15 @@ export namespace DevToolsInterface {
     export type RequestDatabaseNamesResponse = { databaseNames: string[] }
   }
   export namespace Input {
-    export type TouchPoint = { x: number; y: number; radiusX?: number; radiusY?: number; rotationAngle?: number; force?: number; id?: number }
+    export type TouchPoint = {
+      x: number
+      y: number
+      radiusX?: number
+      radiusY?: number
+      rotationAngle?: number
+      force?: number
+      id?: number
+    }
 
     export type GestureSourceType = 'default' | 'touch' | 'mouse'
     /** UTC time in seconds, counted from January 1, 1970. */
@@ -935,7 +1116,12 @@ export namespace DevToolsInterface {
       pointerType?: 'mouse' | 'pen'
     }
     export type DispatchMouseEventResponse = {}
-    export type DispatchTouchEventRequest = { type: 'touchStart' | 'touchEnd' | 'touchMove' | 'touchCancel'; touchPoints: TouchPoint[]; modifiers?: number; timestamp?: TimeSinceEpoch }
+    export type DispatchTouchEventRequest = {
+      type: 'touchStart' | 'touchEnd' | 'touchMove' | 'touchCancel'
+      touchPoints: TouchPoint[]
+      modifiers?: number
+      timestamp?: TimeSinceEpoch
+    }
     export type DispatchTouchEventResponse = {}
     export type EmulateTouchFromMouseEventRequest = {
       type: 'mousePressed' | 'mouseReleased' | 'mouseMoved' | 'mouseWheel'
@@ -951,7 +1137,13 @@ export namespace DevToolsInterface {
     export type EmulateTouchFromMouseEventResponse = {}
     export type SetIgnoreInputEventsRequest = { ignore: boolean }
     export type SetIgnoreInputEventsResponse = {}
-    export type SynthesizePinchGestureRequest = { x: number; y: number; scaleFactor: number; relativeSpeed?: number; gestureSourceType?: GestureSourceType }
+    export type SynthesizePinchGestureRequest = {
+      x: number
+      y: number
+      scaleFactor: number
+      relativeSpeed?: number
+      gestureSourceType?: GestureSourceType
+    }
     export type SynthesizePinchGestureResponse = {}
     export type SynthesizeScrollGestureRequest = {
       x: number
@@ -968,7 +1160,13 @@ export namespace DevToolsInterface {
       interactionMarkerName?: string
     }
     export type SynthesizeScrollGestureResponse = {}
-    export type SynthesizeTapGestureRequest = { x: number; y: number; duration?: number; tapCount?: number; gestureSourceType?: GestureSourceType }
+    export type SynthesizeTapGestureRequest = {
+      x: number
+      y: number
+      duration?: number
+      tapCount?: number
+      gestureSourceType?: GestureSourceType
+    }
     export type SynthesizeTapGestureResponse = {}
   }
   export namespace Inspector {
@@ -988,7 +1186,12 @@ export namespace DevToolsInterface {
     /** Rectangle where scrolling happens on the main thread. */
     export type ScrollRect = { rect: DOM.Rect; type: 'RepaintsOnScroll' | 'TouchEventHandler' | 'WheelEventHandler' }
     /** Sticky position constraints. */
-    export type StickyPositionConstraint = { stickyBoxRect: DOM.Rect; containingBlockRect: DOM.Rect; nearestLayerShiftingStickyBox?: LayerId; nearestLayerShiftingContainingBlock?: LayerId }
+    export type StickyPositionConstraint = {
+      stickyBoxRect: DOM.Rect
+      containingBlockRect: DOM.Rect
+      nearestLayerShiftingStickyBox?: LayerId
+      nearestLayerShiftingContainingBlock?: LayerId
+    }
     /** Serialized fragment of layer picture along with its offset within the layer. */
     export type PictureTile = { x: number; y: number; picture: string }
     /** Information about a compositing layer. */
@@ -1024,7 +1227,12 @@ export namespace DevToolsInterface {
     export type LoadSnapshotResponse = { snapshotId: SnapshotId }
     export type MakeSnapshotRequest = { layerId: LayerId }
     export type MakeSnapshotResponse = { snapshotId: SnapshotId }
-    export type ProfileSnapshotRequest = { snapshotId: SnapshotId; minRepeatCount?: number; minDuration?: number; clipRect?: DOM.Rect }
+    export type ProfileSnapshotRequest = {
+      snapshotId: SnapshotId
+      minRepeatCount?: number
+      minDuration?: number
+      clipRect?: DOM.Rect
+    }
     export type ProfileSnapshotResponse = { timings: PaintProfile[] }
     export type ReleaseSnapshotRequest = { snapshotId: SnapshotId }
     export type ReleaseSnapshotResponse = {}
@@ -1036,7 +1244,20 @@ export namespace DevToolsInterface {
   export namespace Log {
     /** Log entry. */
     export type LogEntry = {
-      source: 'xml' | 'javascript' | 'network' | 'storage' | 'appcache' | 'rendering' | 'security' | 'deprecation' | 'worker' | 'violation' | 'intervention' | 'recommendation' | 'other'
+      source:
+        | 'xml'
+        | 'javascript'
+        | 'network'
+        | 'storage'
+        | 'appcache'
+        | 'rendering'
+        | 'security'
+        | 'deprecation'
+        | 'worker'
+        | 'violation'
+        | 'intervention'
+        | 'recommendation'
+        | 'other'
       level: 'verbose' | 'info' | 'warning' | 'error'
       text: string
       timestamp: Runtime.Timestamp
@@ -1048,7 +1269,10 @@ export namespace DevToolsInterface {
       args?: Runtime.RemoteObject[]
     }
     /** Violation configuration setting. */
-    export type ViolationSetting = { name: 'longTask' | 'longLayout' | 'blockedEvent' | 'blockedParser' | 'discouragedAPIUse' | 'handler' | 'recurringHandler'; threshold: number }
+    export type ViolationSetting = {
+      name: 'longTask' | 'longLayout' | 'blockedEvent' | 'blockedParser' | 'discouragedAPIUse' | 'handler' | 'recurringHandler'
+      threshold: number
+    }
     export type EntryAddedEvent = { entry: LogEntry }
     export type ClearRequest = {}
     export type ClearResponse = {}
@@ -1093,7 +1317,23 @@ export namespace DevToolsInterface {
   }
   export namespace Network {
     /** Resource type as it was perceived by the rendering engine. */
-    export type ResourceType = 'Document' | 'Stylesheet' | 'Image' | 'Media' | 'Font' | 'Script' | 'TextTrack' | 'XHR' | 'Fetch' | 'EventSource' | 'WebSocket' | 'Manifest' | 'SignedExchange' | 'Ping' | 'CSPViolationReport' | 'Other'
+    export type ResourceType =
+      | 'Document'
+      | 'Stylesheet'
+      | 'Image'
+      | 'Media'
+      | 'Font'
+      | 'Script'
+      | 'TextTrack'
+      | 'XHR'
+      | 'Fetch'
+      | 'EventSource'
+      | 'WebSocket'
+      | 'Manifest'
+      | 'SignedExchange'
+      | 'Ping'
+      | 'CSPViolationReport'
+      | 'Other'
     /** Unique loader identifier. */
     export type LoaderId = string
     /** Unique request identifier. */
@@ -1157,11 +1397,28 @@ export namespace DevToolsInterface {
       hasPostData?: boolean
       mixedContentType?: Security.MixedContentType
       initialPriority: ResourcePriority
-      referrerPolicy: 'unsafe-url' | 'no-referrer-when-downgrade' | 'no-referrer' | 'origin' | 'origin-when-cross-origin' | 'same-origin' | 'strict-origin' | 'strict-origin-when-cross-origin'
+      referrerPolicy:
+        | 'unsafe-url'
+        | 'no-referrer-when-downgrade'
+        | 'no-referrer'
+        | 'origin'
+        | 'origin-when-cross-origin'
+        | 'same-origin'
+        | 'strict-origin'
+        | 'strict-origin-when-cross-origin'
       isLinkPreload?: boolean
     }
     /** Details of a signed certificate timestamp (SCT). */
-    export type SignedCertificateTimestamp = { status: string; origin: string; logDescription: string; logId: string; timestamp: TimeSinceEpoch; hashAlgorithm: string; signatureAlgorithm: string; signatureData: string }
+    export type SignedCertificateTimestamp = {
+      status: string
+      origin: string
+      logDescription: string
+      logId: string
+      timestamp: TimeSinceEpoch
+      hashAlgorithm: string
+      signatureAlgorithm: string
+      signatureData: string
+    }
     /** Security details about a request. */
     export type SecurityDetails = {
       protocol: string
@@ -1208,39 +1465,128 @@ export namespace DevToolsInterface {
     /** WebSocket request data. */
     export type WebSocketRequest = { headers: Headers }
     /** WebSocket response data. */
-    export type WebSocketResponse = { status: number; statusText: string; headers: Headers; headersText?: string; requestHeaders?: Headers; requestHeadersText?: string }
+    export type WebSocketResponse = {
+      status: number
+      statusText: string
+      headers: Headers
+      headersText?: string
+      requestHeaders?: Headers
+      requestHeadersText?: string
+    }
     /** WebSocket message data. This represents an entire WebSocket message, not just a fragmented frame as the name suggests. */
     export type WebSocketFrame = { opcode: number; mask: boolean; payloadData: string }
     /** Information about the cached resource. */
     export type CachedResource = { url: string; type: ResourceType; response?: Response; bodySize: number }
     /** Information about the request initiator. */
-    export type Initiator = { type: 'parser' | 'script' | 'preload' | 'SignedExchange' | 'other'; stack?: Runtime.StackTrace; url?: string; lineNumber?: number }
+    export type Initiator = {
+      type: 'parser' | 'script' | 'preload' | 'SignedExchange' | 'other'
+      stack?: Runtime.StackTrace
+      url?: string
+      lineNumber?: number
+    }
     /** Cookie object */
-    export type Cookie = { name: string; value: string; domain: string; path: string; expires: number; size: number; httpOnly: boolean; secure: boolean; session: boolean; sameSite?: CookieSameSite }
+    export type Cookie = {
+      name: string
+      value: string
+      domain: string
+      path: string
+      expires: number
+      size: number
+      httpOnly: boolean
+      secure: boolean
+      session: boolean
+      sameSite?: CookieSameSite
+    }
     /** Cookie parameter object */
-    export type CookieParam = { name: string; value: string; url?: string; domain?: string; path?: string; secure?: boolean; httpOnly?: boolean; sameSite?: CookieSameSite; expires?: TimeSinceEpoch }
+    export type CookieParam = {
+      name: string
+      value: string
+      url?: string
+      domain?: string
+      path?: string
+      secure?: boolean
+      httpOnly?: boolean
+      sameSite?: CookieSameSite
+      expires?: TimeSinceEpoch
+    }
     /** Authorization challenge for HTTP status code 401 or 407. */
     export type AuthChallenge = { source?: 'Server' | 'Proxy'; origin: string; scheme: string; realm: string }
     /** Response to an AuthChallenge. */
-    export type AuthChallengeResponse = { response: 'Default' | 'CancelAuth' | 'ProvideCredentials'; username?: string; password?: string }
+    export type AuthChallengeResponse = {
+      response: 'Default' | 'CancelAuth' | 'ProvideCredentials'
+      username?: string
+      password?: string
+    }
     /** Stages of the interception to begin intercepting. Request will intercept before the request is sent. Response will intercept after the response is received. */
     export type InterceptionStage = 'Request' | 'HeadersReceived'
     /** Request pattern for interception. */
-    export type RequestPattern = { urlPattern?: string; resourceType?: ResourceType; interceptionStage?: InterceptionStage }
+    export type RequestPattern = {
+      urlPattern?: string
+      resourceType?: ResourceType
+      interceptionStage?: InterceptionStage
+    }
     /** Information about a signed exchange signature. https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-impl.html#rfc.section.3.1 */
-    export type SignedExchangeSignature = { label: string; signature: string; integrity: string; certUrl?: string; certSha256?: string; validityUrl: string; date: number; expires: number; certificates?: string[] }
+    export type SignedExchangeSignature = {
+      label: string
+      signature: string
+      integrity: string
+      certUrl?: string
+      certSha256?: string
+      validityUrl: string
+      date: number
+      expires: number
+      certificates?: string[]
+    }
     /** Information about a signed exchange header. https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-impl.html#cbor-representation */
-    export type SignedExchangeHeader = { requestUrl: string; responseCode: number; responseHeaders: Headers; signatures: SignedExchangeSignature[]; headerIntegrity: string }
+    export type SignedExchangeHeader = {
+      requestUrl: string
+      responseCode: number
+      responseHeaders: Headers
+      signatures: SignedExchangeSignature[]
+      headerIntegrity: string
+    }
     /** Field type for a signed exchange related error. */
     export type SignedExchangeErrorField = 'signatureSig' | 'signatureIntegrity' | 'signatureCertUrl' | 'signatureCertSha256' | 'signatureValidityUrl' | 'signatureTimestamps'
     /** Information about a signed exchange response. */
-    export type SignedExchangeError = { message: string; signatureIndex?: number; errorField?: SignedExchangeErrorField }
+    export type SignedExchangeError = {
+      message: string
+      signatureIndex?: number
+      errorField?: SignedExchangeErrorField
+    }
     /** Information about a signed exchange response. */
-    export type SignedExchangeInfo = { outerResponse: Response; header?: SignedExchangeHeader; securityDetails?: SecurityDetails; errors?: SignedExchangeError[] }
-    export type DataReceivedEvent = { requestId: RequestId; timestamp: MonotonicTime; dataLength: number; encodedDataLength: number }
-    export type EventSourceMessageReceivedEvent = { requestId: RequestId; timestamp: MonotonicTime; eventName: string; eventId: string; data: string }
-    export type LoadingFailedEvent = { requestId: RequestId; timestamp: MonotonicTime; type: ResourceType; errorText: string; canceled?: boolean; blockedReason?: BlockedReason }
-    export type LoadingFinishedEvent = { requestId: RequestId; timestamp: MonotonicTime; encodedDataLength: number; shouldReportCorbBlocking?: boolean }
+    export type SignedExchangeInfo = {
+      outerResponse: Response
+      header?: SignedExchangeHeader
+      securityDetails?: SecurityDetails
+      errors?: SignedExchangeError[]
+    }
+    export type DataReceivedEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      dataLength: number
+      encodedDataLength: number
+    }
+    export type EventSourceMessageReceivedEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      eventName: string
+      eventId: string
+      data: string
+    }
+    export type LoadingFailedEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      type: ResourceType
+      errorText: string
+      canceled?: boolean
+      blockedReason?: BlockedReason
+    }
+    export type LoadingFinishedEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      encodedDataLength: number
+      shouldReportCorbBlocking?: boolean
+    }
     export type RequestInterceptedEvent = {
       interceptionId: InterceptionId
       request: Request
@@ -1269,16 +1615,40 @@ export namespace DevToolsInterface {
       frameId?: Page.FrameId
       hasUserGesture?: boolean
     }
-    export type ResourceChangedPriorityEvent = { requestId: RequestId; newPriority: ResourcePriority; timestamp: MonotonicTime }
+    export type ResourceChangedPriorityEvent = {
+      requestId: RequestId
+      newPriority: ResourcePriority
+      timestamp: MonotonicTime
+    }
     export type SignedExchangeReceivedEvent = { requestId: RequestId; info: SignedExchangeInfo }
-    export type ResponseReceivedEvent = { requestId: RequestId; loaderId: LoaderId; timestamp: MonotonicTime; type: ResourceType; response: Response; frameId?: Page.FrameId }
+    export type ResponseReceivedEvent = {
+      requestId: RequestId
+      loaderId: LoaderId
+      timestamp: MonotonicTime
+      type: ResourceType
+      response: Response
+      frameId?: Page.FrameId
+    }
     export type WebSocketClosedEvent = { requestId: RequestId; timestamp: MonotonicTime }
     export type WebSocketCreatedEvent = { requestId: RequestId; url: string; initiator?: Initiator }
     export type WebSocketFrameErrorEvent = { requestId: RequestId; timestamp: MonotonicTime; errorMessage: string }
-    export type WebSocketFrameReceivedEvent = { requestId: RequestId; timestamp: MonotonicTime; response: WebSocketFrame }
+    export type WebSocketFrameReceivedEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      response: WebSocketFrame
+    }
     export type WebSocketFrameSentEvent = { requestId: RequestId; timestamp: MonotonicTime; response: WebSocketFrame }
-    export type WebSocketHandshakeResponseReceivedEvent = { requestId: RequestId; timestamp: MonotonicTime; response: WebSocketResponse }
-    export type WebSocketWillSendHandshakeRequestEvent = { requestId: RequestId; timestamp: MonotonicTime; wallTime: TimeSinceEpoch; request: WebSocketRequest }
+    export type WebSocketHandshakeResponseReceivedEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      response: WebSocketResponse
+    }
+    export type WebSocketWillSendHandshakeRequestEvent = {
+      requestId: RequestId
+      timestamp: MonotonicTime
+      wallTime: TimeSinceEpoch
+      request: WebSocketRequest
+    }
     export type CanClearBrowserCacheRequest = {}
     export type CanClearBrowserCacheResponse = { result: boolean }
     export type CanClearBrowserCookiesRequest = {}
@@ -1304,9 +1674,19 @@ export namespace DevToolsInterface {
     export type DeleteCookiesResponse = {}
     export type DisableRequest = {}
     export type DisableResponse = {}
-    export type EmulateNetworkConditionsRequest = { offline: boolean; latency: number; downloadThroughput: number; uploadThroughput: number; connectionType?: ConnectionType }
+    export type EmulateNetworkConditionsRequest = {
+      offline: boolean
+      latency: number
+      downloadThroughput: number
+      uploadThroughput: number
+      connectionType?: ConnectionType
+    }
     export type EmulateNetworkConditionsResponse = {}
-    export type EnableRequest = { maxTotalBufferSize?: number; maxResourceBufferSize?: number; maxPostDataSize?: number }
+    export type EnableRequest = {
+      maxTotalBufferSize?: number
+      maxResourceBufferSize?: number
+      maxPostDataSize?: number
+    }
     export type EnableResponse = {}
     export type GetAllCookiesRequest = {}
     export type GetAllCookiesResponse = { cookies: Cookie[] }
@@ -1324,7 +1704,12 @@ export namespace DevToolsInterface {
     export type TakeResponseBodyForInterceptionAsStreamResponse = { stream: IO.StreamHandle }
     export type ReplayXHRRequest = { requestId: RequestId }
     export type ReplayXHRResponse = {}
-    export type SearchInResponseBodyRequest = { requestId: RequestId; query: string; caseSensitive?: boolean; isRegex?: boolean }
+    export type SearchInResponseBodyRequest = {
+      requestId: RequestId
+      query: string
+      caseSensitive?: boolean
+      isRegex?: boolean
+    }
     export type SearchInResponseBodyResponse = { result: Debugger.SearchMatch[] }
     export type SetBlockedURLsRequest = { urls: string[] }
     export type SetBlockedURLsResponse = {}
@@ -1332,7 +1717,17 @@ export namespace DevToolsInterface {
     export type SetBypassServiceWorkerResponse = {}
     export type SetCacheDisabledRequest = { cacheDisabled: boolean }
     export type SetCacheDisabledResponse = {}
-    export type SetCookieRequest = { name: string; value: string; url?: string; domain?: string; path?: string; secure?: boolean; httpOnly?: boolean; sameSite?: CookieSameSite; expires?: TimeSinceEpoch }
+    export type SetCookieRequest = {
+      name: string
+      value: string
+      url?: string
+      domain?: string
+      path?: string
+      secure?: boolean
+      httpOnly?: boolean
+      sameSite?: CookieSameSite
+      expires?: TimeSinceEpoch
+    }
     export type SetCookieResponse = { success: boolean }
     export type SetCookiesRequest = { cookies: CookieParam[] }
     export type SetCookiesResponse = {}
@@ -1371,17 +1766,38 @@ export namespace DevToolsInterface {
     export type DisableResponse = {}
     export type EnableRequest = {}
     export type EnableResponse = {}
-    export type GetHighlightObjectForTestRequest = { nodeId: DOM.NodeId; includeDistance?: boolean; includeStyle?: boolean }
+    export type GetHighlightObjectForTestRequest = {
+      nodeId: DOM.NodeId
+      includeDistance?: boolean
+      includeStyle?: boolean
+    }
     export type GetHighlightObjectForTestResponse = { highlight: { [key: string]: any } }
     export type HideHighlightRequest = {}
     export type HideHighlightResponse = {}
-    export type HighlightFrameRequest = { frameId: Page.FrameId; contentColor?: DOM.RGBA; contentOutlineColor?: DOM.RGBA }
+    export type HighlightFrameRequest = {
+      frameId: Page.FrameId
+      contentColor?: DOM.RGBA
+      contentOutlineColor?: DOM.RGBA
+    }
     export type HighlightFrameResponse = {}
-    export type HighlightNodeRequest = { highlightConfig: HighlightConfig; nodeId?: DOM.NodeId; backendNodeId?: DOM.BackendNodeId; objectId?: Runtime.RemoteObjectId; selector?: string }
+    export type HighlightNodeRequest = {
+      highlightConfig: HighlightConfig
+      nodeId?: DOM.NodeId
+      backendNodeId?: DOM.BackendNodeId
+      objectId?: Runtime.RemoteObjectId
+      selector?: string
+    }
     export type HighlightNodeResponse = {}
     export type HighlightQuadRequest = { quad: DOM.Quad; color?: DOM.RGBA; outlineColor?: DOM.RGBA }
     export type HighlightQuadResponse = {}
-    export type HighlightRectRequest = { x: number; y: number; width: number; height: number; color?: DOM.RGBA; outlineColor?: DOM.RGBA }
+    export type HighlightRectRequest = {
+      x: number
+      y: number
+      width: number
+      height: number
+      color?: DOM.RGBA
+      outlineColor?: DOM.RGBA
+    }
     export type HighlightRectResponse = {}
     export type SetInspectModeRequest = { mode: InspectMode; highlightConfig?: HighlightConfig }
     export type SetInspectModeResponse = {}
@@ -1408,9 +1824,27 @@ export namespace DevToolsInterface {
     /** Unique frame identifier. */
     export type FrameId = string
     /** Information about the Frame on the page. */
-    export type Frame = { id: string; parentId?: string; loaderId: Network.LoaderId; name?: string; url: string; urlFragment?: string; securityOrigin: string; mimeType: string; unreachableUrl?: string }
+    export type Frame = {
+      id: string
+      parentId?: string
+      loaderId: Network.LoaderId
+      name?: string
+      url: string
+      urlFragment?: string
+      securityOrigin: string
+      mimeType: string
+      unreachableUrl?: string
+    }
     /** Information about the Resource on the page. */
-    export type FrameResource = { url: string; type: Network.ResourceType; mimeType: string; lastModified?: Network.TimeSinceEpoch; contentSize?: number; failed?: boolean; canceled?: boolean }
+    export type FrameResource = {
+      url: string
+      type: Network.ResourceType
+      mimeType: string
+      lastModified?: Network.TimeSinceEpoch
+      contentSize?: number
+      failed?: boolean
+      canceled?: boolean
+    }
     /** Information about the Frame hierarchy along with their cached resources. */
     export type FrameResourceTree = { frame: Frame; childFrames?: FrameResourceTree[]; resources: FrameResource[] }
     /** Information about the Frame hierarchy. */
@@ -1418,11 +1852,38 @@ export namespace DevToolsInterface {
     /** Unique script identifier. */
     export type ScriptIdentifier = string
     /** Transition type. */
-    export type TransitionType = 'link' | 'typed' | 'address_bar' | 'auto_bookmark' | 'auto_subframe' | 'manual_subframe' | 'generated' | 'auto_toplevel' | 'form_submit' | 'reload' | 'keyword' | 'keyword_generated' | 'other'
+    export type TransitionType =
+      | 'link'
+      | 'typed'
+      | 'address_bar'
+      | 'auto_bookmark'
+      | 'auto_subframe'
+      | 'manual_subframe'
+      | 'generated'
+      | 'auto_toplevel'
+      | 'form_submit'
+      | 'reload'
+      | 'keyword'
+      | 'keyword_generated'
+      | 'other'
     /** Navigation history entry. */
-    export type NavigationEntry = { id: number; url: string; userTypedURL: string; title: string; transitionType: TransitionType }
+    export type NavigationEntry = {
+      id: number
+      url: string
+      userTypedURL: string
+      title: string
+      transitionType: TransitionType
+    }
     /** Screencast frame metadata. */
-    export type ScreencastFrameMetadata = { offsetTop: number; pageScaleFactor: number; deviceWidth: number; deviceHeight: number; scrollOffsetX: number; scrollOffsetY: number; timestamp?: Network.TimeSinceEpoch }
+    export type ScreencastFrameMetadata = {
+      offsetTop: number
+      pageScaleFactor: number
+      deviceWidth: number
+      deviceHeight: number
+      scrollOffsetX: number
+      scrollOffsetY: number
+      timestamp?: Network.TimeSinceEpoch
+    }
     /** Javascript dialog type. */
     export type DialogType = 'alert' | 'confirm' | 'prompt' | 'beforeunload'
     /** Error while paring app manifest. */
@@ -1430,15 +1891,39 @@ export namespace DevToolsInterface {
     /** Layout viewport position and dimensions. */
     export type LayoutViewport = { pageX: number; pageY: number; clientWidth: number; clientHeight: number }
     /** Visual viewport position, dimensions, and scale. */
-    export type VisualViewport = { offsetX: number; offsetY: number; pageX: number; pageY: number; clientWidth: number; clientHeight: number; scale: number; zoom?: number }
+    export type VisualViewport = {
+      offsetX: number
+      offsetY: number
+      pageX: number
+      pageY: number
+      clientWidth: number
+      clientHeight: number
+      scale: number
+      zoom?: number
+    }
     /** Viewport for capturing screenshot. */
     export type Viewport = { x: number; y: number; width: number; height: number; scale: number }
     /** Generic font families collection. */
-    export type FontFamilies = { standard?: string; fixed?: string; serif?: string; sansSerif?: string; cursive?: string; fantasy?: string; pictograph?: string }
+    export type FontFamilies = {
+      standard?: string
+      fixed?: string
+      serif?: string
+      sansSerif?: string
+      cursive?: string
+      fantasy?: string
+      pictograph?: string
+    }
     /** Default font sizes. */
     export type FontSizes = { standard?: number; fixed?: number }
 
-    export type ClientNavigationReason = 'formSubmissionGet' | 'formSubmissionPost' | 'httpHeaderRefresh' | 'scriptInitiated' | 'metaTagRefresh' | 'pageBlockInterstitial' | 'reload'
+    export type ClientNavigationReason =
+      | 'formSubmissionGet'
+      | 'formSubmissionPost'
+      | 'httpHeaderRefresh'
+      | 'scriptInitiated'
+      | 'metaTagRefresh'
+      | 'pageBlockInterstitial'
+      | 'reload'
     export type DomContentEventFiredEvent = { timestamp: Network.MonotonicTime }
     export type FileChooserOpenedEvent = { mode: 'selectSingle' | 'selectMultiple' }
     export type FrameAttachedEvent = { frameId: FrameId; parentFrameId: FrameId; stack?: Runtime.StackTrace }
@@ -1459,8 +1944,19 @@ export namespace DevToolsInterface {
     export type InterstitialHiddenEvent = { [key: string]: any }
     export type InterstitialShownEvent = { [key: string]: any }
     export type JavascriptDialogClosedEvent = { result: boolean; userInput: string }
-    export type JavascriptDialogOpeningEvent = { url: string; message: string; type: DialogType; hasBrowserHandler: boolean; defaultPrompt?: string }
-    export type LifecycleEventEvent = { frameId: FrameId; loaderId: Network.LoaderId; name: string; timestamp: Network.MonotonicTime }
+    export type JavascriptDialogOpeningEvent = {
+      url: string
+      message: string
+      type: DialogType
+      hasBrowserHandler: boolean
+      defaultPrompt?: string
+    }
+    export type LifecycleEventEvent = {
+      frameId: FrameId
+      loaderId: Network.LoaderId
+      name: string
+      timestamp: Network.MonotonicTime
+    }
     export type LoadEventFiredEvent = { timestamp: Network.MonotonicTime }
     export type NavigatedWithinDocumentEvent = { frameId: FrameId; url: string }
     export type ScreencastFrameEvent = { data: string; metadata: ScreencastFrameMetadata; sessionId: number }
@@ -1473,7 +1969,12 @@ export namespace DevToolsInterface {
     export type AddScriptToEvaluateOnNewDocumentResponse = { identifier: ScriptIdentifier }
     export type BringToFrontRequest = {}
     export type BringToFrontResponse = {}
-    export type CaptureScreenshotRequest = { format?: 'jpeg' | 'png'; quality?: number; clip?: Viewport; fromSurface?: boolean }
+    export type CaptureScreenshotRequest = {
+      format?: 'jpeg' | 'png'
+      quality?: number
+      clip?: Viewport
+      fromSurface?: boolean
+    }
     export type CaptureScreenshotResponse = { data: string }
     export type CaptureSnapshotRequest = { format?: 'mhtml' }
     export type CaptureSnapshotResponse = { data: string }
@@ -1500,7 +2001,11 @@ export namespace DevToolsInterface {
     export type GetFrameTreeRequest = {}
     export type GetFrameTreeResponse = { frameTree: FrameTree }
     export type GetLayoutMetricsRequest = {}
-    export type GetLayoutMetricsResponse = { layoutViewport: LayoutViewport; visualViewport: VisualViewport; contentSize: DOM.Rect }
+    export type GetLayoutMetricsResponse = {
+      layoutViewport: LayoutViewport
+      visualViewport: VisualViewport
+      contentSize: DOM.Rect
+    }
     export type GetNavigationHistoryRequest = {}
     export type GetNavigationHistoryResponse = { currentIndex: number; entries: NavigationEntry[] }
     export type ResetNavigationHistoryRequest = {}
@@ -1542,7 +2047,13 @@ export namespace DevToolsInterface {
     export type RemoveScriptToEvaluateOnNewDocumentResponse = {}
     export type ScreencastFrameAckRequest = { sessionId: number }
     export type ScreencastFrameAckResponse = {}
-    export type SearchInResourceRequest = { frameId: FrameId; url: string; query: string; caseSensitive?: boolean; isRegex?: boolean }
+    export type SearchInResourceRequest = {
+      frameId: FrameId
+      url: string
+      query: string
+      caseSensitive?: boolean
+      isRegex?: boolean
+    }
     export type SearchInResourceResponse = { result: Debugger.SearchMatch[] }
     export type SetAdBlockingEnabledRequest = { enabled: boolean }
     export type SetAdBlockingEnabledResponse = {}
@@ -1579,7 +2090,13 @@ export namespace DevToolsInterface {
     export type SetLifecycleEventsEnabledResponse = {}
     export type SetTouchEmulationEnabledRequest = { enabled: boolean; configuration?: 'mobile' | 'desktop' }
     export type SetTouchEmulationEnabledResponse = {}
-    export type StartScreencastRequest = { format?: 'jpeg' | 'png'; quality?: number; maxWidth?: number; maxHeight?: number; everyNthFrame?: number }
+    export type StartScreencastRequest = {
+      format?: 'jpeg' | 'png'
+      quality?: number
+      maxWidth?: number
+      maxHeight?: number
+      everyNthFrame?: number
+    }
     export type StartScreencastResponse = {}
     export type StopLoadingRequest = {}
     export type StopLoadingResponse = {}
@@ -1627,7 +2144,15 @@ export namespace DevToolsInterface {
     /** The security level of a page or resource. */
     export type SecurityState = 'unknown' | 'neutral' | 'insecure' | 'secure' | 'info'
     /** An explanation of an factor contributing to the security state. */
-    export type SecurityStateExplanation = { securityState: SecurityState; title: string; summary: string; description: string; mixedContentType: MixedContentType; certificate: string[]; recommendations?: string[] }
+    export type SecurityStateExplanation = {
+      securityState: SecurityState
+      title: string
+      summary: string
+      description: string
+      mixedContentType: MixedContentType
+      certificate: string[]
+      recommendations?: string[]
+    }
     /** Information about insecure content on the page. */
     export type InsecureContentStatus = {
       ranMixedContent: boolean
@@ -1641,7 +2166,13 @@ export namespace DevToolsInterface {
     /** The action to take when a certificate error occurs. continue will continue processing the request and cancel will cancel the request. */
     export type CertificateErrorAction = 'continue' | 'cancel'
     export type CertificateErrorEvent = { eventId: number; errorType: string; requestURL: string }
-    export type SecurityStateChangedEvent = { securityState: SecurityState; schemeIsCryptographic: boolean; explanations: SecurityStateExplanation[]; insecureContentStatus: InsecureContentStatus; summary?: string }
+    export type SecurityStateChangedEvent = {
+      securityState: SecurityState
+      schemeIsCryptographic: boolean
+      explanations: SecurityStateExplanation[]
+      insecureContentStatus: InsecureContentStatus
+      summary?: string
+    }
     export type DisableRequest = {}
     export type DisableResponse = {}
     export type EnableRequest = {}
@@ -1674,7 +2205,14 @@ export namespace DevToolsInterface {
       targetId?: Target.TargetID
     }
     /** ServiceWorker error message. */
-    export type ServiceWorkerErrorMessage = { errorMessage: string; registrationId: RegistrationID; versionId: string; sourceURL: string; lineNumber: number; columnNumber: number }
+    export type ServiceWorkerErrorMessage = {
+      errorMessage: string
+      registrationId: RegistrationID
+      versionId: string
+      sourceURL: string
+      lineNumber: number
+      columnNumber: number
+    }
     export type WorkerErrorReportedEvent = { errorMessage: ServiceWorkerErrorMessage }
     export type WorkerRegistrationUpdatedEvent = { registrations: ServiceWorkerRegistration[] }
     export type WorkerVersionUpdatedEvent = { versions: ServiceWorkerVersion[] }
@@ -1682,7 +2220,12 @@ export namespace DevToolsInterface {
     export type DeliverPushMessageResponse = {}
     export type DisableRequest = {}
     export type DisableResponse = {}
-    export type DispatchSyncEventRequest = { origin: string; registrationId: RegistrationID; tag: string; lastChance: boolean }
+    export type DispatchSyncEventRequest = {
+      origin: string
+      registrationId: RegistrationID
+      tag: string
+      lastChance: boolean
+    }
     export type DispatchSyncEventResponse = {}
     export type EnableRequest = {}
     export type EnableResponse = {}
@@ -1705,7 +2248,18 @@ export namespace DevToolsInterface {
   }
   export namespace Storage {
     /** Enum of possible storage types. */
-    export type StorageType = 'appcache' | 'cookies' | 'file_systems' | 'indexeddb' | 'local_storage' | 'shader_cache' | 'websql' | 'service_workers' | 'cache_storage' | 'all' | 'other'
+    export type StorageType =
+      | 'appcache'
+      | 'cookies'
+      | 'file_systems'
+      | 'indexeddb'
+      | 'local_storage'
+      | 'shader_cache'
+      | 'websql'
+      | 'service_workers'
+      | 'cache_storage'
+      | 'all'
+      | 'other'
     /** Usage for a storage type. */
     export type UsageForType = { storageType: StorageType; usage: number }
     export type CacheStorageContentUpdatedEvent = { origin: string; cacheName: string }
@@ -1727,17 +2281,34 @@ export namespace DevToolsInterface {
   }
   export namespace SystemInfo {
     /** Describes a single graphics processor (GPU). */
-    export type GPUDevice = { vendorId: number; deviceId: number; vendorString: string; deviceString: string; driverVendor: string; driverVersion: string }
+    export type GPUDevice = {
+      vendorId: number
+      deviceId: number
+      vendorString: string
+      deviceString: string
+      driverVendor: string
+      driverVersion: string
+    }
     /** Describes the width and height dimensions of an entity. */
     export type Size = { width: number; height: number }
     /** Describes a supported video decoding profile with its associated minimum and maximum resolutions. */
     export type VideoDecodeAcceleratorCapability = { profile: string; maxResolution: Size; minResolution: Size }
     /** Describes a supported video encoding profile with its associated maximum resolution and maximum framerate. */
-    export type VideoEncodeAcceleratorCapability = { profile: string; maxResolution: Size; maxFramerateNumerator: number; maxFramerateDenominator: number }
+    export type VideoEncodeAcceleratorCapability = {
+      profile: string
+      maxResolution: Size
+      maxFramerateNumerator: number
+      maxFramerateDenominator: number
+    }
     /** YUV subsampling type of the pixels of a given image. */
     export type SubsamplingFormat = 'yuv420' | 'yuv422' | 'yuv444'
     /** Describes a supported image decoding profile with its associated minimum and maximum resolutions and subsampling. */
-    export type ImageDecodeAcceleratorCapability = { imageType: string; maxDimensions: Size; minDimensions: Size; subsamplings: SubsamplingFormat[] }
+    export type ImageDecodeAcceleratorCapability = {
+      imageType: string
+      maxDimensions: Size
+      minDimensions: Size
+      subsamplings: SubsamplingFormat[]
+    }
     /** Provides information about the GPU(s) on the system. */
     export type GPUInfo = {
       devices: GPUDevice[]
@@ -1762,7 +2333,15 @@ export namespace DevToolsInterface {
 
     export type BrowserContextID = string
 
-    export type TargetInfo = { targetId: TargetID; type: string; title: string; url: string; attached: boolean; openerId?: TargetID; browserContextId?: BrowserContextID }
+    export type TargetInfo = {
+      targetId: TargetID
+      type: string
+      title: string
+      url: string
+      attached: boolean
+      openerId?: TargetID
+      browserContextId?: BrowserContextID
+    }
 
     export type RemoteLocation = { host: string; port: number }
     export type AttachedToTargetEvent = { sessionId: SessionID; targetInfo: TargetInfo; waitingForDebugger: boolean }
@@ -1786,7 +2365,15 @@ export namespace DevToolsInterface {
     export type CreateBrowserContextResponse = { browserContextId: BrowserContextID }
     export type GetBrowserContextsRequest = {}
     export type GetBrowserContextsResponse = { browserContextIds: BrowserContextID[] }
-    export type CreateTargetRequest = { url: string; width?: number; height?: number; browserContextId?: BrowserContextID; enableBeginFrameControl?: boolean; newWindow?: boolean; background?: boolean }
+    export type CreateTargetRequest = {
+      url: string
+      width?: number
+      height?: number
+      browserContextId?: BrowserContextID
+      enableBeginFrameControl?: boolean
+      newWindow?: boolean
+      background?: boolean
+    }
     export type CreateTargetResponse = { targetId: TargetID }
     export type DetachFromTargetRequest = { sessionId?: SessionID; targetId?: TargetID }
     export type DetachFromTargetResponse = {}
@@ -1832,7 +2419,12 @@ export namespace DevToolsInterface {
     export type StreamCompression = 'none' | 'gzip'
     export type BufferUsageEvent = { percentFull?: number; eventCount?: number; value?: number }
     export type DataCollectedEvent = { value: { [key: string]: any }[] }
-    export type TracingCompleteEvent = { dataLossOccurred: boolean; stream?: IO.StreamHandle; traceFormat?: StreamFormat; streamCompression?: StreamCompression }
+    export type TracingCompleteEvent = {
+      dataLossOccurred: boolean
+      stream?: IO.StreamHandle
+      traceFormat?: StreamFormat
+      streamCompression?: StreamCompression
+    }
     export type EndRequest = {}
     export type EndResponse = {}
     export type GetCategoriesRequest = {}
@@ -1858,13 +2450,21 @@ export namespace DevToolsInterface {
     /** Stages of the request to handle. Request will intercept before the request is sent. Response will intercept after the response is received (but before response body is received. */
     export type RequestStage = 'Request' | 'Response'
 
-    export type RequestPattern = { urlPattern?: string; resourceType?: Network.ResourceType; requestStage?: RequestStage }
+    export type RequestPattern = {
+      urlPattern?: string
+      resourceType?: Network.ResourceType
+      requestStage?: RequestStage
+    }
     /** Response HTTP header entry */
     export type HeaderEntry = { name: string; value: string }
     /** Authorization challenge for HTTP status code 401 or 407. */
     export type AuthChallenge = { source?: 'Server' | 'Proxy'; origin: string; scheme: string; realm: string }
     /** Response to an AuthChallenge. */
-    export type AuthChallengeResponse = { response: 'Default' | 'CancelAuth' | 'ProvideCredentials'; username?: string; password?: string }
+    export type AuthChallengeResponse = {
+      response: 'Default' | 'CancelAuth' | 'ProvideCredentials'
+      username?: string
+      password?: string
+    }
     export type RequestPausedEvent = {
       requestId: RequestId
       request: Network.Request
@@ -1875,16 +2475,34 @@ export namespace DevToolsInterface {
       responseHeaders?: HeaderEntry[]
       networkId?: RequestId
     }
-    export type AuthRequiredEvent = { requestId: RequestId; request: Network.Request; frameId: Page.FrameId; resourceType: Network.ResourceType; authChallenge: AuthChallenge }
+    export type AuthRequiredEvent = {
+      requestId: RequestId
+      request: Network.Request
+      frameId: Page.FrameId
+      resourceType: Network.ResourceType
+      authChallenge: AuthChallenge
+    }
     export type DisableRequest = {}
     export type DisableResponse = {}
     export type EnableRequest = { patterns?: RequestPattern[]; handleAuthRequests?: boolean }
     export type EnableResponse = {}
     export type FailRequestRequest = { requestId: RequestId; errorReason: Network.ErrorReason }
     export type FailRequestResponse = {}
-    export type FulfillRequestRequest = { requestId: RequestId; responseCode: number; responseHeaders: HeaderEntry[]; body?: string; responsePhrase?: string }
+    export type FulfillRequestRequest = {
+      requestId: RequestId
+      responseCode: number
+      responseHeaders: HeaderEntry[]
+      body?: string
+      responsePhrase?: string
+    }
     export type FulfillRequestResponse = {}
-    export type ContinueRequestRequest = { requestId: RequestId; url?: string; method?: string; postData?: string; headers?: HeaderEntry[] }
+    export type ContinueRequestRequest = {
+      requestId: RequestId
+      url?: string
+      method?: string
+      postData?: string
+      headers?: HeaderEntry[]
+    }
     export type ContinueRequestResponse = {}
     export type ContinueWithAuthRequest = { requestId: RequestId; authChallengeResponse: AuthChallengeResponse }
     export type ContinueWithAuthResponse = {}
@@ -1901,9 +2519,22 @@ export namespace DevToolsInterface {
     /** Enum of AudioContextState from the spec */
     export type ContextState = 'suspended' | 'running' | 'closed'
     /** Fields in AudioContext that change in real-time. */
-    export type ContextRealtimeData = { currentTime: number; renderCapacity: number; callbackIntervalMean: number; callbackIntervalVariance: number }
+    export type ContextRealtimeData = {
+      currentTime: number
+      renderCapacity: number
+      callbackIntervalMean: number
+      callbackIntervalVariance: number
+    }
     /** Protocol object for BaseAudioContext */
-    export type BaseAudioContext = { contextId: ContextId; contextType: ContextType; contextState: ContextState; realtimeData?: ContextRealtimeData; callbackBufferSize: number; maxOutputChannelCount: number; sampleRate: number }
+    export type BaseAudioContext = {
+      contextId: ContextId
+      contextType: ContextType
+      contextState: ContextState
+      realtimeData?: ContextRealtimeData
+      callbackBufferSize: number
+      maxOutputChannelCount: number
+      sampleRate: number
+    }
     export type ContextCreatedEvent = { context: BaseAudioContext }
     export type ContextDestroyedEvent = { contextId: ContextId }
     export type ContextChangedEvent = { context: BaseAudioContext }
@@ -1921,7 +2552,13 @@ export namespace DevToolsInterface {
 
     export type AuthenticatorTransport = 'usb' | 'nfc' | 'ble' | 'cable' | 'internal'
 
-    export type VirtualAuthenticatorOptions = { protocol: AuthenticatorProtocol; transport: AuthenticatorTransport; hasResidentKey: boolean; hasUserVerification: boolean; automaticPresenceSimulation?: boolean }
+    export type VirtualAuthenticatorOptions = {
+      protocol: AuthenticatorProtocol
+      transport: AuthenticatorTransport
+      hasResidentKey: boolean
+      hasUserVerification: boolean
+      automaticPresenceSimulation?: boolean
+    }
 
     export type Credential = { credentialId: string; rpIdHash: string; privateKey: string; signCount: number }
     export type EnableRequest = {}
@@ -1969,13 +2606,33 @@ export namespace DevToolsInterface {
     /** Location in the source code. */
     export type ScriptPosition = { lineNumber: number; columnNumber: number }
     /** JavaScript call frame. Array of call frames form the call stack. */
-    export type CallFrame = { callFrameId: CallFrameId; functionName: string; functionLocation?: Location; location: Location; url: string; scopeChain: Scope[]; this: Runtime.RemoteObject; returnValue?: Runtime.RemoteObject }
+    export type CallFrame = {
+      callFrameId: CallFrameId
+      functionName: string
+      functionLocation?: Location
+      location: Location
+      url: string
+      scopeChain: Scope[]
+      this: Runtime.RemoteObject
+      returnValue?: Runtime.RemoteObject
+    }
     /** Scope description. */
-    export type Scope = { type: 'global' | 'local' | 'with' | 'closure' | 'catch' | 'block' | 'script' | 'eval' | 'module'; object: Runtime.RemoteObject; name?: string; startLocation?: Location; endLocation?: Location }
+    export type Scope = {
+      type: 'global' | 'local' | 'with' | 'closure' | 'catch' | 'block' | 'script' | 'eval' | 'module'
+      object: Runtime.RemoteObject
+      name?: string
+      startLocation?: Location
+      endLocation?: Location
+    }
     /** Search match for resource. */
     export type SearchMatch = { lineNumber: number; lineContent: string }
 
-    export type BreakLocation = { scriptId: Runtime.ScriptId; lineNumber: number; columnNumber?: number; type?: 'debuggerStatement' | 'call' | 'return' }
+    export type BreakLocation = {
+      scriptId: Runtime.ScriptId
+      lineNumber: number
+      columnNumber?: number
+      type?: 'debuggerStatement' | 'call' | 'return'
+    }
     export type BreakpointResolvedEvent = { breakpointId: BreakpointId; location: Location }
     export type PausedEvent = {
       callFrames: CallFrame[]
@@ -2037,7 +2694,10 @@ export namespace DevToolsInterface {
       throwOnSideEffect?: boolean
       timeout?: Runtime.TimeDelta
     }
-    export type EvaluateOnCallFrameResponse = { result: Runtime.RemoteObject; exceptionDetails?: Runtime.ExceptionDetails }
+    export type EvaluateOnCallFrameResponse = {
+      result: Runtime.RemoteObject
+      exceptionDetails?: Runtime.ExceptionDetails
+    }
     export type GetPossibleBreakpointsRequest = { start: Location; end?: Location; restrictToFunction?: boolean }
     export type GetPossibleBreakpointsResponse = { locations: BreakLocation[] }
     export type GetScriptSourceRequest = { scriptId: Runtime.ScriptId }
@@ -2051,10 +2711,19 @@ export namespace DevToolsInterface {
     export type RemoveBreakpointRequest = { breakpointId: BreakpointId }
     export type RemoveBreakpointResponse = {}
     export type RestartFrameRequest = { callFrameId: CallFrameId }
-    export type RestartFrameResponse = { callFrames: CallFrame[]; asyncStackTrace?: Runtime.StackTrace; asyncStackTraceId?: Runtime.StackTraceId }
+    export type RestartFrameResponse = {
+      callFrames: CallFrame[]
+      asyncStackTrace?: Runtime.StackTrace
+      asyncStackTraceId?: Runtime.StackTraceId
+    }
     export type ResumeRequest = {}
     export type ResumeResponse = {}
-    export type SearchInContentRequest = { scriptId: Runtime.ScriptId; query: string; caseSensitive?: boolean; isRegex?: boolean }
+    export type SearchInContentRequest = {
+      scriptId: Runtime.ScriptId
+      query: string
+      caseSensitive?: boolean
+      isRegex?: boolean
+    }
     export type SearchInContentResponse = { result: SearchMatch[] }
     export type SetAsyncCallStackDepthRequest = { maxDepth: number }
     export type SetAsyncCallStackDepthResponse = {}
@@ -2064,9 +2733,18 @@ export namespace DevToolsInterface {
     export type SetBlackboxedRangesResponse = {}
     export type SetBreakpointRequest = { location: Location; condition?: string }
     export type SetBreakpointResponse = { breakpointId: BreakpointId; actualLocation: Location }
-    export type SetInstrumentationBreakpointRequest = { instrumentation: 'beforeScriptExecution' | 'beforeScriptWithSourceMapExecution' }
+    export type SetInstrumentationBreakpointRequest = {
+      instrumentation: 'beforeScriptExecution' | 'beforeScriptWithSourceMapExecution'
+    }
     export type SetInstrumentationBreakpointResponse = { breakpointId: BreakpointId }
-    export type SetBreakpointByUrlRequest = { lineNumber: number; url?: string; urlRegex?: string; scriptHash?: string; columnNumber?: number; condition?: string }
+    export type SetBreakpointByUrlRequest = {
+      lineNumber: number
+      url?: string
+      urlRegex?: string
+      scriptHash?: string
+      columnNumber?: number
+      condition?: string
+    }
     export type SetBreakpointByUrlResponse = { breakpointId: BreakpointId; locations: Location[] }
     export type SetBreakpointOnFunctionCallRequest = { objectId: Runtime.RemoteObjectId; condition?: string }
     export type SetBreakpointOnFunctionCallResponse = { breakpointId: BreakpointId }
@@ -2077,10 +2755,21 @@ export namespace DevToolsInterface {
     export type SetReturnValueRequest = { newValue: Runtime.CallArgument }
     export type SetReturnValueResponse = {}
     export type SetScriptSourceRequest = { scriptId: Runtime.ScriptId; scriptSource: string; dryRun?: boolean }
-    export type SetScriptSourceResponse = { callFrames?: CallFrame[]; stackChanged?: boolean; asyncStackTrace?: Runtime.StackTrace; asyncStackTraceId?: Runtime.StackTraceId; exceptionDetails?: Runtime.ExceptionDetails }
+    export type SetScriptSourceResponse = {
+      callFrames?: CallFrame[]
+      stackChanged?: boolean
+      asyncStackTrace?: Runtime.StackTrace
+      asyncStackTraceId?: Runtime.StackTraceId
+      exceptionDetails?: Runtime.ExceptionDetails
+    }
     export type SetSkipAllPausesRequest = { skip: boolean }
     export type SetSkipAllPausesResponse = {}
-    export type SetVariableValueRequest = { scopeNumber: number; variableName: string; newValue: Runtime.CallArgument; callFrameId: CallFrameId }
+    export type SetVariableValueRequest = {
+      scopeNumber: number
+      variableName: string
+      newValue: Runtime.CallArgument
+      callFrameId: CallFrameId
+    }
     export type SetVariableValueResponse = {}
     export type StepIntoRequest = { breakOnAsyncCall?: boolean }
     export type StepIntoResponse = {}
@@ -2093,7 +2782,12 @@ export namespace DevToolsInterface {
     /** Heap snapshot object id. */
     export type HeapSnapshotObjectId = string
     /** Sampling Heap Profile node. Holds callsite information, allocation statistics and child nodes. */
-    export type SamplingHeapProfileNode = { callFrame: Runtime.CallFrame; selfSize: number; id: number; children: SamplingHeapProfileNode[] }
+    export type SamplingHeapProfileNode = {
+      callFrame: Runtime.CallFrame
+      selfSize: number
+      id: number
+      children: SamplingHeapProfileNode[]
+    }
     /** A single sample from a sampling profile. */
     export type SamplingHeapProfileSample = { size: number; nodeId: number; ordinal: number }
     /** Sampling profile. */
@@ -2130,9 +2824,22 @@ export namespace DevToolsInterface {
   }
   export namespace Profiler {
     /** Profile node. Holds callsite information, execution statistics and child nodes. */
-    export type ProfileNode = { id: number; callFrame: Runtime.CallFrame; hitCount?: number; children?: number[]; deoptReason?: string; positionTicks?: PositionTickInfo[] }
+    export type ProfileNode = {
+      id: number
+      callFrame: Runtime.CallFrame
+      hitCount?: number
+      children?: number[]
+      deoptReason?: string
+      positionTicks?: PositionTickInfo[]
+    }
     /** Profile. */
-    export type Profile = { nodes: ProfileNode[]; startTime: number; endTime: number; samples?: number[]; timeDeltas?: number[] }
+    export type Profile = {
+      nodes: ProfileNode[]
+      startTime: number
+      endTime: number
+      samples?: number[]
+      timeDeltas?: number[]
+    }
     /** Specifies a number of samples attributed to a certain source position. */
     export type PositionTickInfo = { line: number; ticks: number }
     /** Coverage data for a source range. */
@@ -2147,7 +2854,12 @@ export namespace DevToolsInterface {
     export type TypeProfileEntry = { offset: number; types: TypeObject[] }
     /** Type profile data collected during runtime for a JavaScript script. */
     export type ScriptTypeProfile = { scriptId: Runtime.ScriptId; url: string; entries: TypeProfileEntry[] }
-    export type ConsoleProfileFinishedEvent = { id: string; location: Debugger.Location; profile: Profile; title?: string }
+    export type ConsoleProfileFinishedEvent = {
+      id: string
+      location: Debugger.Location
+      profile: Profile
+      title?: string
+    }
     export type ConsoleProfileStartedEvent = { id: string; location: Debugger.Location; title?: string }
     export type DisableRequest = {}
     export type DisableResponse = {}
@@ -2184,7 +2896,24 @@ export namespace DevToolsInterface {
     /** Mirror object referencing original JavaScript object. */
     export type RemoteObject = {
       type: 'object' | 'function' | 'undefined' | 'string' | 'number' | 'boolean' | 'symbol' | 'bigint'
-      subtype?: 'array' | 'null' | 'node' | 'regexp' | 'date' | 'map' | 'set' | 'weakmap' | 'weakset' | 'iterator' | 'generator' | 'error' | 'proxy' | 'promise' | 'typedarray' | 'arraybuffer' | 'dataview'
+      subtype?:
+        | 'array'
+        | 'null'
+        | 'node'
+        | 'regexp'
+        | 'date'
+        | 'map'
+        | 'set'
+        | 'weakmap'
+        | 'weakset'
+        | 'iterator'
+        | 'generator'
+        | 'error'
+        | 'proxy'
+        | 'promise'
+        | 'typedarray'
+        | 'arraybuffer'
+        | 'dataview'
       className?: string
       value?: any
       unserializableValue?: UnserializableValue
@@ -2215,7 +2944,18 @@ export namespace DevToolsInterface {
 
     export type EntryPreview = { key?: ObjectPreview; value: ObjectPreview }
     /** Object property descriptor. */
-    export type PropertyDescriptor = { name: string; value?: RemoteObject; writable?: boolean; get?: RemoteObject; set?: RemoteObject; configurable: boolean; enumerable: boolean; wasThrown?: boolean; isOwn?: boolean; symbol?: RemoteObject }
+    export type PropertyDescriptor = {
+      name: string
+      value?: RemoteObject
+      writable?: boolean
+      get?: RemoteObject
+      set?: RemoteObject
+      configurable: boolean
+      enumerable: boolean
+      wasThrown?: boolean
+      isOwn?: boolean
+      symbol?: RemoteObject
+    }
     /** Object internal property descriptor. This property isn't normally visible in JavaScript code. */
     export type InternalPropertyDescriptor = { name: string; value?: RemoteObject }
     /** Object private field descriptor. */
@@ -2225,7 +2965,12 @@ export namespace DevToolsInterface {
     /** Id of an execution context. */
     export type ExecutionContextId = number
     /** Description of an isolated world. */
-    export type ExecutionContextDescription = { id: ExecutionContextId; origin: string; name: string; auxData?: { [key: string]: any } }
+    export type ExecutionContextDescription = {
+      id: ExecutionContextId
+      origin: string
+      name: string
+      auxData?: { [key: string]: any }
+    }
     /** Detailed information about exception (or error) that was thrown during script compilation or execution. */
     export type ExceptionDetails = {
       exceptionId: number
@@ -2243,16 +2988,45 @@ export namespace DevToolsInterface {
     /** Number of milliseconds. */
     export type TimeDelta = number
     /** Stack entry for runtime errors and assertions. */
-    export type CallFrame = { functionName: string; scriptId: ScriptId; url: string; lineNumber: number; columnNumber: number }
+    export type CallFrame = {
+      functionName: string
+      scriptId: ScriptId
+      url: string
+      lineNumber: number
+      columnNumber: number
+    }
     /** Call frames for assertions or error messages. */
-    export type StackTrace = { description?: string; callFrames: CallFrame[]; parent?: StackTrace; parentId?: StackTraceId }
+    export type StackTrace = {
+      description?: string
+      callFrames: CallFrame[]
+      parent?: StackTrace
+      parentId?: StackTraceId
+    }
     /** Unique identifier of current debugger. */
     export type UniqueDebuggerId = string
     /** If `debuggerId` is set stack trace comes from another debugger and can be resolved there. This allows to track cross-debugger calls. See `Runtime.StackTrace` and `Debugger.paused` for usages. */
     export type StackTraceId = { id: string; debuggerId?: UniqueDebuggerId }
     export type BindingCalledEvent = { name: string; payload: string; executionContextId: ExecutionContextId }
     export type ConsoleAPICalledEvent = {
-      type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd'
+      type:
+        | 'log'
+        | 'debug'
+        | 'info'
+        | 'error'
+        | 'warning'
+        | 'dir'
+        | 'dirxml'
+        | 'table'
+        | 'trace'
+        | 'clear'
+        | 'startGroup'
+        | 'startGroupCollapsed'
+        | 'endGroup'
+        | 'assert'
+        | 'profile'
+        | 'profileEnd'
+        | 'count'
+        | 'timeEnd'
       args: RemoteObject[]
       executionContextId: ExecutionContextId
       timestamp: Timestamp
@@ -2265,7 +3039,11 @@ export namespace DevToolsInterface {
     export type ExecutionContextDestroyedEvent = { executionContextId: ExecutionContextId }
     export type ExecutionContextsClearedEvent = { [key: string]: any }
     export type InspectRequestedEvent = { object: RemoteObject; hints: { [key: string]: any } }
-    export type AwaitPromiseRequest = { promiseObjectId: RemoteObjectId; returnByValue?: boolean; generatePreview?: boolean }
+    export type AwaitPromiseRequest = {
+      promiseObjectId: RemoteObjectId
+      returnByValue?: boolean
+      generatePreview?: boolean
+    }
     export type AwaitPromiseResponse = { result: RemoteObject; exceptionDetails?: ExceptionDetails }
     export type CallFunctionOnRequest = {
       functionDeclaration: string
@@ -2280,7 +3058,12 @@ export namespace DevToolsInterface {
       objectGroup?: string
     }
     export type CallFunctionOnResponse = { result: RemoteObject; exceptionDetails?: ExceptionDetails }
-    export type CompileScriptRequest = { expression: string; sourceURL: string; persistScript: boolean; executionContextId?: ExecutionContextId }
+    export type CompileScriptRequest = {
+      expression: string
+      sourceURL: string
+      persistScript: boolean
+      executionContextId?: ExecutionContextId
+    }
     export type CompileScriptResponse = { scriptId?: ScriptId; exceptionDetails?: ExceptionDetails }
     export type DisableRequest = {}
     export type DisableResponse = {}
@@ -2306,8 +3089,18 @@ export namespace DevToolsInterface {
     export type GetIsolateIdResponse = { id: string }
     export type GetHeapUsageRequest = {}
     export type GetHeapUsageResponse = { usedSize: number; totalSize: number }
-    export type GetPropertiesRequest = { objectId: RemoteObjectId; ownProperties?: boolean; accessorPropertiesOnly?: boolean; generatePreview?: boolean }
-    export type GetPropertiesResponse = { result: PropertyDescriptor[]; internalProperties?: InternalPropertyDescriptor[]; privateProperties?: PrivatePropertyDescriptor[]; exceptionDetails?: ExceptionDetails }
+    export type GetPropertiesRequest = {
+      objectId: RemoteObjectId
+      ownProperties?: boolean
+      accessorPropertiesOnly?: boolean
+      generatePreview?: boolean
+    }
+    export type GetPropertiesResponse = {
+      result: PropertyDescriptor[]
+      internalProperties?: InternalPropertyDescriptor[]
+      privateProperties?: PrivatePropertyDescriptor[]
+      exceptionDetails?: ExceptionDetails
+    }
     export type GlobalLexicalScopeNamesRequest = { executionContextId?: ExecutionContextId }
     export type GlobalLexicalScopeNamesResponse = { names: string[] }
     export type QueryObjectsRequest = { prototypeObjectId: RemoteObjectId; objectGroup?: string }
@@ -3686,7 +4479,9 @@ export namespace DevToolsInterface {
       return this.adapter.call('Network.getResponseBodyForInterception', request)
     }
     /** Returns a handle to the stream representing the response body. Note that after this command, the intercepted request can't be continued as is -- you either need to cancel it or to provide the response body. The stream only supports sequential read, IO.read will fail if the position is specified. */
-    public takeResponseBodyForInterceptionAsStream(request: Network.TakeResponseBodyForInterceptionAsStreamRequest): Promise<Network.TakeResponseBodyForInterceptionAsStreamResponse> {
+    public takeResponseBodyForInterceptionAsStream(
+      request: Network.TakeResponseBodyForInterceptionAsStreamRequest,
+    ): Promise<Network.TakeResponseBodyForInterceptionAsStreamResponse> {
       return this.adapter.call('Network.takeResponseBodyForInterceptionAsStream', request)
     }
     /** This method sends a new XMLHttpRequest which is identical to the original one. The following parameters should be identical: method, url, async, request body, extra headers, withCredentials attribute, user, password. */

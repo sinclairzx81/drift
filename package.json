@@ -1,7 +1,7 @@
 {
   "name": "@sinclair/drift",
   "description": "Run Chrome from the Terminal",
-  "version": "0.8.43",
+  "version": "0.8.44",
   "author": "sinclairzx81",
   "keywords": [
     "chrome",

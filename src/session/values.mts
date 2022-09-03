@@ -74,7 +74,11 @@ export class ValueResolver {
   // ---------------------------------------------------------------------------------------------
 
   async #resolveProperties(object: DevToolsInterface.Runtime.RemoteObject, depth: number): Promise<Array<[DevToolsInterface.Runtime.PropertyDescriptor, any]>> {
-    const response = await this.#devtools.Runtime.getProperties({ objectId: object.objectId!, ownProperties: true, generatePreview: true })
+    const response = await this.#devtools.Runtime.getProperties({
+      objectId: object.objectId!,
+      ownProperties: true,
+      generatePreview: true,
+    })
     if (!response || !response.result) return []
     return Promise.all(
       response.result.map(async (property: any) => {

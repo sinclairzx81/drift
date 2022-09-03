@@ -18,7 +18,25 @@
           "id": "AXValueType",
           "description": "Enum of possible property types.",
           "type": "string",
-          "enum": ["boolean", "tristate", "booleanOrUndefined", "idref", "idrefList", "integer", "node", "nodeList", "number", "string", "computedString", "token", "tokenList", "domRelation", "role", "internalRole", "valueUndefined"]
+          "enum": [
+            "boolean",
+            "tristate",
+            "booleanOrUndefined",
+            "idref",
+            "idrefList",
+            "integer",
+            "node",
+            "nodeList",
+            "number",
+            "string",
+            "computedString",
+            "token",
+            "tokenList",
+            "domRelation",
+            "role",
+            "internalRole",
+            "valueUndefined"
+          ]
         },
         {
           "id": "AXValueSourceType",
@@ -7661,7 +7679,21 @@
               "name": "source",
               "description": "Log entry source.",
               "type": "string",
-              "enum": ["xml", "javascript", "network", "storage", "appcache", "rendering", "security", "deprecation", "worker", "violation", "intervention", "recommendation", "other"]
+              "enum": [
+                "xml",
+                "javascript",
+                "network",
+                "storage",
+                "appcache",
+                "rendering",
+                "security",
+                "deprecation",
+                "worker",
+                "violation",
+                "intervention",
+                "recommendation",
+                "other"
+              ]
             },
             {
               "name": "level",
@@ -7979,7 +8011,24 @@
           "id": "ResourceType",
           "description": "Resource type as it was perceived by the rendering engine.",
           "type": "string",
-          "enum": ["Document", "Stylesheet", "Image", "Media", "Font", "Script", "TextTrack", "XHR", "Fetch", "EventSource", "WebSocket", "Manifest", "SignedExchange", "Ping", "CSPViolationReport", "Other"]
+          "enum": [
+            "Document",
+            "Stylesheet",
+            "Image",
+            "Media",
+            "Font",
+            "Script",
+            "TextTrack",
+            "XHR",
+            "Fetch",
+            "EventSource",
+            "WebSocket",
+            "Manifest",
+            "SignedExchange",
+            "Ping",
+            "CSPViolationReport",
+            "Other"
+          ]
         },
         {
           "id": "LoaderId",
@@ -8194,7 +8243,16 @@
               "name": "referrerPolicy",
               "description": "The referrer policy of the request, as defined in https://www.w3.org/TR/referrer-policy/",
               "type": "string",
-              "enum": ["unsafe-url", "no-referrer-when-downgrade", "no-referrer", "origin", "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin"]
+              "enum": [
+                "unsafe-url",
+                "no-referrer-when-downgrade",
+                "no-referrer",
+                "origin",
+                "origin-when-cross-origin",
+                "same-origin",
+                "strict-origin",
+                "strict-origin-when-cross-origin"
+              ]
             },
             {
               "name": "isLinkPreload",
@@ -10614,7 +10672,21 @@
           "id": "TransitionType",
           "description": "Transition type.",
           "type": "string",
-          "enum": ["link", "typed", "address_bar", "auto_bookmark", "auto_subframe", "manual_subframe", "generated", "auto_toplevel", "form_submit", "reload", "keyword", "keyword_generated", "other"]
+          "enum": [
+            "link",
+            "typed",
+            "address_bar",
+            "auto_bookmark",
+            "auto_subframe",
+            "manual_subframe",
+            "generated",
+            "auto_toplevel",
+            "form_submit",
+            "reload",
+            "keyword",
+            "keyword_generated",
+            "other"
+          ]
         },
         {
           "id": "NavigationEntry",
@@ -16625,7 +16697,25 @@
               "description": "Object subtype hint. Specified for `object` type values only.",
               "optional": true,
               "type": "string",
-              "enum": ["array", "null", "node", "regexp", "date", "map", "set", "weakmap", "weakset", "iterator", "generator", "error", "proxy", "promise", "typedarray", "arraybuffer", "dataview"]
+              "enum": [
+                "array",
+                "null",
+                "node",
+                "regexp",
+                "date",
+                "map",
+                "set",
+                "weakmap",
+                "weakset",
+                "iterator",
+                "generator",
+                "error",
+                "proxy",
+                "promise",
+                "typedarray",
+                "arraybuffer",
+                "dataview"
+              ]
             },
             {
               "name": "className",
@@ -17693,7 +17783,26 @@
               "name": "type",
               "description": "Type of the call.",
               "type": "string",
-              "enum": ["log", "debug", "info", "error", "warning", "dir", "dirxml", "table", "trace", "clear", "startGroup", "startGroupCollapsed", "endGroup", "assert", "profile", "profileEnd", "count", "timeEnd"]
+              "enum": [
+                "log",
+                "debug",
+                "info",
+                "error",
+                "warning",
+                "dir",
+                "dirxml",
+                "table",
+                "trace",
+                "clear",
+                "startGroup",
+                "startGroupCollapsed",
+                "endGroup",
+                "assert",
+                "profile",
+                "profileEnd",
+                "count",
+                "timeEnd"
+              ]
             },
             {
               "name": "args",
