@@ -142,21 +142,21 @@ Commands:
   ${Color.Gray('css')}         ${Color.Blue('path')}        Add style to current page
   ${Color.Gray('save')}        ${Color.Blue('path')}        Save current page as png, jpeg or pdf format
   ${Color.Gray('user')}        ${Color.Blue('path')}        Set chrome user data directory
+  ${Color.Gray('args')}        ${Color.Blue('[...argv]')}   Adds command line args to Drift.argv
+  ${Color.Gray('watch')}       ${Color.Blue('[...path]')}   Reload on save for run, css and additional paths
   ${Color.Gray('position')}    ${Color.Blue('x y')}         Set desktop window position
   ${Color.Gray('size')}        ${Color.Blue('w h')}         Set desktop window size
   ${Color.Gray('click')}       ${Color.Blue('x y')}         Send mousedown event current page
   ${Color.Gray('wait')}        ${Color.Blue('ms')}          Wait for milliseconds to elapse
-  ${Color.Gray('args')}        ${Color.Blue('args')}        Adds args to window.args
   ${Color.Gray('reload')}      ${Color.Blue('')}            Reload the current page
   ${Color.Gray('close')}       ${Color.Blue('')}            Close drift
 
 Flags:
-
+  
   ${Color.Gray('window')}      ${Color.Blue('')}            Open chrome with window
   ${Color.Gray('devtools')}    ${Color.Blue('')}            Open chrome with devtools
   ${Color.Gray('incognto')}    ${Color.Blue('')}            Open chrome with incognito
   ${Color.Gray('verbose')}     ${Color.Blue('')}            Send chrome logs to stdout
-  ${Color.Gray('watch')}       ${Color.Blue('')}            Reload page on file change
   ${Color.Gray('fail')}        ${Color.Blue('')}            Close drift on exceptions
   ${Color.Gray('help')}        ${Color.Blue('')}            Show this help message
 
