@@ -39,7 +39,7 @@ export class Watch {
   constructor() {
     this.#watchers = []
     this.#events = new Events()
-    this.#debounce = new Debounce(200, true)
+    this.#debounce = new Debounce(200, false)
   }
 
   public on(event: 'change', handler: EventHandler<void>): EventListener
