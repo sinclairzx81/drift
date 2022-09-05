@@ -121,7 +121,7 @@ export class Session {
       return this.#handleError(result.exceptionDetails)
     }
   }
-
+  
   public async evaluate(expression: string): Promise<unknown> {
     await this.#ready.wait()
 
@@ -363,6 +363,7 @@ export class Session {
     }
     // Augment window.* with drift commands
     const expression = [
+      'window.close = function(code = 0) { console.log("<<close>>", code) }',
       'window.Drift = {',
       `  args:     ${this.#encodeArgs()},`,
       '  wait:     function(ms = 0)   { return new Promise(resolve => setTimeout(resolve, ms)) },',
