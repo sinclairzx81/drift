@@ -48,24 +48,7 @@ export namespace Compiler {
       entryPoints: [path],
       plugins: [Plugin],
       bundle: true,
-      platform: 'node',
-      format: 'esm',
-      write: false,
-      outdir: 'out',
-    })
-    return result.outputFiles ? result.outputFiles[0].text : ''
-  }
-}
-
-// ------------------------------------------------------------
-// Original
-// ------------------------------------------------------------
-export namespace Build {
-  export function build(path: string): string {
-    const result = esbuild.buildSync({
-      entryPoints: [path],
-      bundle: true,
-      platform: 'node',
+      platform: 'browser',
       format: 'esm',
       write: false,
       outdir: 'out',
