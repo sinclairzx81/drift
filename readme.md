@@ -121,10 +121,10 @@ $ drift url https://github.com wait 4000 save screenshot.png
 
 ## Testing
 
-When testing browser code in CI environments, call `Drift.close(...)` within the code to terminate the process with a non zero exit code on errors. CI environments will interpret this is a failed process.
+When testing browser code in CI environments, call `close(...)` to terminate the process with a non zero exit code on error. CI environments will interpret this is a failed process.
 
 ```typescript
-test().then(() => Drift.close(0)).catch(() => Drift.close(1))
+test().then(() => close(0)).catch(() => close(1))
 ```
 
 Which can be run on CI environments with the following.
