@@ -328,5 +328,3 @@ repl.enable()
 for await (const input of repl) {
   await session.evaluate(input)
 }
-
-await close(browser, watch, 0)
